@@ -1,0 +1,205 @@
+---
+title: "Analyzing Targeted Bisulfite Sequencing data with SOMNiBUS"
+author:
+- name: Kaiqiong Zhao
+  affiliation: Department of Epidemiology, Biostatistics and Occupational Health, McGill University, Montreal, Canada
+date: "`r BiocStyle::doc_date()`" 
+output: 
+   BiocStyle::html_document: 
+    highlight: pygments 
+    toc_float: true 
+    fig_width: 10
+    keep_md: true
+    fig_caption: yes
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{Analyzing Targeted Bisulfite Sequencing data with SOMNiBUS}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+# Introduction
+
+**SOMNiBUS** aims to analyze count-based methylation data on predefined genomic regions, such as those obtained by targeted sequencing, and thus to identify differentially methylated regions (DMRs) that are associated with phenotypes or traits.
+
+Major advantages of **SOMNiBUS**
+
+- Take account of experimental errors
+- Allow for multiple covariates, such as proportions of different cell types.
+- Enable estimating smooth covariate effects and assessing statistical significance of methylation regions 
+
+For a more comprehensive introduction of the **SOMNiBUS** approach, please read 
+
+> Zhao, K., Oualkacha, K., Lakhal-Chaieb, L., Klein, K., Hudson, M., and Greenwood, C.M.T. 
+> A novel statistical method for modeling covariate effects in bisulfite sequencing derived measures of DNA methylation 
+> *a journal*, 2019. 
+
+# Installation
+
+Currently, the software package can be installed using the following code (or from github)
+```{r}
+devtools::document("/mnt/GREENWOOD_JBOD1/GREENWOOD_BACKUP/home/kaiqiong.zhao/Packages/SOMNiBUS")
+devtools::load_all("/mnt/GREENWOOD_JBOD1/GREENWOOD_BACKUP/home/kaiqiong.zhao/Packages/SOMNiBUS")
+```
+
+# Data example
+
+Throughout this vignette, we illustrate the **SOMNiBUS** approach with analysis of a targeted region from a rheumatoid arthritis (RA) study. See `help(RAdat)` for further detials. In this example, the phenotype of major interest is the RA status (coded as `RA`) and the adjusting variables is the cell type status (coded as `T_cell`) which is binary because the experiment used cell-type-separated blood samples. We will refer to both `RA` and `T_cell` as *covariates*.
+We are going to use the package `SOMNiBUS` to investigate the methylation patterns in this region and study association with RA status and cell type. 
+```{r}
+data(RAdat)
+```
+
+# Input data
+
+Currently, we require a matrix-type input of the methylated reads (`Meth_Counts`) and the read depth (`Total_Counts`) for CpG sites of each sample. Inputs of the other format, such as Bismark or a `BSeq` object from the **bsseq** package, will be incorporated in the future. 
+
+Before use the package, the input data matrix (or data frame) should be formatted  such that  
+
+1. each row represents a CpG site
+2. the first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID)
+3. the covariate, such as disease status or cell type composition are listed in column 5 and onwards.
+
+An example of the input data
+
+```{r}
+head(RAdat)
+```
+
+## Filtering CpGs and samples
+
+To better use the information in the methylation dataset, on one hand, **SOMNiBUS** uses the smoothing technique (regression spline) to borrow information from the nearby CpG sites; on the other hand, our approach uses regression-based modelling to take advantage of information contained across samples. Therefore, this algorithm does not require filtering out the CpG sites that have methylation levels measured only in a small part of the samples, or the samples that have overall poor read-depths and many missing values. The analysis of DMRs only requires filtering out
+
+- individual CpGs that have zero read 
+- samples that have missing values in any of the covariates of interests (i.e `T_cell` and `RA` in the data set `RAdat`)
+
+```{r}
+RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0,])
+```
+
+## Adjusting for covariates and adding interactions
+
+- we currently only accept numeric input for the covariates used to fit the model. we recommend that first transform your categorical variables into appropriate dummy variables
+- interaction terms can be added in the analysis model. To do that, the program requires that users add another columns of covariate in the input data set calculated as the product of two existing covaraites whose interacton are of interest.
+
+
+
+# Analysis
+
+The smooth covariate estimation and the region-wise test steps are wrapped into a function `BSMethEM`. See `help(BSMethEM)` for more detials. We can use the following code to run the analysis with both covariates `T_cell` and `RA`.
+
+```{r}
+out = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9)
+```
+
+Or, we can use the argument `covs` to specify that we only want covariate `T_cell` in the model.
+
+```{r, eval = F}
+out.ctype = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9, covs = "T_cell")
+```
+
+## Error rates $p_0$ and $p_1$
+
+In the example data set, we have cell type separated samples. The error rates for individual samples can be estimated by a E-M algorithm [@lakhal2017smoothed] using package `SmoothMSC`. The error rates 
+$p_0 = 0.003$ and $p_1 = 0.9$ were estimated as the average incomplete or over conversion rates in the provided data.
+
+For experiments with samples of a mixture cell types, user could consider the following ways to specifying error rates $p_0$ and $1-p_1$.
+
+- If users have conducted experiments for measuring error/conversion rates, such as adding spike-in sequences of DNA that are known in advance to be methylated or unmethylated into the bisulfite sequencing procedure, they can use the measured error rates for the input of `p0` and `p1`
+- One can also use the error rates (imcomplete and over conversion rates) that have been previous reported in the literature. 
+- Another option is to use our default values.
+
+##  Basis dimensions: `n.k`: 
+
+Argument `n.k` in the `BSMethEM` is the dimension of the basis expansion for smooth covariate effects. 
+The exact number of `n.k` used for each functional paramters is not crucial because it only sets an upper bound. We recommend choose the basis dimention approximatly as number of unique CpGs in the region divided by 20.
+
+# Results
+
+## Result from the regional zero effect test
+
+```{r}
+out$reg.out
+```
+
+## Estimations of the smooth covariate effects
+
+
+
+```{r , fig.cap = "The estimates (solid red lines) and 95% pointwise confidence intervals (dashed red lines) of the intercept, the smooth effect of cell type and RA on methylation levels. ", fig.height= 4, fig.width=9}
+plot_BSMethEM(out)
+```
+
+
+We can also force the covariate effect plots in  the same vertical range by specifying `same.range= T`.
+
+```{r , fig.cap = "The estimates (solid red lines) and 95% pointwise confidence intervals (dashed red lines) of the intercept, the smooth effect of cell type and RA on methylation levels. (Same ranges of Y axis.)", fig.height= 4, fig.width=9}
+plot_BSMethEM(out, same.range = T)
+```
+
+## Predicted methylation levels
+
+First, construct a new data set for prediction. Make sure that the Position in the new data set is the same as the original input `data` in `BSMethEM`.
+
+```{r}
+pos <- out$uni.pos; my.p <- length(pos)
+newdata <- expand.grid( pos, c(0,1), c(0,1))
+colnames(newdata) <- c("Position", "T_cell", "RA")
+```
+
+The predicted methylation levels can be calculated from function `pred_BSMethEM`
+
+```{r}
+my.pred <- pred_BSMethEM(out, newdata, type = "link.scale")
+```
+
+```{r,  fig.height= 6, fig.width=6, fig.cap = "The predicted methylation levels in the logit scale for the 4 groups of samples with different disease and cell type status."}
+plot(pos[order(pos)], (my.pred[(newdata$RA==0 & newdata$T_cell == 0)])[order(pos)], type="l", xlab="Position",
+     ylab="Predicted methylation levels (in logit scale)", col="blue", main="Logit scale", ylim = c(min(my.pred), max(my.pred)), lwd = 2)
+lines(pos[order(pos)], (my.pred[(newdata$RA==0 & newdata$T_cell == 1)])[order(pos)], type="l", xlab="Position",
+      ylab="predicted", col="green", lwd = 2)
+lines(pos[order(pos)], (my.pred[(newdata$RA==1 & newdata$T_cell == 0)])[order(pos)], type="l", xlab="Position",
+      ylab="predicted",col="red", lwd = 2)
+lines(pos[order(pos)], (my.pred[(newdata$RA==1 & newdata$T_cell == 1)])[order(pos)], type="l", xlab="Position",
+      ylab="predicted", col="black", lwd = 2)
+legend("top",c("RA MONO","RA TCELL","CTRL MONO","CTRL TCELL"), 
+       fill=c("red","black","blue","green"),
+       title = "Disease and Cell Type", bty="n", cex=0.8)
+```
+
+```{r, fig.height= 6, fig.width=6 , fig.cap = "The predicted methylation levels  proportion scale (right) for the 4 groups of samples with different disease and cell type status."}
+my.pred <- pred_BSMethEM(out, newdata, type = "proportion" )
+plot(pos[order(pos)], (my.pred[(newdata$RA==0 & newdata$T_cell == 0)])[order(pos)], type="l", xlab="Position",
+     ylab="Predicted methylation levels (in logit scale)", col="blue", main="Proportion scale", ylim = c(min(my.pred), max(my.pred)), lwd = 2)
+lines(pos[order(pos)], (my.pred[(newdata$RA==0 & newdata$T_cell== 1)])[order(pos)], type="l", xlab="Position",
+      ylab="predicted", col="green", lwd = 2)
+lines(pos[order(pos)], (my.pred[(newdata$RA==1 & newdata$T_cell == 0)])[order(pos)], type="l", xlab="Position",
+      ylab="predicted",col="red", lwd = 2)
+lines(pos[order(pos)], (my.pred[(newdata$RA==1 & newdata$T_cell == 1)])[order(pos)], type="l", xlab="Position",
+      ylab="predicted", col="black", lwd = 2)
+legend("top",c("RA MONO","RA TCELL","CTRL MONO","CTRL TCELL"), 
+       fill=c("red","black","blue","green"),
+       title = "Disease and Cell Type", bty="n", cex=0.8)
+
+```
+
+
+
+# Session info {.unnumbered}
+
+Here is the output of `sessionInfo()` on the system on which this document was 
+compiled running pandoc `r rmarkdown::pandoc_version()`: 
+
+```{r sessionInfo, echo=FALSE} 
+ sessionInfo() 
+``` 
+
+# Reference {.unnumbered}
