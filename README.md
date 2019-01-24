@@ -24,7 +24,7 @@ out = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9) # run the ana
 plot_BSMethEM(out) # plot the smooth covariate effect
 ```
 <p align="center">
-  <embed src="~/inst/Figs/BANK1.pdf" height="800px"/>
+  <embed src="/inst/Figs/BANK1.pdf" height="800px"/>
   </p>
 
 See the vignette for detailed information on how to use the package.
