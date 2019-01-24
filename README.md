@@ -23,9 +23,7 @@ RAdat.f = na.omit(RAdat[RAdat$Total_Counts != 0,]) # filter the individual CpG s
 out = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9) # run the analysis
 plot_BSMethEM(out) # plot the smooth covariate effect
 ```
-<p align="center">
-  <embed src="/inst/Figs/BANK1.pdf" height="800px"/>
-  </p>
+![](inst/Figs/BANK1.pdf)
 
 See the vignette for detailed information on how to use the package.
 
