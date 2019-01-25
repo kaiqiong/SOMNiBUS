@@ -9,7 +9,7 @@ The package **SOMNiBUS** enable users to estimate smooth covariate effects and t
 
 You can install the development version of `SOMNiBUS` from GitHub with
 
-```
+```r
 if(!require("pacman")) install.packages("pacman")
 pacman::p_load_gh("kaiqiong/SOMNiBUS")
 ```
@@ -18,20 +18,16 @@ pacman::p_load_gh("kaiqiong/SOMNiBUS")
 
 An example of how to use the fun
 
-```
+```r
 RAdat.f = na.omit(RAdat[RAdat$Total_Counts != 0,]) # filter the individual CpG sites with zero read-depth
 out = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9) # run the analysis
 plot_BSMethEM(out) # plot the smooth covariate effect
 ```
-<<<<<<< HEAD
 
-=======
->>>>>>> e6879bd9fbdb956911be0f40bacd52d65d4f5943
-![](inst/Figs/BANK1.pdf)
+![](inst/Figs/BANK1.png)
 
 See the vignette for detailed information on how to use the package.
 
-## Acknowledgments
 
 ## Learn more
 
