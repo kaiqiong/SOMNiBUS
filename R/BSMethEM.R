@@ -32,21 +32,25 @@
 #' @author  Kaiqiong Zhao
 #' @seealso  \link[mgcv]{gam}
 #' @examples #------------------------------------------------------------#
+#' data(RAdat)
 #' head(RAdat)
 #' RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0,])
 #' out <- BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003307034, p1 = 0.9,
-#' epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail=F)
+#' epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail=FALSE)
 #' @importFrom mgcv gam
 #' @importFrom mgcv predict.gam
 #' @importFrom mgcv model.matrix.gam
 #' @importFrom mgcv s
 #' @importFrom Matrix bdiag
+#' @importFrom stats as.formula binomial pchisq rbinom rnorm
 #' @export
-BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, epsilon = 10^(-6),  epsilon.lambda = 10^(-3), maxStep = 200,  detail=F, binom.link = "logit",method="REML", covs = NULL){
+BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, epsilon = 10^(-6),  epsilon.lambda = 10^(-3), maxStep = 200,  detail=FALSE, binom.link = "logit",method="REML", covs = NULL){
 
   n.k <<-n.k # an error of 'n.k is not found' would appear if without this golable environment assignment; so I save n.k in a parent scop
   data <- data.frame(data)
-  colnames(data)[colnames(data) == c("Meth_Counts", "Total_Counts", "Position")] <- c("Y", "X", "Posit")
+
+  if(is.factor(data$Position) ) stop ("The Position in the data set should be numeric other than a factor")
+  colnames(data)[match(c("Meth_Counts", "Total_Counts", "Position") ,colnames(data)) ] <- c("Y", "X", "Posit")
 
   if(is.null(covs)){
     Z <- as.matrix(data[,-(1:4)], ncol = ncol(data)-4)
