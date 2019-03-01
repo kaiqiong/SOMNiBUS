@@ -16,7 +16,7 @@ devtools::install_github("kaiqiong/SOMNiBUS", build_vignettes = T)
 
 ## An example for getting started
 
-An example of how to use the package to estimate smooth covariate effects
+An example of how to use the package:
 
 ```r
 RAdat.f = na.omit(RAdat[RAdat$Total_Counts != 0,]) # filter the individual CpG sites with zero read-depth
@@ -26,7 +26,7 @@ plot_BSMethEM(out) # plot the smooth covariate effect
 
 ![](inst/Figs/BANK1.png)
 
-See the vignette for detailed information on how to use the package.
+See the vignette for more detailed information.
 
 ```r
 vignette("SOMNiBUS")
@@ -38,7 +38,7 @@ More details of the **SOMNiBUS** method can be found in the manuscript
 
 > Zhao, K., Oualkacha, K., Lakhal-Chaieb, L., Klein, K., Hudson, M., and Greenwood, C.M.T. 
 > A novel statistical method for modeling covariate effects in bisulfite sequencing derived measures of DNA methylation 
-> *a journal*, 2019.
+> *submitted*, 2019.
 
 
 

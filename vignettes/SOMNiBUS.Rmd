@@ -12,6 +12,7 @@ output:
     keep_md: true
     fig_caption: yes
 bibliography: bibliography.bib
+
 vignette: >
   %\VignetteIndexEntry{Analyzing Targeted Bisulfite Sequencing data with SOMNiBUS}
   %\VignetteEngine{knitr::rmarkdown}
@@ -40,7 +41,7 @@ For a more comprehensive introduction of the **SOMNiBUS** approach, please read
 
 > Zhao, K., Oualkacha, K., Lakhal-Chaieb, L., Klein, K., Hudson, M., and Greenwood, C.M.T. 
 > A novel statistical method for modeling covariate effects in bisulfite sequencing derived measures of DNA methylation 
-> *a journal*, 2019. 
+> *submitted*, 2019. 
 
 # Installation
 
@@ -55,11 +56,11 @@ devtools::load_all("/mnt/GREENWOOD_JBOD1/GREENWOOD_BACKUP/home/kaiqiong.zhao/Pac
 pacman::p_load_gh("kaiqiong/SOMNiBUS")
 ```
 
-Make sure run `install.packages("pacman")` if you have not installed the `pacman` package.
+Make sure to run `install.packages("pacman")` if you have not installed the `pacman` package.
 
 # Data example
 
-Throughout this vignette, we illustrate the **SOMNiBUS** approach with analysis of a targeted region from a rheumatoid arthritis (RA) study. See `help(RAdat)` for further detials. In this example, the phenotype of major interest is the RA status (coded as `RA`) and the adjusting variables is the cell type status (coded as `T_cell`) which is binary because the experiment used cell-type-separated blood samples. We will refer to both `RA` and `T_cell` as *covariates*.
+Throughout this vignette, we illustrate the **SOMNiBUS** approach with analysis of a targeted region from a rheumatoid arthritis (RA) study. See `help(RAdat)` for further details. In this example, the phenotype of major interest is the RA status (coded as `RA`) and the adjusting variable is the cell type status (coded as `T_cell`) which is binary because the experiment used cell-type-separated blood samples, and methylation profiles were characterized for both T-cells and Monocytes. We will refer to both `RA` and `T_cell` as *covariates*.  
 We are going to use the package `SOMNiBUS` to investigate the methylation patterns in this region and study association with RA status and cell type. 
 ```{r}
 data(RAdat)
@@ -67,15 +68,15 @@ data(RAdat)
 
 # Input data
 
-Currently, we require a matrix-type input of the methylated reads (`Meth_Counts`) and the read depth (`Total_Counts`) for CpG sites of each sample. Inputs of the other format, such as Bismark or a `BSeq` object from the **bsseq** package, will be incorporated in the future. 
+Currently, we require a matrix-type input of the methylated reads (`Meth_Counts`) and the read depth (`Total_Counts`) for CpG sites of each sample. Inputs in another other format, such as Bismark or a `BSeq` object from the **bsseq** package, will be incorporated in the future. 
 
-Before use the package, the input data matrix (or data frame) should be formatted  such that  
+Before using the package, the input data matrix (or data frame) should be formatted  such that:  
 
 1. each row represents a CpG site
 2. the first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID)
-3. the covariate, such as disease status or cell type composition are listed in column 5 and onwards.
+3. the covariate(s), such as disease status or cell type composition are listed in column 5 and onwards.
 
-An example of the input data
+An example of the input data:
 
 ```{r}
 head(RAdat)
@@ -83,10 +84,10 @@ head(RAdat)
 
 ## Filtering CpGs and samples
 
-To better use the information in the methylation dataset, on one hand, **SOMNiBUS** uses the smoothing technique (regression spline) to borrow information from the nearby CpG sites; on the other hand, our approach uses regression-based modelling to take advantage of information contained across samples. Therefore, this algorithm does not require filtering out the CpG sites that have methylation levels measured only in a small part of the samples, or the samples that have overall poor read-depths and many missing values. The analysis of DMRs only requires filtering out
+To better use the information in the methylation dataset, on one hand, **SOMNiBUS** uses a smoothing technique (regression splines) to borrow information from the nearby CpG sites; on the other hand, our approach uses regression-based modelling to take advantage of information contained across samples. Therefore, this algorithm does not require filtering out the CpG sites that have methylation levels measured only in a small part of the samples, or the samples that have overall poor read-depths and many missing values. Our analysis of differentially methylated regions (DMRs) requires filtering only on the following two conditions:   
 
-- individual CpGs that have zero read 
-- samples that have missing values in any of the covariates of interests (i.e `T_cell` and `RA` in the data set `RAdat`)
+- individual CpGs that have zero reads in a particular sample
+- samples that have missing values in any of the covariates of interest (i.e missing values for `T_cell` or `RA` in the data set `RAdat`)
 
 ```{r}
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0,])
@@ -95,19 +96,17 @@ RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0,])
 ## Adjusting for covariates and adding interactions
 
 - we currently only accept numeric input for the covariates used to fit the model. we recommend that first transform your categorical variables into appropriate dummy variables
-- interaction terms can be added in the analysis model. To do that, the program requires that users add another columns of covariate in the input data set calculated as the product of two existing covaraites whose interacton are of interest.
-
-
+- interaction terms can be added in the analysis model. To do that, the program requires that users add another column of covariate values into the input data set calculated as the product of two existing covariates whose interaction is of interest.
 
 # Analysis
 
-The smooth covariate estimation and the region-wise test steps are wrapped into a function `BSMethEM`. See `help(BSMethEM)` for more detials. We can use the following code to run the analysis with both covariates `T_cell` and `RA`.
+The smooth covariate estimation and the region-wise test steps are wrapped into a function `BSMethEM`. See `help(BSMethEM)` for more details. We can use the following code to run the analysis with both covariates `T_cell` and `RA`.
 
 ```{r}
 out = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9)
 ```
 
-Or, we can use the argument `covs` to specify that we only want covariate `T_cell` in the model.
+Or, we can use the argument `covs` to specify that we only want the covariate `T_cell` in the model.
 
 ```{r, eval = F}
 out.ctype = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9, covs = "T_cell")
@@ -115,29 +114,29 @@ out.ctype = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9, covs = 
 
 ## Error rates $p_0$ and $p_1$
 
-In the example data set, we have cell type separated samples. The error rates for individual samples can be estimated by a E-M algorithm [@lakhal2017smoothed] using package `SmoothMSC`. The error rates 
-$p_0 = 0.003$ and $p_1 = 0.9$ were estimated as the average incomplete or over conversion rates in the provided data. These two values coincide roughly with the incomplete and over conversion rates in a bisulfite sequencing experiment reported in @prochenka2015cautionary.
+In the example data set, we have cell type separated samples. The error rates for individual samples can be estimated by a E-M algorithm [@lakhal2017smoothed] using the package `SmoothMSC`. The error rate default values,
+$p_0 = 0.003$ and $p_1 = 0.9$, were estimated as the average incomplete ($p_0$) or over- conversion ($1-p_1$). These two estimated values coincide roughly with the incomplete and over conversion rates in a bisulfite sequencing experiment reported in @prochenka2015cautionary. 
 
-For experiments with samples of a mixture cell types, user could consider the following ways to specifying error rates $p_0$ and $1-p_1$.
+For experiments with samples from a tissue containing a mixture of cell types, the user could consider the following ways to specify the error rates $p_0$ and $1-p_1$.
 
 - If users have conducted experiments for measuring error/conversion rates, such as adding spike-in sequences of DNA that are known in advance to be methylated or unmethylated into the bisulfite sequencing procedure, they can use the measured error rates for the input of `p0` and `p1`
-- One can also use the error rates (imcomplete and over conversion rates) that have been previous reported in the literature. 
+- One can also use the error rates (incomplete and over conversion rates) that have been previous reported in the literature. 
 - Another option is to use our default values.
 
 ##  Basis dimensions: `n.k`: 
 
 Argument `n.k` in the `BSMethEM` is the dimension of the basis expansion for smooth covariate effects. 
-The exact number of `n.k` used for each functional paramters is not crucial because it only sets an upper bound. We recommend choose the basis dimention approximatly as number of unique CpGs in the region divided by 20.
+The exact number `n.k` used for each functional parameter is not crucial, because it only sets an upper bound. We recommend choosing a basis dimension approximately equal to the number of unique CpGs in the region divided by 20.
 
 # Results
 
-## Result from the regional zero effect test
+## Result from the region-wide test of zero effect of all covariates:
 
 ```{r}
 out$reg.out
 ```
 
-## Estimations of the smooth covariate effects
+## Estimation of the smooth covariate effects
 
 
 
@@ -146,7 +145,7 @@ plot_BSMethEM(out)
 ```
 
 
-We can also force the covariate effect plots in  the same vertical range by specifying `same.range= T`.
+We can also force the covariate effect plots to have the same vertical range, for all covariates, by specifying `same.range= T`.
 
 ```{r , fig.cap = "The estimates (solid red lines) and 95% pointwise confidence intervals (dashed red lines) of the intercept, the smooth effect of cell type and RA on methylation levels. (Same ranges of Y axis.)", fig.height= 4, fig.width=9}
 plot_BSMethEM(out, same.range = T)
