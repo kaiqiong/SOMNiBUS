@@ -30,7 +30,7 @@ BSMethSim(n, posit, theta.0, beta, random.eff = F, mu.e = 0,
 
 \item{Z}{numeric vector of length p for the covariate; currently, the covariate is the percentage of Cell type A (considering that the samples are composed of two cell types A and B); (Added on Feb 2018), Z can be a matrix; we allow for more than one covariates}
 
-\item{plot}{indicate whether plot the methylation level pi_ij for each sample.}
+\item{binom.link}{the link  function used for simulation}
 }
 \value{
 The function returns a list of following objects
@@ -46,12 +46,12 @@ Simulate Bisulfite sequencing data from a Generalized Additive Model with functi
 }
 \examples{
 #------------------------------------------------------------#
-#Generate functional parameter theta.0, position based from the 
+#Generate functional parameter theta.0, position based from the
 #real data set "Data_HHM" in the package SMSC
 #------------------------------------------------------------#
 library(SMSC)
 data("Data_HHM")
-y <- Data_HHM 
+y <- Data_HHM
 fit1 <- SMSC(y$Ccount, y$CT, y$position, method="KNN2")
 par(mfrow=c(1,1))
 plotSMSC(y$Ccount/y$CT, y$origin, y$position, fit1) # The methylation levels are stored in fit$pi
@@ -59,7 +59,7 @@ plot(y$position, fit1$pi, type="l", lwd=3)
 abline(v = 590000)
 abline(v = 700000)
 window.id <- which( y$position > 590000 & y$position <700000)
-# smooth.spline for the logit scale 
+# smooth.spline for the logit scale
 my.exp.y <- log(fit1$pi[window.id]/(1-fit1$pi[window.id]) )
 my.nknots = 5
 plot(y$position[window.id], my.exp.y, ylim = c(-4,8), main="Region of interest",
@@ -91,15 +91,15 @@ my.beta <- (my.t - min(my.t))/(max(my.t)- min(my.t)) * my.coef
 #-----------------------------------------------------------------#
 # Generate read covarage matrix my.X and Z the percentage of type A
 #-----------------------------------------------------------------#
-# Generate X (Read Covarage)---using the bootstrap 
+# Generate X (Read Covarage)---using the bootstrap
 my.X <- matrix(NA, nrow=my.n, ncol = length(pi.0))
 for ( i in 1:my.n){
  my.X[i,] <- sample(y$CT, size = length(pi.0), replace=T)
 }
 my.Z <- rbeta(my.n, shape1 = 2, shape2=2)
-my.data <- BSMethGammSim(n=my.n, posit=my.t, theta.0 = theta.0, beta=my.beta, sigma.ee = sigma.ee, 
+my.data <- BSMethGammSim(n=my.n, posit=my.t, theta.0 = theta.0, beta=my.beta, sigma.ee = sigma.ee,
                         X=my.X, Z = my.Z)
-my.data <- BSMethGammSim(n=my.n, posit=my.t, theta.0 = theta.0, beta=my.beta, sigma.ee = sigma.ee, 
+my.data <- BSMethGammSim(n=my.n, posit=my.t, theta.0 = theta.0, beta=my.beta, sigma.ee = sigma.ee,
                         X=my.X, Z = my.Z,random.eff = F)
 
 }

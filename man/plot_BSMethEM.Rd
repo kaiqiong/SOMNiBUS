@@ -12,8 +12,6 @@ plot_BSMethEM(BEM.obj, mfrow = NULL, same.range = F)
 \item{mfrow}{the plot parameters to specify the layout of each plot}
 
 \item{same.range}{specify whether the plots should be in the same vertical scale}
-
-\item{n.k}{a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the degrees of each functional parameters.}
 }
 \value{
 This function return a plot of smooth covariate effects and its pointwise confidence intervals

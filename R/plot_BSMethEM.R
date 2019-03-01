@@ -5,9 +5,9 @@
 #' @param BEM.obj an output object from function \code{BSMethEM}
 #' @param mfrow the plot parameters to specify the layout of each plot
 #' @param same.range specify whether the plots should be in the same vertical scale
-#' @param n.k a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the degrees of each functional parameters.
 #' @return This function return a plot of smooth covariate effects and its pointwise confidence intervals
 #' @author  Kaiqiong Zhao
+#' @importFrom graphics abline axis lines par plot
 #' @examples #------------------------------------------------------------#
 #' head(RAdat)
 #' RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0,])

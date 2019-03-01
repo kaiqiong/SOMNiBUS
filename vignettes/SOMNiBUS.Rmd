@@ -116,7 +116,7 @@ out.ctype = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9, covs = 
 ## Error rates $p_0$ and $p_1$
 
 In the example data set, we have cell type separated samples. The error rates for individual samples can be estimated by a E-M algorithm [@lakhal2017smoothed] using package `SmoothMSC`. The error rates 
-$p_0 = 0.003$ and $p_1 = 0.9$ were estimated as the average incomplete or over conversion rates in the provided data.
+$p_0 = 0.003$ and $p_1 = 0.9$ were estimated as the average incomplete or over conversion rates in the provided data. These two values coincide roughly with the incomplete and over conversion rates in a bisulfite sequencing experiment reported in @prochenka2015cautionary.
 
 For experiments with samples of a mixture cell types, user could consider the following ways to specifying error rates $p_0$ and $1-p_1$.
 

@@ -5,7 +5,7 @@
 \title{A smoothed-EM algorithm to estimate covariate effects and test regional association in Bisulfite Sequencing-derived methylation data}
 \usage{
 BSMethEM(data, n.k, p0 = 0.003, p1 = 0.9, epsilon = 10^(-6),
-  epsilon.lambda = 10^(-3), maxStep = 200, detail = F,
+  epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE,
   binom.link = "logit", method = "REML", covs = NULL)
 }
 \arguments{
@@ -56,10 +56,11 @@ The estimation is performed by an iterated EM algorithm. Each M step constitutes
 }
 \examples{
 #------------------------------------------------------------#
+data(RAdat)
 head(RAdat)
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0,])
 out <- BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003307034, p1 = 0.9,
-epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail=F)
+epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail=FALSE)
 }
 \seealso{
 \link[mgcv]{gam}

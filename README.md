@@ -5,18 +5,18 @@ Identifying disease-associated changes in DNA methylation can help us gain a bet
 The package **SOMNiBUS** enable users to estimate smooth covariate effects and to assess statistical significance of methylation regions.
 
 
-### Installing
+### Installation
 
-You can install the development version of `SOMNiBUS` from GitHub with
+You can install the development version of `SOMNiBUS` from GitHub:
 
 ```r
-if(!require("pacman")) install.packages("pacman")
-pacman::p_load_gh("kaiqiong/SOMNiBUS")
+if(!require("devtools")) install.packages("devtools")
+devtools::install_github("kaiqiong/SOMNiBUS", build_vignettes = T)
 ```
 
 ## An example for getting started
 
-An example of how to use the fun
+An example of how to use the package to estimate smooth covariate effects
 
 ```r
 RAdat.f = na.omit(RAdat[RAdat$Total_Counts != 0,]) # filter the individual CpG sites with zero read-depth
@@ -28,6 +28,9 @@ plot_BSMethEM(out) # plot the smooth covariate effect
 
 See the vignette for detailed information on how to use the package.
 
+```r
+vignette("SOMNiBUS")
+```
 
 ## Learn more
 
