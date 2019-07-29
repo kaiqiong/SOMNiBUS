@@ -20,7 +20,7 @@
 #' @examples #------------------------------------------------------------#
 #' @importFrom mgcv gam
 #' @export
-BSMethEMUpdate <- function (data, pi.ij, p0 , p1 , n.k,binom.link, method, Z, my.covar.fm){
+BSMethEMUpdate <- function (data, pi.ij, p0 , p1 , n.k,binom.link, method, Z, my.covar.fm, Quasi=T){
   if( !(nrow(data)==length(pi.ij)) ) message("The row of data should be compatible with the length of initial value pi.ij")
   # The E-step
   # Calculate the "posterior" probability
@@ -30,10 +30,20 @@ BSMethEMUpdate <- function (data, pi.ij, p0 , p1 , n.k,binom.link, method, Z, my
   Y <- data$Y ; X <- data$X
   E.S <- Y * eta.1 + (X-Y) * eta.0
 
-  gam.int.see <- suppressWarnings( mgcv::gam(as.formula( paste0("E.S/X ~", my.covar.fm)), family = binomial(link=binom.link),weights=X,
-                           data = data, method=method))
+  if(Quasi){
+    gam.int.see <- suppressWarnings( mgcv::gam(as.formula( paste0("E.S/X ~", my.covar.fm)), family = quasibinomial(link=binom.link),weights=X,
+                                               data = data, method=method))
+  }else{
+    gam.int.see <- suppressWarnings( mgcv::gam(as.formula( paste0("E.S/X ~", my.covar.fm)), family = binomial(link=binom.link),weights=X,
+                                               data = data, method=method))
+  }
 
+  p_res <- residuals(gam.int.see, type ='pearson')
+  d_res <- residuals(gam.int.see, type ='deviance')
+
+  phi_fletcher = summary(gam.int.see)$dispersion
   out <- list( pi.ij = gam.int.see$fitted.values, par = gam.int.see$coefficients,
-               lambda = gam.int.see$sp, edf1 = gam.int.see$edf1)
+               lambda = gam.int.see$sp, edf1 = gam.int.see$edf1, pearson_res = p_res, deviance_res=d_res,
+               edf=gam.int.see$edf, phi_fletcher= phi_fletcher, GamObj = gam.int.see )
   return(out)
 }

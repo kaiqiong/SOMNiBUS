@@ -6,7 +6,8 @@
 #' @param n.k a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the degrees of each functional parameters.
 #' @param p0 the probability of observing a methylated read when the underlying true status is unmethylated.
 #' @param p1 the probability of observing a methylated read when the underlying true status is methylated.
-#' @param covs a vector of covariate names. The covariates with names in \code{covs} will be included in the model and their covariate effects will be estimated
+#' @param covs a vector of covariate names. The covariates with names in \code{covs} will be included in the model and their covariate effects will be estimated.
+#' @param Quasi whether a Quasi-likelihood estimation approach will be used
 #' @param epsilon numeric; stopping criterion for the closeness of estimates of spline coefficients from two consecutive iterations.
 #' @param epsilon.lambda numeric; stopping criterion for the closeness of estimates of smoothing parameter \code{lambda} from two consecutive iterations.
 #' @param maxStep the algorithm will step if the iteration steps exceed \code{maxStep}
@@ -44,9 +45,9 @@
 #' @importFrom Matrix bdiag
 #' @importFrom stats as.formula binomial pchisq rbinom rnorm
 #' @export
-BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, epsilon = 10^(-6),  epsilon.lambda = 10^(-3), maxStep = 200,  detail=FALSE, binom.link = "logit",method="REML", covs = NULL){
+BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10^(-6),  epsilon.lambda = 10^(-3), maxStep = 200,  detail=FALSE, binom.link = "logit",method="REML", covs = NULL){
 
-  n.k <<-n.k # an error of 'n.k is not found' would appear if without this golable environment assignment; so I save n.k in a parent scop
+  n.k <<-n.k # an error of 'n.k is not found' would appear if without this golable environment assignment; so I save n.k in a parent scope
   data <- data.frame(data)
 
   if(is.factor(data$Position) ) stop ("The Position in the data set should be numeric other than a factor")
@@ -76,12 +77,26 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, epsilon = 10^(-6),  epsilo
   my.covar.fm <- paste(c("s(Posit, k=n.k[1], fx=F, bs=\"cr\")", formula.z.part), collapse="+")
 
   # Fit gam for the initial value
-  gam.int <- mgcv::gam(as.formula( paste0("Y/X ~", my.covar.fm)), family =binomial(link = binom.link),weights=X, data = data, method = method)
+  if(Quasi){
+    gam.int <- mgcv::gam(as.formula( paste0("Y/X ~", my.covar.fm)), family =quasibinomial(link = binom.link),weights=X, data = data, method = method)
+  }else{
+    gam.int <- mgcv::gam(as.formula( paste0("Y/X ~", my.covar.fm)), family =binomial(link = binom.link),weights=X, data = data, method = method)
+  }
   # Estimates
   old.pi.ij <- gam.int$fitted.values;old.par <-gam.int$coefficients;lambda <- gam.int$sp
 
+
+  if(p0==0 & p1==1){
+    p_res <- residuals(gam.int, type ='pearson')
+    d_res <- residuals(gam.int, type ="deviance")
+    phi_fletcher = summary(gam.int)$dispersion
+    out <- list( pi.ij = gam.int$fitted.values, par = gam.int$coefficients,
+                 lambda = gam.int$sp, edf1 = gam.int$edf1, pearson_res = p_res, deviance_res=d_res,
+                 edf=gam.int$edf, phi_fletcher= phi_fletcher, GamObj = gam.int )
+    new.par<-out$par; new.lambda <- out$lambda;new.pi.ij <- out$pi.ij
+  }else{
   # Update
-  out <-  BSMethEMUpdate (data, old.pi.ij, p0 = p0, p1 = p1, n.k=n.k, binom.link = binom.link, method = method, Z = Z, my.covar.fm = my.covar.fm)
+  out <-  BSMethEMUpdate (data, old.pi.ij, p0 = p0, p1 = p1, n.k=n.k, binom.link = binom.link, method = method, Z = Z, my.covar.fm = my.covar.fm, Quasi = Quasi)
   new.par<-out$par; new.lambda <- out$lambda;new.pi.ij <- out$pi.ij
   i <- 1; Est.points <- rbind(c(old.par, lambda), c(new.par, new.lambda))
   # Do the iteration
@@ -92,7 +107,7 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, epsilon = 10^(-6),  epsilo
     old.par <- new.par
     old.pi.ij <- new.pi.ij
 
-    out <-  BSMethEMUpdate (data, old.pi.ij, p0 = p0, p1 = p1,binom.link = binom.link, method = method, Z = Z, my.covar.fm = my.covar.fm)
+    out <-  BSMethEMUpdate (data, old.pi.ij, p0 = p0, p1 = p1,binom.link = binom.link, method = method, Z = Z, my.covar.fm = my.covar.fm, Quasi = Quasi)
     new.par<-out$par; new.lambda <- out$lambda;new.pi.ij <- out$pi.ij
 
     Est.points <- rbind(Est.points, c(new.par,new.lambda))
@@ -100,7 +115,27 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, epsilon = 10^(-6),  epsilo
       print(paste0("iteration", i))
     }
   }
+  }
+  # Effective degrees of freedom:  edf1 -- good for chisquare test and p value calculation tr(2A - A^2)
   edf1.out <- out$edf1
+  # Effective degree of freedom: edf --trace of the hat matrix
+  edf.out <- out$edf
+  # the residuals degrees of freedom
+  resi_df <- nrow(data) - sum(edf.out)
+  # Pearson Residuals
+  p_res <- out$pearson_res
+  # Estimated dispersion paramters (Fletcher adjusted)
+  phi_fletcher <- out$phi_fletcher
+
+  gam.int <- GamObj <- out$GamObj
+  # Note: this phi_fletcher can be also self-calculated
+
+  #my_s <- (1-2*new.pi.ij)/(data$X*new.pi.ij*(1-new.pi.ij))*(data$Y-data$X*new.pi.ij)#*sqrt(data$X)
+
+  # Note: the estimator implemented in the mgcv calculated my_s with an additional multiplier sqrt(data$X)
+  # But from the paper there shouldn't be this one
+  #phi_p = sum( p_res^2)/(length(data$Y) - sum(edf.out))
+  #phi_f <- phi_p/(1+mean(my_s))
 
   #--------------------------------------------
   # Calculate SE of alpha
@@ -109,27 +144,9 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, epsilon = 10^(-6),  epsilo
   my.design.matrix <-  mgcv::model.matrix.gam(gam.int) # the model matrix for the gam.int and the FinalGamObj is the same. the difference is only on the outcomes
   Y <- data$Y ; X <- data$X
   pred.pi <- new.pi.ij
-  # Q1: the second partial derivative w.r.t alpha^2
-  # Q2: the second derivative w.r.t alpha & alpha_star
+  #---------------- this part is inside  the trycatch
 
 
-  #Q1 <- matrix(NA, nrow =length(new.par), ncol = length(new.par))
-  #for ( l in 1: nrow(Q1)){
-  #for (m in 1:ncol(Q1)){
-  #  Q1[l, m] <-  sum(-X * pred.pi * (1-pred.pi) * my.design.matrix[, m]*my.design.matrix[,l] )
-  #  }
-  #}
-  res <- outer( 1:length(new.par), 1:length(new.par), Vectorize(function(l,m)  sum(-X * pred.pi * (1-pred.pi) * my.design.matrix[, m]*my.design.matrix[,l] )) )
-  smoth.mat <-sapply(1:(ncol(Z)+1), function(i){gam.int$smooth[[i]]$S[[1]] * new.lambda[i]})
-  smoth.mat[[length(smoth.mat) + 1]] <- 0  # assume the lambda for the constant of the interaction is 0 -- no penalization
-  span.penal.matrix <- as.matrix(Matrix::bdiag( smoth.mat[c(length(smoth.mat), (1:(length(smoth.mat)-1)))] ))
-  Q1_with_lambda <- res - span.penal.matrix
-  Q1_no_lambda <- res
-
-  Q2 <- outer(1:length(new.par), 1:length(new.par), Vectorize(function(l,m){
-    term1 <- Y*p1*p0/(p1*pred.pi + p0 * (1-pred.pi))^2 + (X-Y)*(1-p1)*(1-p0)/((1-p1)*pred.pi + (1-p0) * (1-pred.pi))^2
-    sum(term1 * pred.pi * (1-pred.pi) * my.design.matrix[,m] * my.design.matrix[,l])
-  }))
   #-------------------------------------------------------------------------
   # from the variance-covariance of alpha, to report
   # 1. var(beta_p(t))
@@ -140,7 +157,10 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, epsilon = 10^(-6),  epsilo
   # ------ 3: estimate of beta(t) --- #
   uni.pos <- unique(data$Posit); uni.id <- match(uni.pos, data$Posit)
   BZ <- my.design.matrix[uni.id, 1:n.k[1]]
-  BZ.beta = lapply(1:ncol(Z), function(i){mgcv::smooth.construct(mgcv::s(Posit, k = n.k[i+1], fx = F, bs = "cr") , data = data[uni.id,], knots = NULL)$X })
+  BZ.beta = lapply(1:ncol(Z), function(i){mgcv::smooth.construct(mgcv::s(Posit, k = n.k[i+1],
+                                                                         fx = F, bs = "cr") ,
+                                                                 data = data[uni.id,],
+                                                                 knots = NULL)$X })
 
   cum_s <-cumsum(n.k)
   alpha.sep <- lapply(1:ncol(Z), function(i){new.par[ (cum_s[i]+1):cum_s[i+1]]}); alpha.0 <- new.par[1:n.k[1]]
@@ -149,87 +169,99 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, epsilon = 10^(-6),  epsilo
 
   colnames(Beta.out) <- c("Intercept", colnames(Z))
 
-
   # Simply check to see
+  # tryCatch({
+  #----------------------------------------------------------------
+  # calculate var_cov (for alpha & beta)  from the Hessian matrix
+  #----------------------------------------------------------------
 
 
-  tryCatch({
-    var.cov.alpha <-solve(-(Q1_with_lambda + Q2))
-
-    #-------1: Estimate SE of beta(t) --- move to another function plot_BSMethEM ?
-    #------    keep this part of the code here, for now.
-
-    SE.out <- vector("list", (ncol(Z)+1)); names(SE.out) <- c("Intercept", colnames(Z))
+  H = Hessian(w_ij =pred.pi * (1-pred.pi)/phi_fletcher,        new.par, new.lambda, X, Y, my.design.matrix, gam.int, Z,pred.pi, p0, p1, disp_est = phi_fletcher)
 
 
-    # SE of beta.0
+  var.cov.alpha <- solve(-H)
 
-    var.alpha.0 <- var.cov.alpha[1:n.k[1], 1:n.k[1]]
-    var.beta.0 <-  BZ %*% var.alpha.0 %*% t(BZ)
-    #SE.out[[1]] <- sqrt(diag(var.beta.0))
+  # SE.out --- pointwise standard deviation
+  SE.out <- vector(mode = "list", length = (ncol(Z)+1))
+  names(SE.out) <- c("Intercept", colnames(Z))
 
-    # SE of the effect of Zs [beta.1(t), beta.2(t), beta.3(t) ...]
+  var.alpha.0 <- var.cov.alpha[1:n.k[1], 1:n.k[1]]
+  var.beta.0 <-  BZ %*% var.alpha.0 %*% t(BZ)
 
-    var.alpha.sep <- lapply(1:ncol(Z), function(i){var.cov.alpha[ (cum_s[i]+1):cum_s[i+1],(cum_s[i]+1):cum_s[i+1]]})
-    var.beta <- lapply(1:ncol(Z), function(i){BZ.beta[[i]] %*% var.alpha.sep[[i]] %*% t(BZ.beta[[i]])})
+  var.alpha.sep <- lapply(1:ncol(Z), function(i){var.cov.alpha[ (cum_s[i]+1):cum_s[i+1],(cum_s[i]+1):cum_s[i+1]]})  # SE of the effect of Zs [beta.1(t), beta.2(t), beta.3(t) ...]
+  var.beta <- lapply(1:ncol(Z), function(i){BZ.beta[[i]] %*% var.alpha.sep[[i]] %*% t(BZ.beta[[i]])})
 
-    SE.out <- cbind(sqrt(diag(var.beta.0)), sapply(1:ncol(Z), function(i){sqrt(diag(var.beta[[i]]))}))
-    rownames(SE.out) <- uni.pos; colnames(SE.out) <-  c("Intercept", colnames(Z))
-    SE.pos <- uni.pos
+  SE.out <- cbind(sqrt(diag(var.beta.0)), sapply(1:ncol(Z), function(i){sqrt(diag(var.beta[[i]]))}))
+  rownames(SE.out) <- uni.pos; colnames(SE.out) <-  c("Intercept", colnames(Z))
+  SE.pos <- uni.pos
 
 
-    # -------2: The chi-square statistics and P values for each covariate
+  # -------2: The chi-square/F statistics and P values for each covariate
 
-    chi.sq <- c( t(alpha.0) %*% solve(var.alpha.0) %*% alpha.0, sapply(1:ncol(Z), function(i){t(alpha.sep[[i]]) %*% solve(var.alpha.sep[[i]]) %*% alpha.sep[[i]]}))
-    #pvalue <- 1- pchisq(chi.sq, df = n.k)
+  chi.sq <- c( t(alpha.0) %*% solve(var.alpha.0) %*% alpha.0, sapply(1:ncol(Z), function(i){t(alpha.sep[[i]]) %*% solve(var.alpha.sep[[i]]) %*% alpha.sep[[i]]}))
+  #pvalue <- 1- pchisq(chi.sq, df = n.k)
+  names(chi.sq) <- c("Intercept", colnames(Z))
+  edf <- edf1.out
 
-    edf <- edf1.out
+  df = sapply(1:(ncol(Z)+1), function(i){sum(edf[(cum_s[i]-n.k[i]+1):cum_s[i]])})
+  #pvalue <- 1- pchisq(chi.sq, df = df)
+  #pvalue <- 1- pchisq(chi.sq, df = n.k)
 
-    df = sapply(1:(ncol(Z)+1), function(i){sum(edf[(cum_s[i]-n.k[i]+1):cum_s[i]])})
-    #pvalue <- 1- pchisq(chi.sq, df = df)
-    #pvalue <- 1- pchisq(chi.sq, df = n.k)
-    pvalue.log <-  pchisq(chi.sq, df = df, log.p = T, lower.tail = F)
 
-    pvalue <- exp(pvalue.log)
+ names(chi.sq) <- c("Intercept", colnames(Z))
 
-    names(pvalue.log) <- names(pvalue) <- names(chi.sq) <- c("Intercept", colnames(Z))
-    # ----- try other covariance matrix and other edf
-    #vcov.gam(FinalGamObj)  # results coincide with Vp
-    #all(var.cov.alpha - FinalGamObj$Vp < 0.00000000000001)
-    #all(var.cov.alpha - FinalGamObj$Ve < 0.00000000000001)
-    #all(var.cov.alpha - FinalGamObj$Vc < 0.00000000000001)
 
-    #res.ve <- chi.sq.function(FinalGamObj$Ve,alpha.0 = alpha.0, alpha.sep = alpha.sep, n.k = n.k, edf = edf);
-    #res.vp <- chi.sq.function(FinalGamObj$Vp,alpha.0 = alpha.0, alpha.sep = alpha.sep, n.k = n.k, edf = edf);
-    #res.vc <- chi.sq.function(FinalGamObj$Vc,alpha.0 = alpha.0, alpha.sep = alpha.sep, n.k = n.k, edf = edf)
+    if (!Quasi) {
+      pvalue.log <-  pchisq(chi.sq, df = df, log.p = T, lower.tail = F)
+      pvalue <- exp(pvalue.log)
+      s.table <- data.frame(df, chi.sq,  formatC(pvalue, format ="e", digits = 2))
+      dimnames(s.table) <- list(names(chi.sq), c("Edf", "Chi.sq", "p-value"))
+    }else {
+      pvalue.log <-  pf(chi.sq/df, df1=df, df2=resi_df, log.p = T, lower.tail = F)
+      pvalue <- exp(pvalue.log)
+      s.table <- data.frame("EDF" = round(df,4), "F" = round(chi.sq/df, 4),"p-value"= formatC(pvalue, format ="e", digits = 2))
+      dimnames(s.table) <- list(names(chi.sq), c("Edf", "F", "p-value"))
+    }
 
-    #chi.sq.wald <- cbind(res.ve[, "chi.sq"], res.vp[, "chi.sq"], res.vc[, "chi.sq"])
-    #p.value.wald <- cbind(res.ve[, "pvalue"], res.vp[, "pvalue"], res.vc[, "pvalue"])
+  #s.table <- s.table[, -1]
 
-    #colnames(chi.sq.wald) <- colnames(p.value.wald) <-  c("Ve", "Vp", "Vc")
-    reg.out <- data.frame( "EDF" = round(df,4), "Chi.sq" = round(chi.sq, 4),
-                           "p_value" = formatC(pvalue, format ="e", digits = 2))
+  #colnames(s.table)[1] <- "EDF"
+  #var_out = list(cov1 = var.cov.alpha, reg.out = reg.out,  SE.out = SE.out, uni.pos = SE.pos,  pvalue = pvalue , ncovs = ncol(Z)+1)
+  #Est_out = list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij, ite.points = Est.points,
+  #               Beta.out = Beta.out, phi_fletcher = phi_fletcher)
 
-    out = list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij, ite.points = Est.points,
-               cov1 = var.cov.alpha, reg.out = reg.out,  SE.out = SE.out, uni.pos = SE.pos, Beta.out = Beta.out, pvalue = pvalue , ncovs = ncol(Z)+1)
-    return(out)
-  },
-  error = function(err){
-    return (out = list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij, ite.points = Est.points,
-                       cov1 = diag(1, length(new.par)), Beta.out = Beta.out , ncovs = ncol(Z)+1) )
-  }
-  )
-  # New stuff stopped here
-  #---------------------------------------------------------------------------
+ #reg.out <- data.frame( "EDF" = round(df,4), "Chi.sq" = round(chi.sq, 4),
+   #                     "p_value" = formatC(pvalue, format ="e", digits = 2))
 
-  # tryCatch({var.cov.lambda <-solve(-(Q1_with_lambda + Q2))
-  #  out = list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij, ite.points = Est.points, FinalGamObj=FinalGamObj,
-  #            cov1 = var.cov.lambda, chi.sq = chi.sq, pvalue = pvalue, SE.out = SE.out, SE.pos = SE.pos)
-  #  return(out)
+  return(out=list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij,
+                  Beta.out = Beta.out, phi_fletcher = phi_fletcher,
+                  reg.out = s.table,
+                  cov1 = var.cov.alpha,  SE.out = SE.out, uni.pos = SE.pos,  pvalue = pvalue , ncovs = ncol(Z)+1, GamObj=GamObj ))
   # },
-  #error = function(err){return (out = list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij, ite.points = Est.points, FinalGamObj=FinalGamObj,
-  #                                          cov1 = diag(1, length(new.par)))) }
-  #)
+  #  error = function(err){
+  #    return (out = list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij, ite.points = Est.points,
+  #                       cov1 = diag(NA, length(new.par)), Beta.out = Beta.out , ncovs = ncol(Z)+1) )
+  # }
+  # )
 
 }
+Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, Z,pred.pi, p0, p1, disp_est){
 
+  # Q1: the second partial derivative w.r.t alpha^2
+  # Q2: the second derivative w.r.t alpha & alpha_star
+  res <- outer( 1:length(new.par), 1:length(new.par), Vectorize(function(l,m)  sum(-X * w_ij * my.design.matrix[, m]*my.design.matrix[,l] )) )
+  smoth.mat <-lapply(as.list(1:(ncol(Z)+1)), function(i){gam.int$smooth[[i]]$S[[1]] * new.lambda[i]})  # extract the penalty matrix
+
+  smoth.mat[[length(smoth.mat) + 1]] <- 0  # assume the lambda for the constant of the intercept is 0 -- no penalization
+  span.penal.matrix <- as.matrix(Matrix::bdiag( smoth.mat[c(length(smoth.mat), (1:(length(smoth.mat)-1)))] ))
+  Q1_with_lambda <- res - span.penal.matrix/disp_est
+  Q1_no_lambda <- res
+
+  Q2 <- outer(1:length(new.par), 1:length(new.par), Vectorize(function(l,m){
+    term1 <- Y*p1*p0/(p1*pred.pi + p0 * (1-pred.pi))^2 + (X-Y)*(1-p1)*(1-p0)/((1-p1)*pred.pi + (1-p0) * (1-pred.pi))^2
+    sum(term1 * w_ij * my.design.matrix[,m] * my.design.matrix[,l])
+  }))
+
+  return(Q1_with_lambda + Q2)
+
+}
