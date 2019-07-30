@@ -47,13 +47,13 @@ For a more comprehensive introduction of the **SOMNiBUS** approach, please read
 
 Currently, the software package can be installed from [github](https://github.com/kaiqiong/SOMNiBUS). 
 
-```{r, eval = F, echo = F}
+```{r, eval = T, echo = F}
 devtools::document("/mnt/GREENWOOD_JBOD1/GREENWOOD_BACKUP/home/kaiqiong.zhao/Packages/SOMNiBUS")
 devtools::load_all("/mnt/GREENWOOD_JBOD1/GREENWOOD_BACKUP/home/kaiqiong.zhao/Packages/SOMNiBUS")
 ```
 
-```{r}
-pacman::p_load_gh("kaiqiong/SOMNiBUS")
+```{r, eval =F}
+pacman::p_load_current_gh("kaiqiong/SOMNiBUS")
 ```
 
 Make sure to run `install.packages("pacman")` if you have not installed the `pacman` package.
@@ -103,7 +103,7 @@ RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0,])
 The smooth covariate estimation and the region-wise test steps are wrapped into a function `BSMethEM`. See `help(BSMethEM)` for more details. We can use the following code to run the analysis with both covariates `T_cell` and `RA`.
 
 ```{r}
-out = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9)
+out = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9, Quasi = FALSE)
 ```
 
 Or, we can use the argument `covs` to specify that we only want the covariate `T_cell` in the model.
@@ -127,6 +127,7 @@ For experiments with samples from a tissue containing a mixture of cell types, t
 
 Argument `n.k` in the `BSMethEM` is the dimension of the basis expansion for smooth covariate effects. 
 The exact number `n.k` used for each functional parameter is not crucial, because it only sets an upper bound. We recommend choosing a basis dimension approximately equal to the number of unique CpGs in the region divided by 20.
+
 
 # Results
 
@@ -196,6 +197,23 @@ legend("top",c("RA MONO","RA TCELL","CTRL MONO","CTRL TCELL"),
        title = "Disease and Cell Type", bty="n", cex=0.8)
 
 ```
+
+# An example requiring a short runtime
+
+
+```{r}
+RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0,])
+```
+
+
+```{r}
+out_quasi = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9, Quasi = TRUE)
+out_quasi$reg.out
+```
+
+# An example requiring a longer runtime
+
+
 
 
 
