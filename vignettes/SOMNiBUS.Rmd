@@ -47,12 +47,12 @@ For a more comprehensive introduction of the **SOMNiBUS** approach, please read
 
 Currently, the software package can be installed from [github](https://github.com/kaiqiong/SOMNiBUS). 
 
-```{r, eval = T, echo = F}
+```{r, eval = F, echo = F}
 devtools::document("/mnt/GREENWOOD_JBOD1/GREENWOOD_BACKUP/home/kaiqiong.zhao/Packages/SOMNiBUS")
 devtools::load_all("/mnt/GREENWOOD_JBOD1/GREENWOOD_BACKUP/home/kaiqiong.zhao/Packages/SOMNiBUS")
 ```
 
-```{r, eval =F}
+```{r, eval =T}
 pacman::p_load_current_gh("kaiqiong/SOMNiBUS")
 ```
 
@@ -198,8 +198,9 @@ legend("top",c("RA MONO","RA TCELL","CTRL MONO","CTRL TCELL"),
 
 ```
 
-# An example requiring a short runtime
+# An example requiring short runtime
 
+In this example, `RAdat` was analyzed. There are 43 samples and 2 binary covariate of interest. The region under investigation consists of  123 CpG sites.
 
 ```{r}
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0,])
@@ -211,10 +212,27 @@ out_quasi = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9, Quasi =
 out_quasi$reg.out
 ```
 
-# An example requiring a longer runtime
+# An example requiring longer runtime
+
+Here, a relative larger data set `RAdat2` with 9 covariates is used for illustration. In `RAdat2`, methylation levels on a region with 208 CpGs for 116 blood samples are available.
+
+```{r}
+head(RAdat2)
+```
 
 
+```{r}
+nCpG = length(unique(RAdat2$Position))
+out_RA2 = BSMethEM(data=RAdat2, n.k = c(5,rep(max(3, round(nCpG/20)),9)), p0 = 0.003, p1 = 0.9, Quasi = TRUE)
+```
+```{r}
+out_RA2$reg.out
+```
 
+
+```{r}
+plot_BSMethEM(out_RA2, mfrow = c(2,5))
+```
 
 
 # Session info {.unnumbered}
