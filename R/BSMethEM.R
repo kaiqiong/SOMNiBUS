@@ -66,7 +66,7 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
      }
   }
 
-  if(length(n.k)!= (ncol(data) -3)) stop('The length of n.k should equal to the number of covariates plus 1 (for the intercept)')
+  if(length(n.k)!= (ncol(Z) +1)) stop('The length of n.k should equal to the number of covariates plus 1 (for the intercept)')
   if(any(data$X == 0)) stop('The rows with Total_Counts equal to 0 should be deleted beforehand')
   if(any(is.na(Z))) stop('The covariate information should not have missing values')
   if(any(!is.numeric(Z))) stop('Please transform the covariate information into numeric values, eg. use dummy variables for the categorical covariates')
