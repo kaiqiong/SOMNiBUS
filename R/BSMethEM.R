@@ -45,25 +45,32 @@
 #' @importFrom Matrix bdiag
 #' @importFrom stats as.formula binomial pchisq rbinom rnorm
 #' @export
-BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10^(-6),  epsilon.lambda = 10^(-3), maxStep = 200,  detail=FALSE, binom.link = "logit",method="REML", covs = NULL){
+BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10^(-6),  epsilon.lambda = 10^(-3), maxStep = 200,  detail=FALSE, binom.link = "logit",method="REML", covs = NULL, RanEff = T){
 
   n.k <<-n.k # an error of 'n.k is not found' would appear if without this golable environment assignment; so I save n.k in a parent scope
   data <- data.frame(data)
 
-  if(is.factor(data$Position) ) stop ("The Position in the data set should be numeric other than a factor")
+  if(is.factor(data$Position) ) {
+    #message("The Position in the data set should be numeric other than a factor")
+    data$Position <- as.numeric(as.character(data$Position))
+  }
+
+  if( any(!c("Meth_Counts", "Total_Counts", "Position")%in% colnames(data))) stop('Please make sure object "data" have columns named as "Meth_Counts", "Total_Counts" and "Position" ')
+
+
   colnames(data)[match(c("Meth_Counts", "Total_Counts", "Position") ,colnames(data)) ] <- c("Y", "X", "Posit")
 
   if(is.null(covs)){
     Z <- as.matrix(data[,-(1:4)], ncol = ncol(data)-4)
     colnames(Z) <- colnames(data)[-c(1:4)]
   }else{
-   id <- match(covs, colnames(data))
-   if(any(is.na(id))){
-     stop(paste(covs[is.na(id)], " is not found in the input data frame"))
-   }else{
-     Z <- as.matrix(data[,id], ncol = length(id))
-     colnames(Z) <- covs
-     }
+    id <- match(covs, colnames(data))
+    if(any(is.na(id))){
+      stop(paste(covs[is.na(id)], " is not found in the input data frame"))
+    }else{
+      Z <- as.matrix(data[,id], ncol = length(id))
+      colnames(Z) <- covs
+    }
   }
 
   if(length(n.k)!= (ncol(Z) +1)) stop('The length of n.k should equal to the number of covariates plus 1 (for the intercept)')
@@ -75,7 +82,10 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   formula.z.part <- sapply(1:(ncol(Z)), function(i){
     paste0("s(Posit, k = n.k[",i+1,"], fx=F, bs=\"cr\", by = Z[,", i, "])"  ) } )
   my.covar.fm <- paste(c("s(Posit, k=n.k[1], fx=F, bs=\"cr\")", formula.z.part), collapse="+")
-
+  if(RanEff){
+    my.covar.fm <- paste0(my.covar.fm, "+ s(ID, bs = \"re\")" )
+    data$ID <- as.factor(data$ID)
+  }
   # Fit gam for the initial value
   if(Quasi){
     gam.int <- mgcv::gam(as.formula( paste0("Y/X ~", my.covar.fm)), family =quasibinomial(link = binom.link),weights=X, data = data, method = method)
@@ -84,37 +94,70 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   }
   # Estimates
   old.pi.ij <- gam.int$fitted.values;old.par <-gam.int$coefficients;lambda <- gam.int$sp
+  #phi_fletcher = summary(gam.int)$dispersion
+  p_res <- residuals(gam.int, type ='pearson')
+  d_res <- residuals(gam.int, type ="deviance")
+  edf.out <- gam.int$edf
+
+
+  # Note: this phi_fletcher can be also self-calculated
+  if(Quasi){
+    new.pi.ij <- gam.int$fitted.value
+    my_s <- (1-2*new.pi.ij)/(data$X*new.pi.ij*(1-new.pi.ij))*(data$Y-data$X*new.pi.ij)#*sqrt(data$X)
+
+    # Note: the estimator implemented in the mgcv calculated my_s with an additional multiplier sqrt(data$X)
+    # But from the paper there shouldn't be this one
+    phi_p = sum( p_res^2)/(length(data$Y) - sum(edf.out))
+    phi_fletcher <- phi_p/(1+mean(my_s))
+    #phi_fletcher <- out$phi_fletcher
+    #phi_fletcher <- summary(gam.int)$dispersion
+  }else{
+    phi_fletcher <- 1
+  }
+
+
 
 
   if(p0==0 & p1==1){
-    p_res <- residuals(gam.int, type ='pearson')
-    d_res <- residuals(gam.int, type ="deviance")
-    phi_fletcher = summary(gam.int)$dispersion
+
+
     out <- list( pi.ij = gam.int$fitted.values, par = gam.int$coefficients,
                  lambda = gam.int$sp, edf1 = gam.int$edf1, pearson_res = p_res, deviance_res=d_res,
                  edf=gam.int$edf, phi_fletcher= phi_fletcher, GamObj = gam.int )
     new.par<-out$par; new.lambda <- out$lambda;new.pi.ij <- out$pi.ij
+
+    Est.points <-  c(new.par, new.lambda, phi_fletcher)
+
+
   }else{
-  # Update
-  out <-  BSMethEMUpdate (data, old.pi.ij, p0 = p0, p1 = p1, n.k=n.k, binom.link = binom.link, method = method, Z = Z, my.covar.fm = my.covar.fm, Quasi = Quasi)
-  new.par<-out$par; new.lambda <- out$lambda;new.pi.ij <- out$pi.ij
-  i <- 1; Est.points <- rbind(c(old.par, lambda), c(new.par, new.lambda))
-  # Do the iteration
-  # The stopping criterion is that estimator a and b are close enough
-  # I exclude the criterio that lambda-a and lambda-b are close
-  while ( sum((old.par - new.par)^2) > (epsilon/15 * length(new.par)) & i < maxStep & sum((lambda-new.lambda)^2) > epsilon.lambda){
-    i <- i +1;
-    old.par <- new.par
-    old.pi.ij <- new.pi.ij
 
-    out <-  BSMethEMUpdate (data, old.pi.ij, p0 = p0, p1 = p1,binom.link = binom.link, method = method, Z = Z, my.covar.fm = my.covar.fm, Quasi = Quasi)
+
+
+    out <-  BSMethEMUpdate (data, old.pi.ij, p0 = p0, p1 = p1, n.k=n.k, binom.link = binom.link, method = method, Z = Z, my.covar.fm = my.covar.fm, Quasi = Quasi, scale = phi_fletcher )
     new.par<-out$par; new.lambda <- out$lambda;new.pi.ij <- out$pi.ij
+    new.phi <- out$phi_fletcher
+    i <- 1; Est.points <- rbind(c(old.par, lambda, phi_fletcher), c(new.par, new.lambda, new.phi))
+    # Do the iteration
+    # The stopping criterion is that estimator a and b are close enough
+    # I exclude the criterio that lambda-a and lambda-b are close
+    # while ( sum((old.par - new.par)^2) > (epsilon/15 * length(new.par)) & i < maxStep & sum((lambda-new.lambda)^2) > epsilon.lambda){
 
-    Est.points <- rbind(Est.points, c(new.par,new.lambda))
-    if(detail){
-      print(paste0("iteration", i))
+    while ( sqrt(sum((new.pi.ij - old.pi.ij)^2)) > epsilon & i < maxStep ){
+      i <- i +1;
+      old.par <- new.par
+      old.pi.ij <- new.pi.ij
+
+      out <-  BSMethEMUpdate (data, old.pi.ij, p0 = p0, p1 = p1,binom.link = binom.link, method = method, Z = Z, my.covar.fm = my.covar.fm, Quasi = Quasi, scale = phi_fletcher)
+      new.par<-out$par; new.lambda <- out$lambda;new.pi.ij <- out$pi.ij;new.phi <- out$phi_fletcher
+
+      Est.points <- rbind(Est.points, c(new.par,new.lambda, new.phi))
+      if(detail){
+        print(paste0("iteration", i))
+      }
     }
-  }
+    # Update
+    phi_fletcher <- out$phi_fletcher
+
   }
   # Effective degrees of freedom:  edf1 -- good for chisquare test and p value calculation tr(2A - A^2)
   edf1.out <- out$edf1
@@ -125,17 +168,11 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   # Pearson Residuals
   p_res <- out$pearson_res
   # Estimated dispersion paramters (Fletcher adjusted)
-  phi_fletcher <- out$phi_fletcher
+  #phi_fletcher <- out$phi_fletcher
 
   gam.int <- GamObj <- out$GamObj
-  # Note: this phi_fletcher can be also self-calculated
 
-  #my_s <- (1-2*new.pi.ij)/(data$X*new.pi.ij*(1-new.pi.ij))*(data$Y-data$X*new.pi.ij)#*sqrt(data$X)
 
-  # Note: the estimator implemented in the mgcv calculated my_s with an additional multiplier sqrt(data$X)
-  # But from the paper there shouldn't be this one
-  #phi_p = sum( p_res^2)/(length(data$Y) - sum(edf.out))
-  #phi_f <- phi_p/(1+mean(my_s))
 
   #--------------------------------------------
   # Calculate SE of alpha
@@ -162,6 +199,12 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
                                                                  data = data[uni.id,],
                                                                  knots = NULL)$X })
 
+  # Use PredictMat to get BZ.beta
+
+
+
+
+
   cum_s <-cumsum(n.k)
   alpha.sep <- lapply(1:ncol(Z), function(i){new.par[ (cum_s[i]+1):cum_s[i+1]]}); alpha.0 <- new.par[1:n.k[1]]
 
@@ -175,12 +218,15 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   # calculate var_cov (for alpha & beta)  from the Hessian matrix
   #----------------------------------------------------------------
 
+  N <- length(unique(data$ID))
+  H = Hessian(w_ij =pred.pi * (1-pred.pi)/phi_fletcher,        new.par, new.lambda, X, Y, my.design.matrix, gam.int, Z,pred.pi, p0, p1, disp_est = phi_fletcher, RanEff = RanEff, N=N)
 
-  H = Hessian(w_ij =pred.pi * (1-pred.pi)/phi_fletcher,        new.par, new.lambda, X, Y, my.design.matrix, gam.int, Z,pred.pi, p0, p1, disp_est = phi_fletcher)
 
+  #var.cov.alpha <- solve(-H)
+  var.cov.alpha  <- matlib::Ginv(-H)
+  # solve and Ginv give very similar results, but MASS is very different from the other two
 
-  var.cov.alpha <- solve(-H)
-
+  #var.cov.alpha <- MASS::ginv(-H)
   # SE.out --- pointwise standard deviation
   SE.out <- vector(mode = "list", length = (ncol(Z)+1))
   names(SE.out) <- c("Intercept", colnames(Z))
@@ -196,56 +242,106 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   SE.pos <- uni.pos
 
 
-  # -------2: The chi-square/F statistics and P values for each covariate
+  #----------------------------------------------------------------
+  # calculate the region-based statistic from the testStats function in mgcv
+  #----------------------------------------------------------------
 
-  chi.sq <- c( t(alpha.0) %*% solve(var.alpha.0) %*% alpha.0, sapply(1:ncol(Z), function(i){t(alpha.sep[[i]]) %*% solve(var.alpha.sep[[i]]) %*% alpha.sep[[i]]}))
-  #pvalue <- 1- pchisq(chi.sq, df = n.k)
-  names(chi.sq) <- c("Intercept", colnames(Z))
-  edf <- edf1.out
+  # A more efficient way to extract design matrix. use a random sample of rows of the data to reduce the computational cost
+  if(RanEff) {
+    re.test=T
+  }else{
+    re.test= F
+  }
 
-  df = sapply(1:(ncol(Z)+1), function(i){sum(edf[(cum_s[i]-n.k[i]+1):cum_s[i]])})
-  #pvalue <- 1- pchisq(chi.sq, df = df)
-  #pvalue <- 1- pchisq(chi.sq, df = n.k)
+  sub.samp <- max(1000,2*length(GamObj$coefficients))
+  if (nrow(GamObj$model)>sub.samp) { ## subsample to get X for p-values calc.
+    seed <- try(get(".Random.seed",envir=.GlobalEnv),silent=TRUE) ## store RNG seed
+    if (inherits(seed,"try-error")) {
+      runif(1)
+      seed <- get(".Random.seed",envir=.GlobalEnv)
+    }
+    kind <- RNGkind(NULL)
+    RNGkind("default","default")
+    set.seed(11) ## ensure repeatability
+    ind <- sample(1:nrow(GamObj$model),sub.samp,replace=FALSE)  ## sample these rows from X
+    X_d <- predict(GamObj,GamObj$model[ind,],type="lpmatrix")
+    RNGkind(kind[1],kind[2])
+    assign(".Random.seed",seed,envir=.GlobalEnv) ## RNG behaves as if it had not been used
+  } else { ## don't need to subsample
+    X_d <- model.matrix(GamObj)
+  }
+  X_d  <- X_d [!is.na(rowSums(X_d )),] ## exclude NA's (possible under na.exclude)
 
+  #p : estimated paramters --- alpha.0, alpha.seq
+  #Xt: the design matrix --- my.design.matrix
+  #V: estimated variance  matrix
+  ## on entry `rank' should be an edf estimate
+  ## 0. Default using the fractionally truncated pinv.
+  ## 1. Round down to k if k<= rank < k+0.05, otherwise up.
+  ## res.df is residual dof used to estimate scale. <=0 implies
+  ## fixed scale.
+  ii <- 0
+  m <- length(gam.int$smooth)
+  df <- edf1 <- edf <- s.pv <- chi.sq <- array(0, m)
+  for ( i in 1:m){
+    start <- gam.int$smooth[[i]]$first.para; stop <- gam.int$smooth[[i]]$last.para
 
- names(chi.sq) <- c("Intercept", colnames(Z))
+    V <- var.cov.alpha[start:stop,start:stop,drop=FALSE] ## Bayesian
 
+    p <- new.par[start:stop]  # params for smooth
+    edfi <- sum(edf.out[start:stop]) # edf for this smooth
+    ## extract alternative edf estimate for this smooth, if possible...
+    edf1i <-  sum(edf.out[start:stop])
+    Xt <- X_d [,start:stop,drop=FALSE]
+    fx <- if (inherits(gam.int$smooth[[i]],"tensor.smooth")&&
+              !is.null(gam.int$smooth[[i]]$fx)) all(gam.int$smooth[[i]]$fx) else gam.int$smooth[[i]]$fixed
+    if (!fx&&gam.int$smooth[[i]]$null.space.dim==0&&!is.null(gam.int$R)) { ## random effect or fully penalized term
+      res <- if (re.test) mgcv:::reTest(gam.int,i) else NULL
+    } else { ## Inverted Nychka interval statistics
 
-    if (!Quasi) {
-      pvalue.log <-  pchisq(chi.sq, df = df, log.p = T, lower.tail = F)
-      pvalue <- exp(pvalue.log)
-      s.table <- data.frame(df, chi.sq,  formatC(pvalue, format ="e", digits = 2))
-      dimnames(s.table) <- list(names(chi.sq), c("Edf", "Chi.sq", "p-value"))
-    }else {
-      pvalue.log <-  pf(chi.sq/df, df1=df, df2=resi_df, log.p = T, lower.tail = F)
-      pvalue <- exp(pvalue.log)
-      s.table <- data.frame("EDF" = round(df,4), "F" = round(chi.sq/df, 4),"p-value"= formatC(pvalue, format ="e", digits = 2))
-      dimnames(s.table) <- list(names(chi.sq), c("Edf", "F", "p-value"))
+      if (Quasi) rdf <-  resi_df else rdf <- -1
+      res <- mgcv:::testStat(p,Xt,V,min(ncol(Xt),edf1i),type=0,res.df = rdf)
     }
 
-  #s.table <- s.table[, -1]
+    if (!is.null(res)) {
+      ii <- ii + 1
+      df[ii] <- res$rank
+      chi.sq[ii] <- res$stat
+      s.pv[ii] <- res$pval
+      edf1[ii] <- edf1i
+      edf[ii] <- edfi
+      names(chi.sq)[ii]<- GamObj$smooth[[i]]$label
+    }
 
-  #colnames(s.table)[1] <- "EDF"
+    if (ii==0) df <- edf1 <- edf <- s.pv <- chi.sq <- array(0, 0) else {
+      df <- df[1:ii];chi.sq <- chi.sq[1:ii];edf1 <- edf1[1:ii]
+      edf <- edf[1:ii];s.pv <- s.pv[1:ii]
+    }
+    if (!Quasi) {
+      s.table <- cbind(edf, df, chi.sq, s.pv)
+      dimnames(s.table) <- list(names(chi.sq), c("edf", "Ref.df", "Chi.sq", "p-value"))
+    } else {
+      s.table <- cbind(edf, df, chi.sq/df, s.pv)
+      dimnames(s.table) <- list(names(chi.sq), c("edf", "Ref.df", "F", "p-value"))
+    }
+  }
+  s.table <- s.table[, -1]
+  if(RanEff){ rownames(s.table) <- c("Intercept", colnames(Z), "ID")
+  }else{
+    rownames(s.table) <- c("Intercept", colnames(Z))}
+  colnames(s.table)[1] <- "EDF"
   #var_out = list(cov1 = var.cov.alpha, reg.out = reg.out,  SE.out = SE.out, uni.pos = SE.pos,  pvalue = pvalue , ncovs = ncol(Z)+1)
   #Est_out = list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij, ite.points = Est.points,
   #               Beta.out = Beta.out, phi_fletcher = phi_fletcher)
 
- #reg.out <- data.frame( "EDF" = round(df,4), "Chi.sq" = round(chi.sq, 4),
-   #                     "p_value" = formatC(pvalue, format ="e", digits = 2))
-
   return(out=list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij,
                   Beta.out = Beta.out, phi_fletcher = phi_fletcher,
                   reg.out = s.table,
-                  cov1 = var.cov.alpha,  SE.out = SE.out, uni.pos = SE.pos,  pvalue = pvalue , ncovs = ncol(Z)+1, GamObj=GamObj ))
-  # },
-  #  error = function(err){
-  #    return (out = list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij, ite.points = Est.points,
-  #                       cov1 = diag(NA, length(new.par)), Beta.out = Beta.out , ncovs = ncol(Z)+1) )
-  # }
-  # )
+                  cov1 = var.cov.alpha,  SE.out = SE.out, uni.pos = SE.pos,  pvalue = s.pv ,
+                  ncovs = ncol(Z)+1 , ite.points = Est.points))
 
 }
-Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, Z,pred.pi, p0, p1, disp_est){
+Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, Z,pred.pi, p0, p1, disp_est, RanEff, N){
 
   # Q1: the second partial derivative w.r.t alpha^2
   # Q2: the second derivative w.r.t alpha & alpha_star
@@ -253,7 +349,14 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, 
   smoth.mat <-lapply(as.list(1:(ncol(Z)+1)), function(i){gam.int$smooth[[i]]$S[[1]] * new.lambda[i]})  # extract the penalty matrix
 
   smoth.mat[[length(smoth.mat) + 1]] <- 0  # assume the lambda for the constant of the intercept is 0 -- no penalization
-  span.penal.matrix <- as.matrix(Matrix::bdiag( smoth.mat[c(length(smoth.mat), (1:(length(smoth.mat)-1)))] ))
+  if(RanEff){
+    smoth.mat[[length(smoth.mat) + 1]] <- diag(N)
+    span.penal.matrix <- as.matrix(Matrix::bdiag( smoth.mat[c(length(smoth.mat)-1, (1:(length(smoth.mat)-2)), length(smoth.mat))] ))
+  }else{
+
+    span.penal.matrix <- as.matrix(Matrix::bdiag( smoth.mat[c(length(smoth.mat), (1:(length(smoth.mat)-1)))] ))
+  }
+
   Q1_with_lambda <- res - span.penal.matrix/disp_est
   Q1_no_lambda <- res
 
@@ -265,3 +368,103 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, 
   return(Q1_with_lambda + Q2)
 
 }
+
+## testStat function is directly copied from the mgcv package
+## Implements Wood (2013) Biometrika 100(1), 221-228
+## The type argument specifies the type of truncation to use.
+
+
+# res.dif = -1 when no dispersion
+
+# res.dif = residual.df = residual.df<-length(object$y)-sum(object$edf) when est.dispersion = TRUE
+
+testStat <- function(p,X,V,rank=NULL,type=0,res.df= -1) {
+  ## Implements Wood (2013) Biometrika 100(1), 221-228
+  ## The type argument specifies the type of truncation to use.
+  ## on entry `rank' should be an edf estimate
+  ## 0. Default using the fractionally truncated pinv.
+  ## 1. Round down to k if k<= rank < k+0.05, otherwise up.
+  ## res.df is residual dof used to estimate scale. <=0 implies
+  ## fixed scale.
+
+  qrx <- qr(X,tol=0)
+  R <- qr.R(qrx)
+  V <- R%*%V[qrx$pivot,qrx$pivot,drop=FALSE]%*%t(R)
+  V <- (V + t(V))/2
+  ed <- eigen(V,symmetric=TRUE)
+  ## remove possible ambiguity from statistic...
+  siv <- sign(ed$vectors[1,]);siv[siv==0] <- 1
+  ed$vectors <- sweep(ed$vectors,2,siv,"*")
+
+  k <- max(0,floor(rank))
+  nu <- abs(rank - k)     ## fractional part of supplied edf
+  if (type==1) { ## round up is more than .05 above lower
+    if (rank > k + .05||k==0) k <- k + 1
+    nu <- 0;rank <- k
+  }
+
+  if (nu>0) k1 <- k+1 else k1 <- k
+
+  ## check that actual rank is not below supplied rank+1
+  r.est <- sum(ed$values > max(ed$values)*.Machine$double.eps^.9)
+  if (r.est<k1) {k1 <- k <- r.est;nu <- 0;rank <- r.est}
+
+  ## Get the eigenvectors...
+  # vec <- qr.qy(qrx,rbind(ed$vectors,matrix(0,nrow(X)-ncol(X),ncol(X))))
+  vec <- ed$vectors
+  if (k1<ncol(vec)) vec <- vec[,1:k1,drop=FALSE]
+
+  ## deal with the fractional part of the pinv...
+  if (nu>0&&k>0) {
+    if (k>1) vec[,1:(k-1)] <- t(t(vec[,1:(k-1)])/sqrt(ed$val[1:(k-1)]))
+    b12 <- .5*nu*(1-nu)
+    if (b12<0) b12 <- 0
+    b12 <- sqrt(b12)
+    B <- matrix(c(1,b12,b12,nu),2,2)
+    ev <- diag(ed$values[k:k1]^-.5,nrow=k1-k+1)
+    B <- ev%*%B%*%ev
+    eb <- eigen(B,symmetric=TRUE)
+    rB <- eb$vectors%*%diag(sqrt(eb$values))%*%t(eb$vectors)
+    vec1 <- vec
+    vec1[,k:k1] <- t(rB%*%diag(c(-1,1))%*%t(vec[,k:k1]))
+    vec[,k:k1] <- t(rB%*%t(vec[,k:k1]))
+  } else {
+    vec1 <- vec <- if (k==0) t(t(vec)*sqrt(1/ed$val[1])) else
+      t(t(vec)/sqrt(ed$val[1:k]))
+    if (k==1) rank <- 1
+  }
+  ## there is an ambiguity in the choise of test statistic, leading to slight
+  ## differences in the p-value computation depending on which of 2 alternatives
+  ## is arbitrarily selected. Following allows both to be computed and p-values
+  ## averaged (can't average test stat as dist then unknown)
+  d <- t(vec)%*%(R%*%p)
+  d <- sum(d^2)
+  d1 <- t(vec1)%*%(R%*%p)
+  d1 <- sum(d1^2)
+  ##d <- d1 ## uncomment to avoid averaging
+
+  rank1 <- rank ## rank for lower tail pval computation below
+
+  ## note that for <1 edf then d is not weighted by EDF, and instead is
+  ## simply refered to a chi-squared 1
+
+  if (nu>0) { ## mixture of chi^2 ref dist
+    if (k1==1) rank1 <- val <- 1 else {
+      val <- rep(1,k1) ##ed$val[1:k1]
+      rp <- nu+1
+      val[k] <- (rp + sqrt(rp*(2-rp)))/2
+      val[k1] <- (rp - val[k])
+    }
+
+    if (res.df <= 0) pval <- (liu2(d,val) + liu2(d1,val))/2 else ##  pval <- davies(d,val)$Qq else
+      pval <- (simf(d,val,res.df) + simf(d1,val,res.df))/2
+  } else { pval <- 2 }
+  ## integer case still needs computing, also liu/pearson approx only good in
+  ## upper tail. In lower tail, 2 moment approximation is better (Can check this
+  ## by simply plotting the whole interesting range as a contour plot!)
+  if (pval > .5) {
+    if (res.df <= 0) pval <- (pchisq(d,df=rank1,lower.tail=FALSE)+pchisq(d1,df=rank1,lower.tail=FALSE))/2 else
+      pval <- (pf(d/rank1,rank1,res.df,lower.tail=FALSE)+pf(d1/rank1,rank1,res.df,lower.tail=FALSE))/2
+  }
+  list(stat=d,pval=min(1,pval),rank=rank)
+} ## end of testStat
