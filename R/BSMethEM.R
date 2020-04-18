@@ -205,7 +205,7 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   #---------------- this part is inside  the trycatch
 
   phi_reml <- GamObj$reml.scale
-
+ # phi_gam_default <- GamObj$scale
   #-------------------------------------------------------------------------
   # from the variance-covariance of alpha, to report
   # 1. var(beta_p(t))
@@ -342,7 +342,7 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
                   SE.out = SE.out,
                   SE.out.REML.scale = SE.out.REML.scael,
                   uni.pos = SE.pos,
-                  ncovs = ncol(Z)+1 , ite.points = Est.points, sigma00 = sigma00, phi_gam_default= phi_gam_default))
+                  ncovs = ncol(Z)+1 , ite.points = Est.points, sigma00 = sigma00))
 
 }
 Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, Z,pred.pi, p0, p1, disp_est, RanEff, N){

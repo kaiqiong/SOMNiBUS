@@ -7,7 +7,7 @@
 BSMethEM(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
   epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200,
   detail = FALSE, binom.link = "logit", method = "REML",
-  covs = NULL)
+  covs = NULL, RanEff = T, reml.scale = F, scale = -2)
 }
 \arguments{
 \item{data}{a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.}
@@ -33,6 +33,12 @@ BSMethEM(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
 \item{method}{the method used to estimate the smoothing parameters. The default is the "REML" method which is generally better than prediction based criterion \code{GCV.cp}}
 
 \item{covs}{a vector of covariate names. The covariates with names in \code{covs} will be included in the model and their covariate effects will be estimated.}
+
+\item{RanEff}{whether sample-level random effects are added or not}
+
+\item{reml.scale}{whether a REML-based scale (dispersion) estimator is used. The default is Fletcher-based estimator}
+
+\item{scale}{nagative values mean scale paramter should be estimated; if a positive value is provided, a fixed scale will be used.}
 }
 \value{
 This function return a \code{list} including objects:
