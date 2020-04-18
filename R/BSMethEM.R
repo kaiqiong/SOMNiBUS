@@ -240,29 +240,39 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   # calculate var_cov (for alpha & beta)  from the Hessian matrix
   #----------------------------------------------------------------
 
-  N <- length(unique(data$ID))
-  H = Hessian(w_ij =pred.pi * (1-pred.pi)/phi_fletcher,        new.par, new.lambda, X, Y, my.design.matrix, gam.int, Z,pred.pi, p0, p1, disp_est = phi_fletcher, RanEff = RanEff, N=N)
+  H = Hessian(w_ij =pred.pi * (1-pred.pi)/phi_fletcher,        new.par, new.lambda, X, Y, my.design.matrix, GamObj, Z,pred.pi, p0, p1, disp_est = phi_fletcher, RanEff = RanEff, N=N)
 
-
-  #var.cov.alpha <- solve(-H)
-  var.cov.alpha  <- matlib::Ginv(-H)
+  var.cov.alpha <- solve(-H)
+  var.alpha.0 <- var.cov.alpha[1:n.k[1], 1:n.k[1]]
+  var.alpha.sep <- lapply(1:ncol(Z), function(i){var.cov.alpha[ (cum_s[i]+1):cum_s[i+1],(cum_s[i]+1):cum_s[i+1]]})  # SE of the effect of Zs [beta.1(t), beta.2(t), beta.3(t) ...]
+  #var.cov.alpha  <- matlib::Ginv(-H)
   # solve and Ginv give very similar results, but MASS is very different from the other two
 
   #var.cov.alpha <- MASS::ginv(-H)
   # SE.out --- pointwise standard deviation
-  SE.out <- vector(mode = "list", length = (ncol(Z)+1))
-  names(SE.out) <- c("Intercept", colnames(Z))
 
-  var.alpha.0 <- var.cov.alpha[1:n.k[1], 1:n.k[1]]
-  var.beta.0 <-  BZ %*% var.alpha.0 %*% t(BZ)
 
-  var.alpha.sep <- lapply(1:ncol(Z), function(i){var.cov.alpha[ (cum_s[i]+1):cum_s[i+1],(cum_s[i]+1):cum_s[i+1]]})  # SE of the effect of Zs [beta.1(t), beta.2(t), beta.3(t) ...]
-  var.beta <- lapply(1:ncol(Z), function(i){BZ.beta[[i]] %*% var.alpha.sep[[i]] %*% t(BZ.beta[[i]])})
+  # A more efficient way to calculate SE rowsum(A*B) is faster than diag(A %*% t(B))
+  # sqrt(pmax(0,rowSums((BZ.beta_now[[2]]%*%var.cov.alpha[7:12,7:12,drop=FALSE])*BZ.beta_now[[2]])))
+  SE.out <- cbind(sqrt(pmax(0, rowSums( ( BZ %*% var.alpha.0) * BZ))),
+                  sapply(1:ncol(Z), function(i){sqrt(pmax(0,rowSums((BZ.beta[[i]] %*% var.alpha.sep[[i]])*BZ.beta[[i]])))
+                  }) )
 
-  SE.out <- cbind(sqrt(diag(var.beta.0)), sapply(1:ncol(Z), function(i){sqrt(diag(var.beta[[i]]))}))
   rownames(SE.out) <- uni.pos; colnames(SE.out) <-  c("Intercept", colnames(Z))
   SE.pos <- uni.pos
 
+
+  #SE.out <- vector(mode = "list", length = (ncol(Z)+1))
+  #names(SE.out) <- c("Intercept", colnames(Z))
+
+
+  #var.beta.0 <-  BZ %*% var.alpha.0 %*% t(BZ)
+  #var.beta <- lapply(1:ncol(Z), function(i){BZ.beta[[i]] %*% var.alpha.sep[[i]] %*% t(BZ.beta[[i]])})
+
+  #SE.out <- cbind(sqrt(diag(var.beta.0)), sapply(1:ncol(Z), function(i){sqrt(diag(var.beta[[i]]))}))
+
+  SE.out.REML.scael <- SE.out/sqrt(phi_fletcher) * sqrt(phi_reml)  #phi_reml
+  #SE.out.gFletcher <- SE.out/sqrt(phi_fletcher) * sqrt(phi_gfletcher)
 
   #----------------------------------------------------------------
   # calculate the region-based statistic from the testStats function in mgcv
@@ -305,8 +315,8 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   ## res.df is residual dof used to estimate scale. <=0 implies
   ## fixed scale.
 
-             s.table <- BSMethEM_summary(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff,re.test)
-  s.table.REML.scale <- BSMethEM_summary(GamObj, var.cov.alpha/phi_fletcher*phi_reml, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff,re.test)
+             s.table <- BSMethEM_summary(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff,re.test,Z)
+  s.table.REML.scale <- BSMethEM_summary(GamObj, var.cov.alpha/phi_fletcher*phi_reml, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff,re.test,Z)
   #var_out = list(cov1 = var.cov.alpha, reg.out = reg.out,  SE.out = SE.out, uni.pos = SE.pos,  pvalue = pvalue , ncovs = ncol(Z)+1)
   #Est_out = list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij, ite.points = Est.points,
   #               Beta.out = Beta.out, phi_fletcher = phi_fletcher)
@@ -364,7 +374,7 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, 
   return(Q1_with_lambda + Q2)
 
 }
-BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff,re.test){
+BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff,re.test, Z){
   ii <- 0
   m <- length(GamObj$smooth)
   df <- edf1 <- edf <- s.pv <- chi.sq <- array(0, m)
