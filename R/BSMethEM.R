@@ -14,6 +14,9 @@
 #' @param detail indicate whether print the number of iterations
 #' @param binom.link the link function used in the binomial regression model; the default is the logit link
 #' @param method the method used to estimate the smoothing parameters. The default is the "REML" method which is generally better than prediction based criterion \code{GCV.cp}
+#' @param RanEff whether sample-level random effects are added or not
+#' @param reml.scale whether a REML-based scale (dispersion) estimator is used. The default is Fletcher-based estimator
+#' @param scale nagative values mean scale paramter should be estimated; if a positive value is provided, a fixed scale will be used.
 #' @return This function return a \code{list} including objects:
 #' \itemize{
 #' \item \code{est}: estimates of the spline basis coefficients alphas
@@ -45,7 +48,7 @@
 #' @importFrom Matrix bdiag
 #' @importFrom stats as.formula binomial pchisq rbinom rnorm
 #' @export
-BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10^(-6),  epsilon.lambda = 10^(-3), maxStep = 200,  detail=FALSE, binom.link = "logit",method="REML", covs = NULL, RanEff = T){
+BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10^(-6),  epsilon.lambda = 10^(-3), maxStep = 200,  detail=FALSE, binom.link = "logit",method="REML", covs = NULL, RanEff = T, reml.scale=F, scale = -2){
 
   n.k <<-n.k # an error of 'n.k is not found' would appear if without this golable environment assignment; so I save n.k in a parent scope
   data <- data.frame(data)
@@ -88,9 +91,9 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   }
   # Fit gam for the initial value
   if(Quasi){
-    gam.int <- mgcv::gam(as.formula( paste0("Y/X ~", my.covar.fm)), family =quasibinomial(link = binom.link),weights=X, data = data, method = method)
+    gam.int <- mgcv::gam(as.formula( paste0("Y/X ~", my.covar.fm)), family =quasibinomial(link = binom.link),weights=X, data = data, method = method, scale = scale)
   }else{
-    gam.int <- mgcv::gam(as.formula( paste0("Y/X ~", my.covar.fm)), family =binomial(link = binom.link),weights=X, data = data, method = method)
+    gam.int <- mgcv::gam(as.formula( paste0("Y/X ~", my.covar.fm)), family =binomial(link = binom.link),weights=X, data = data, method = method, scale = scale)
   }
   # Estimates
   old.pi.ij <- gam.int$fitted.values;old.par <-gam.int$coefficients;lambda <- gam.int$sp
@@ -98,23 +101,38 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   p_res <- residuals(gam.int, type ='pearson')
   d_res <- residuals(gam.int, type ="deviance")
   edf.out <- gam.int$edf
-
+  edf1.out <- gam.int$edf1
 
   # Note: this phi_fletcher can be also self-calculated
-  if(Quasi){
-    new.pi.ij <- gam.int$fitted.value
-    my_s <- (1-2*new.pi.ij)/(data$X*new.pi.ij*(1-new.pi.ij))*(data$Y-data$X*new.pi.ij)#*sqrt(data$X)
+  if(Quasi & scale<=0){   # calculate the estimate of phi if Quasi = T and scale is unknown
+    my_s <- (1-2*old.pi.ij)/(data$X*old.pi.ij*(1-old.pi.ij))*(data$Y-data$X*old.pi.ij)#*sqrt(data$X)
 
     # Note: the estimator implemented in the mgcv calculated my_s with an additional multiplier sqrt(data$X)
     # But from the paper there shouldn't be this one
+    #phi_p = sum( p_res^2)/(length(data$Y) - sum(edf.out))
+
+    # Feb 21, 2020  use edf1 to calculate the pearson's dispersion estimate not the edf; because I will use the asympototic chi-square dist. of phi.est
+    # March 3, 2020, the dispersion parameter estimated in gam use the edf.out instead of edf1.out
+
+   # my_s_gam <- my_s*sqrt(data$X)
+
     phi_p = sum( p_res^2)/(length(data$Y) - sum(edf.out))
+
     phi_fletcher <- phi_p/(1+mean(my_s))
+   # phi_gfletcher <- phi_p/(1+mean(my_s_gam))  # This gives the exact results as mgcv::gam -dispersion
+
+    if(reml.scale){phi_fletcher <- gam.int$reml.scale}
     #phi_fletcher <- out$phi_fletcher
     #phi_fletcher <- summary(gam.int)$dispersion
-  }else{
+  }
+
+  if(!Quasi){
     phi_fletcher <- 1
   }
 
+  if(scale>0 ){
+    phi_fletcher = scale
+  }
 
 
 
@@ -170,7 +188,9 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   # Estimated dispersion paramters (Fletcher adjusted)
   #phi_fletcher <- out$phi_fletcher
 
-  gam.int <- GamObj <- out$GamObj
+  phi_fletcher <- out$phi_fletcher
+
+  GamObj <- out$GamObj
 
 
 
@@ -178,11 +198,13 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   # Calculate SE of alpha
   #-------------------------------------------
   # the part to calculate the SE of alpha
-  my.design.matrix <-  mgcv::model.matrix.gam(gam.int) # the model matrix for the gam.int and the FinalGamObj is the same. the difference is only on the outcomes
+  my.design.matrix <-  mgcv::model.matrix.gam(GamObj) # the model matrix for the GamObj and the FinalGamObj is the same. the difference is only on the outcomes
   Y <- data$Y ; X <- data$X
   pred.pi <- new.pi.ij
+  N <- length(unique(data$ID))
   #---------------- this part is inside  the trycatch
 
+  phi_reml <- GamObj$reml.scale
 
   #-------------------------------------------------------------------------
   # from the variance-covariance of alpha, to report
@@ -253,24 +275,26 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
     re.test= F
   }
 
-  sub.samp <- max(1000,2*length(GamObj$coefficients))
-  if (nrow(GamObj$model)>sub.samp) { ## subsample to get X for p-values calc.
-    seed <- try(get(".Random.seed",envir=.GlobalEnv),silent=TRUE) ## store RNG seed
-    if (inherits(seed,"try-error")) {
-      runif(1)
-      seed <- get(".Random.seed",envir=.GlobalEnv)
+  if (!is.null(GamObj$R))  X_d <- GamObj$R else {
+    sub.samp <- max(1000,2*length(GamObj$coefficients))
+    if (nrow(GamObj$model)>sub.samp) { ## subsample to get X for p-values calc.
+      seed <- try(get(".Random.seed",envir=.GlobalEnv),silent=TRUE) ## store RNG seed
+      if (inherits(seed,"try-error")) {
+        runif(1)
+        seed <- get(".Random.seed",envir=.GlobalEnv)
+      }
+      kind <- RNGkind(NULL)
+      RNGkind("default","default")
+      set.seed(11) ## ensure repeatability
+      ind <- sample(1:nrow(GamObj$model),sub.samp,replace=FALSE)  ## sample these rows from X
+      X_d <- predict(GamObj,GamObj$model[ind,],type="lpmatrix")
+      RNGkind(kind[1],kind[2])
+      assign(".Random.seed",seed,envir=.GlobalEnv) ## RNG behaves as if it had not been used
+    } else { ## don't need to subsample
+      X_d <- model.matrix(GamObj)
     }
-    kind <- RNGkind(NULL)
-    RNGkind("default","default")
-    set.seed(11) ## ensure repeatability
-    ind <- sample(1:nrow(GamObj$model),sub.samp,replace=FALSE)  ## sample these rows from X
-    X_d <- predict(GamObj,GamObj$model[ind,],type="lpmatrix")
-    RNGkind(kind[1],kind[2])
-    assign(".Random.seed",seed,envir=.GlobalEnv) ## RNG behaves as if it had not been used
-  } else { ## don't need to subsample
-    X_d <- model.matrix(GamObj)
-  }
-  X_d  <- X_d [!is.na(rowSums(X_d )),] ## exclude NA's (possible under na.exclude)
+    X_d  <- X_d [!is.na(rowSums(X_d )),] ## exclude NA's (possible under na.exclude)
+  } ## end if (m>0)
 
   #p : estimated paramters --- alpha.0, alpha.seq
   #Xt: the design matrix --- my.design.matrix
@@ -280,23 +304,85 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   ## 1. Round down to k if k<= rank < k+0.05, otherwise up.
   ## res.df is residual dof used to estimate scale. <=0 implies
   ## fixed scale.
+
+             s.table <- BSMethEM_summary(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff,re.test)
+  s.table.REML.scale <- BSMethEM_summary(GamObj, var.cov.alpha/phi_fletcher*phi_reml, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff,re.test)
+  #var_out = list(cov1 = var.cov.alpha, reg.out = reg.out,  SE.out = SE.out, uni.pos = SE.pos,  pvalue = pvalue , ncovs = ncol(Z)+1)
+  #Est_out = list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij, ite.points = Est.points,
+  #               Beta.out = Beta.out, phi_fletcher = phi_fletcher)
+
+
+  if(RanEff){
+    sigma00 <- GamObj$reml.scale/GamObj$sp["s(ID)"]
+  }else{
+    sigma00 <- NA
+  }
+
+  reg.out.gam = summary(GamObj)$s.table
+
+
+  return(out=list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij,
+                  Beta.out = Beta.out,
+                  phi_fletcher = phi_fletcher,
+                  phi_reml = phi_reml,
+                  reg.out = s.table,
+                  reg.out.reml.scale = s.table.REML.scale,
+                  cov1 = var.cov.alpha,
+                  reg.out.gam= reg.out.gam,
+                  SE.out = SE.out,
+                  SE.out.REML.scale = SE.out.REML.scael,
+                  uni.pos = SE.pos,
+                  ncovs = ncol(Z)+1 , ite.points = Est.points, sigma00 = sigma00, phi_gam_default= phi_gam_default))
+
+}
+Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, Z,pred.pi, p0, p1, disp_est, RanEff, N){
+
+  # Q1: the second partial derivative w.r.t alpha^2
+  # Q2: the second derivative w.r.t alpha & alpha_star
+  res <- outer( 1:length(new.par), 1:length(new.par), Vectorize(function(l,m)  sum(-X * w_ij * my.design.matrix[, m]*my.design.matrix[,l] )) )
+  smoth.mat <-lapply(as.list(1:(ncol(Z)+1)), function(i){gam.int$smooth[[i]]$S[[1]] * new.lambda[i]})  # extract the penalty matrix
+
+  smoth.mat[[length(smoth.mat) + 1]] <- 0  # assume the lambda for the constant of the intercept is 0 -- no penalization
+  if(RanEff){
+    #new.lambda[ncol(Z)+2]
+    #smoth.mat[[length(smoth.mat) + 1]] <- diag(N) /(re_sd^2) # NOTE that the smoothing matrix for the random effects is not identity remember to multiple lambda (1/sigma_0^2)
+    smoth.mat[[length(smoth.mat) + 1]] <- diag(N) *new.lambda[ncol(Z)+2] # !!!! Otherwise, we get very wide CI
+    span.penal.matrix <- as.matrix(Matrix::bdiag( smoth.mat[c(length(smoth.mat)-1, (1:(length(smoth.mat)-2)), length(smoth.mat))] ))
+  }else{
+
+    span.penal.matrix <- as.matrix(Matrix::bdiag( smoth.mat[c(length(smoth.mat), (1:(length(smoth.mat)-1)))] ))
+  }
+
+  Q1_with_lambda <- res - span.penal.matrix/disp_est
+  Q1_no_lambda <- res
+
+  Q2 <- outer(1:length(new.par), 1:length(new.par), Vectorize(function(l,m){
+    term1 <- Y*p1*p0/(p1*pred.pi + p0 * (1-pred.pi))^2 + (X-Y)*(1-p1)*(1-p0)/((1-p1)*pred.pi + (1-p0) * (1-pred.pi))^2
+    sum(term1 * w_ij * my.design.matrix[,m] * my.design.matrix[,l])
+  }))
+
+  return(Q1_with_lambda + Q2)
+
+}
+BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff,re.test){
   ii <- 0
-  m <- length(gam.int$smooth)
+  m <- length(GamObj$smooth)
   df <- edf1 <- edf <- s.pv <- chi.sq <- array(0, m)
   for ( i in 1:m){
-    start <- gam.int$smooth[[i]]$first.para; stop <- gam.int$smooth[[i]]$last.para
+    start <- GamObj$smooth[[i]]$first.para; stop <- GamObj$smooth[[i]]$last.para
 
     V <- var.cov.alpha[start:stop,start:stop,drop=FALSE] ## Bayesian
 
     p <- new.par[start:stop]  # params for smooth
     edfi <- sum(edf.out[start:stop]) # edf for this smooth
     ## extract alternative edf estimate for this smooth, if possible...
-    edf1i <-  sum(edf.out[start:stop])
+    edf1i <-  sum(edf1.out[start:stop])
     Xt <- X_d [,start:stop,drop=FALSE]
-    fx <- if (inherits(gam.int$smooth[[i]],"tensor.smooth")&&
-              !is.null(gam.int$smooth[[i]]$fx)) all(gam.int$smooth[[i]]$fx) else gam.int$smooth[[i]]$fixed
-    if (!fx&&gam.int$smooth[[i]]$null.space.dim==0&&!is.null(gam.int$R)) { ## random effect or fully penalized term
-      res <- if (re.test) mgcv:::reTest(gam.int,i) else NULL
+    fx <- if (inherits(GamObj$smooth[[i]],"tensor.smooth")&&
+              !is.null(GamObj$smooth[[i]]$fx)) all(GamObj$smooth[[i]]$fx) else GamObj$smooth[[i]]$fixed
+    if (!fx&&GamObj$smooth[[i]]$null.space.dim==0&&!is.null(GamObj$R)) { ## random effect or fully penalized term
+      res <- if (re.test) mgcv:::reTest(GamObj,i) else NULL     # Test the mth smooth for equality to zero  (m is not the RE term)
+      ## and accounting for all random effects in model
     } else { ## Inverted Nychka interval statistics
 
       if (Quasi) rdf <-  resi_df else rdf <- -1
@@ -317,7 +403,7 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
       df <- df[1:ii];chi.sq <- chi.sq[1:ii];edf1 <- edf1[1:ii]
       edf <- edf[1:ii];s.pv <- s.pv[1:ii]
     }
-    if (!Quasi) {
+    if (!Quasi || scale>=0) {
       s.table <- cbind(edf, df, chi.sq, s.pv)
       dimnames(s.table) <- list(names(chi.sq), c("edf", "Ref.df", "Chi.sq", "p-value"))
     } else {
@@ -330,43 +416,7 @@ BSMethEM = function (data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   }else{
     rownames(s.table) <- c("Intercept", colnames(Z))}
   colnames(s.table)[1] <- "EDF"
-  #var_out = list(cov1 = var.cov.alpha, reg.out = reg.out,  SE.out = SE.out, uni.pos = SE.pos,  pvalue = pvalue , ncovs = ncol(Z)+1)
-  #Est_out = list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij, ite.points = Est.points,
-  #               Beta.out = Beta.out, phi_fletcher = phi_fletcher)
-
-  return(out=list(est = new.par, lambda = new.lambda, est.pi = new.pi.ij,
-                  Beta.out = Beta.out, phi_fletcher = phi_fletcher,
-                  reg.out = s.table,
-                  cov1 = var.cov.alpha,  SE.out = SE.out, uni.pos = SE.pos,  pvalue = s.pv ,
-                  ncovs = ncol(Z)+1 , ite.points = Est.points))
-
-}
-Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, Z,pred.pi, p0, p1, disp_est, RanEff, N){
-
-  # Q1: the second partial derivative w.r.t alpha^2
-  # Q2: the second derivative w.r.t alpha & alpha_star
-  res <- outer( 1:length(new.par), 1:length(new.par), Vectorize(function(l,m)  sum(-X * w_ij * my.design.matrix[, m]*my.design.matrix[,l] )) )
-  smoth.mat <-lapply(as.list(1:(ncol(Z)+1)), function(i){gam.int$smooth[[i]]$S[[1]] * new.lambda[i]})  # extract the penalty matrix
-
-  smoth.mat[[length(smoth.mat) + 1]] <- 0  # assume the lambda for the constant of the intercept is 0 -- no penalization
-  if(RanEff){
-    smoth.mat[[length(smoth.mat) + 1]] <- diag(N)
-    span.penal.matrix <- as.matrix(Matrix::bdiag( smoth.mat[c(length(smoth.mat)-1, (1:(length(smoth.mat)-2)), length(smoth.mat))] ))
-  }else{
-
-    span.penal.matrix <- as.matrix(Matrix::bdiag( smoth.mat[c(length(smoth.mat), (1:(length(smoth.mat)-1)))] ))
-  }
-
-  Q1_with_lambda <- res - span.penal.matrix/disp_est
-  Q1_no_lambda <- res
-
-  Q2 <- outer(1:length(new.par), 1:length(new.par), Vectorize(function(l,m){
-    term1 <- Y*p1*p0/(p1*pred.pi + p0 * (1-pred.pi))^2 + (X-Y)*(1-p1)*(1-p0)/((1-p1)*pred.pi + (1-p0) * (1-pred.pi))^2
-    sum(term1 * w_ij * my.design.matrix[,m] * my.design.matrix[,l])
-  }))
-
-  return(Q1_with_lambda + Q2)
-
+  s.table
 }
 
 ## testStat function is directly copied from the mgcv package
