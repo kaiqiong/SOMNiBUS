@@ -1,5 +1,6 @@
 name: r_somnibus
 channels:
+  - r
   - conda-forge
   - defaults
 dependencies:
