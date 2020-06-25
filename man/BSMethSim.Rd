@@ -46,62 +46,70 @@ Simulate Bisulfite sequencing data from a Generalized Additive Model with functi
 }
 \examples{
 #------------------------------------------------------------#
-#Generate functional parameter theta.0, position based from the
-#real data set "Data_HHM" in the package SMSC
+# Generate functional parameter theta.0, position based from the
+# real data set "Data_HHM" in the package SMSC
 #------------------------------------------------------------#
 library(SMSC)
 data("Data_HHM")
 y <- Data_HHM
-fit1 <- SMSC(y$Ccount, y$CT, y$position, method="KNN2")
-par(mfrow=c(1,1))
-plotSMSC(y$Ccount/y$CT, y$origin, y$position, fit1) # The methylation levels are stored in fit$pi
-plot(y$position, fit1$pi, type="l", lwd=3)
+fit1 <- SMSC(y$Ccount, y$CT, y$position, method = "KNN2")
+par(mfrow = c(1, 1))
+plotSMSC(y$Ccount / y$CT, y$origin, y$position, fit1) # The methylation levels are stored in fit$pi
+plot(y$position, fit1$pi, type = "l", lwd = 3)
+# #retrieve the region between (590kb - 700kb)
 abline(v = 590000)
 abline(v = 700000)
-window.id <- which( y$position > 590000 & y$position <700000)
+window.id <- which(y$position > 590000 & y$position < 700000)
 # smooth.spline for the logit scale
-my.exp.y <- log(fit1$pi[window.id]/(1-fit1$pi[window.id]) )
-my.nknots = 5
-plot(y$position[window.id], my.exp.y, ylim = c(-4,8), main="Region of interest",
-   xlab = "Position", ylab = expression( paste("Logit of methylation level ", theta[0], sep=" ")) )
-ff <- smooth.spline(y$position[window.id], my.exp.y, nknots=my.nknots)
-lines(ff, col=my.nknots, lty=6)
+my.exp.y <- log(fit1$pi[window.id] / (1 - fit1$pi[window.id]))
+my.nknots <- 5
+plot(y$position[window.id], my.exp.y,
+  ylim = c(-4, 8), main = "Region of interest",
+  xlab = "Position", ylab = expression(paste("Logit of methylation level ", theta[0], sep = " "))
+)
+ff <- smooth.spline(y$position[window.id], my.exp.y, nknots = my.nknots)
+lines(ff, col = my.nknots, lty = 6)
 # transform back to the scale (0, 1)
-my.fit.pi <-  exp(ff$y)/(1+exp(ff$y))
+my.fit.pi <- exp(ff$y) / (1 + exp(ff$y))
 
-plot(y$position[window.id], fit1$pi[window.id], ylim = c(-0.2, 1.2), main="Region of interest",
-    xlab = "Position", ylab = expression( paste("A smooth estimate of ", pi[0], sep=" ")))
-lines(y$position[window.id], my.fit.pi,col = 2, type="b", lty=3 )
+plot(y$position[window.id], fit1$pi[window.id],
+  ylim = c(-0.2, 1.2), main = "Region of interest",
+  xlab = "Position", ylab = expression(paste("A smooth estimate of ", pi[0], sep = " "))
+)
+lines(y$position[window.id], my.fit.pi, col = 2, type = "b", lty = 3)
 #---------------------------------------------------------------------
 # Note: the estimation of the smooth curve pi0[t] is obtained from function
 # "smooth.spline" -- fixing the degree of freedom (i.e. fixing lambda) -- selected by eyes
 my.t <- y$position[window.id] # Position
 theta.0 <- predict(ff, my.t)$y # theta.0  There are 90 CpGs in this region
-pi.0 <- exp(theta.0)/(1+exp(theta.0))
+pi.0 <- exp(theta.0) / (1 + exp(theta.0))
 #---------------------------------------------------#
 # Sample size and random effect
 #---------------------------------------------------#
-my.n <- 8   # sample size
+my.n <- 8 # sample size
 sigma.ee <- 1 # variance of random effect
 #-----------------------------------#
 # Generate function beta(t)-- Linear
 #-----------------------------------#
 my.coef <- 10
-my.beta <- (my.t - min(my.t))/(max(my.t)- min(my.t)) * my.coef
+my.beta <- (my.t - min(my.t)) / (max(my.t) - min(my.t)) * my.coef
 #-----------------------------------------------------------------#
 # Generate read covarage matrix my.X and Z the percentage of type A
 #-----------------------------------------------------------------#
 # Generate X (Read Covarage)---using the bootstrap
-my.X <- matrix(NA, nrow=my.n, ncol = length(pi.0))
-for ( i in 1:my.n){
- my.X[i,] <- sample(y$CT, size = length(pi.0), replace=T)
+my.X <- matrix(NA, nrow = my.n, ncol = length(pi.0))
+for (i in 1:my.n) {
+  my.X[i, ] <- sample(y$CT, size = length(pi.0), replace = T)
 }
-my.Z <- rbeta(my.n, shape1 = 2, shape2=2)
-my.data <- BSMethGammSim(n=my.n, posit=my.t, theta.0 = theta.0, beta=my.beta, sigma.ee = sigma.ee,
-                        X=my.X, Z = my.Z)
-my.data <- BSMethGammSim(n=my.n, posit=my.t, theta.0 = theta.0, beta=my.beta, sigma.ee = sigma.ee,
-                        X=my.X, Z = my.Z,random.eff = F)
-
+my.Z <- rbeta(my.n, shape1 = 2, shape2 = 2)
+my.data <- BSMethGammSim(
+  n = my.n, posit = my.t, theta.0 = theta.0, beta = my.beta, sigma.ee = sigma.ee,
+  X = my.X, Z = my.Z
+)
+my.data <- BSMethGammSim(
+  n = my.n, posit = my.t, theta.0 = theta.0, beta = my.beta, sigma.ee = sigma.ee,
+  X = my.X, Z = my.Z, random.eff = F
+)
 }
 \author{
 Kaiqiong Zhao

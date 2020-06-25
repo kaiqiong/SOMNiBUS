@@ -1,0 +1,71 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.1.0
+    hooks:
+    -   id: check-added-large-files
+    -   id: end-of-file-fixer
+        exclude: '\.Rd' # sometimes roxygen fails to generate EOF blank line.
+    -   id: check-yaml
+    -   id: trailing-whitespace
+-   repo: https://github.com/lorenzwalthert/precommit
+    rev: v0.1.2
+    hooks:
+    # -   id: lintr
+    -   id: style-files
+        #args: [--style_pkg=styler, '--style_transformers=tidyverse_style(scope = "tokens")']
+        #exclude: '^tests/testthat/.*/*\.R'
+    -   id: roxygenize
+    -   id: parsable-R
+    -   id: no-browser-statement
+    -   id: use-tidy-description
+    -   id: spell-check
+        exclude: >
+          (?x)^(
+          data/.*|
+          (.*/|)\.Rprofile|
+          (.*/|)\.Renviron|
+          (.*/|)\.gitignore|
+          (.*/|)NAMESPACE|
+          (.*/|)WORDLIST|
+          (.*/|)\.travis.yml|
+          (.*/|)appveyor.yml|
+          (.*/|)\.Rbuildignore|
+          (.*/|)\.pre-commit-.*|
+          .*\.[rR]|
+          .*\.Rproj|
+          .*\.py|
+          .*\.feather|
+          .*\.rds|
+          .*\.Rds|
+          .*\.sh|
+          .*\.RData|
+          .*\.RDS|
+          .*\.png
+          )$
+#     -   id: readme-rmd-rendered
+    # -   id: deps-in-desc
+# codemeta must be above use-tidy-description when both are used
+    # -   id: codemeta-description-updated
+# -   repo: local
+#     hooks:
+#     -   id: consistent-release-tag
+#         name: consistent-release-tag
+#         entry: inst/consistent-release-tag
+#         language: script
+#         stages: [commit, push]
+#     -   id: hooks-config-to-inst
+#         name: hooks-config-to-inst
+#         entry: inst/hooks-config-to-inst
+#         language: script
+#         stages: [commit, push]
+#     -   id: spell-check-exclude-to-config
+#         name: spell-check-exclude-to-config
+#         entry: inst/spell-check-exclude-to-config
+#         language: script
+#         stages: [commit, push]
+#     -   id: forbid-to-commit
+#         name: Don't commit common R artifacts
+#         entry: Cannot commit .Rhistory, .Rdata, .csv and similar.
+#         language: fail
+#         files: '\.Rhistory|\.csv|\.RData|\.Rds|\.rds$'
+#         # `exclude: <regex>` to allow committing specific files.

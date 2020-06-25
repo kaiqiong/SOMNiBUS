@@ -7,52 +7,54 @@
 #' @param type return the predicted methylation proportion or the predicted response (in logit or other binom.link scale)
 #' @return This function returns the predicted methylation levels
 #' @author  Kaiqiong Zhao
-#' @examples #------------------------------------------------------------#
+#' @examples
+#' #------------------------------------------------------------#
 #' head(RAdat)
-#' RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0,])
-#' out <- BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003307034, p1 = 0.9,
-#' epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail=F)
+#' RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
+#' out <- BSMethEM(
+#'   data = RAdat.f, n.k = rep(5, 3), p0 = 0.003307034, p1 = 0.9,
+#'   epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = F
+#' )
 #' plot_BSMethEM(out, same.range = F)
 #' @export
-pred_BSMethEM = function (BEM.obj, newdata=NULL, type = "proportion"){
- uni.pos <- BEM.obj$uni.pos
- covs <- colnames(BEM.obj$Beta.out)
- if(!type %in% c("proportion", "link.scale")) stop ("type should be either proportion or link.scale")
+pred_BSMethEM <- function(BEM.obj, newdata = NULL, type = "proportion") {
+  uni.pos <- BEM.obj$uni.pos
+  covs <- colnames(BEM.obj$Beta.out)
+  if (!type %in% c("proportion", "link.scale")) stop("type should be either proportion or link.scale")
 
- if(is.null(newdata)){
-   if(type =="proportion"){
-     return(BEM.obj$est.pi)
-   }
-   if(type == "link.scale"){
-     return(log(BEM.obj$est.pi/(1-BEM.obj$est.pi)))
-   }
- }else{
-   newdata <- data.frame(newdata, Intercept =1)
-   if( all(setdiff(colnames(newdata), "Position") %in% colnames(BEM.obj$Beta.out))){
+  if (is.null(newdata)) {
+    if (type == "proportion") {
+      return(BEM.obj$est.pi)
+    }
+    if (type == "link.scale") {
+      return(log(BEM.obj$est.pi / (1 - BEM.obj$est.pi)))
+    }
+  } else {
+    newdata <- data.frame(newdata, Intercept = 1)
+    if (all(setdiff(colnames(newdata), "Position") %in% colnames(BEM.obj$Beta.out))) {
+      id <- match(newdata$Position, uni.pos)
 
-    id <- match(newdata$Position , uni.pos)
+      if (any(is.na(id))) {
+        stop("The positions in the newdata should be the exactly the same as the positions fited in object BEM.obj")
+      }
+      beta.s <- BEM.obj$Beta.out[id, ] # estimated beta(t) for each t in the role of newdata
 
-    if(any(is.na(id))){ stop("The positions in the newdata should be the exactly the same as the positions fited in object BEM.obj")}
-    beta.s <- BEM.obj$Beta.out[id, ] # estimated beta(t) for each t in the role of newdata
+      newdata <- newdata[, -which(colnames(newdata) == "Position")]
+      newdata <- newdata[, match(covs, colnames(newdata))]
 
-    newdata <- newdata[,-which(colnames(newdata)=="Position") ]
-    newdata <- newdata[, match( covs, colnames(newdata))]
+      pred.link <- sapply(1:nrow(newdata), function(i) {
+        sum(beta.s[i, ] * newdata[i, ])
+      })
 
-    pred.link <-sapply(1:nrow(newdata), function(i){sum(beta.s[i,] * newdata[i,])})
-
-   if(type == "link.scale"){
-     return(pred.link)
-   }
-   if(type == "proportion"){
-     pred.pi <- exp(pred.link)/(1+exp(pred.link))
-     return(pred.pi)
-   }
-
-   }else{
-     stop("The covariates used to fit object BEM.obj should appeared in newdata")
-   }
-
- }
+      if (type == "link.scale") {
+        return(pred.link)
+      }
+      if (type == "proportion") {
+        pred.pi <- exp(pred.link) / (1 + exp(pred.link))
+        return(pred.pi)
+      }
+    } else {
+      stop("The covariates used to fit object BEM.obj should appeared in newdata")
+    }
+  }
 }
-
-
