@@ -1621,17 +1621,17 @@ input.margin-toggle { display: none; }
 label.sidenote-number { display: inline; }
 label.margin-toggle:not(.sidenote-number) { display: none; }
 
-code > span.kw { color: #E07020; } 
-code > span.dt { color: #404040; } 
-code > span.dv { color: #D02070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #D02070; } 
-code > span.ch { color: #40A040; } 
-code > span.st { color: #40A040; } 
-code > span.co { color: #808080; font-style: italic; } 
-code > span.ot { color: #2020F0; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #E07020; }  code > span.er { color: #FF0000; } 
+code > span.kw { color: #E07020; }
+code > span.dt { color: #404040; }
+code > span.dv { color: #D02070; }
+code > span.bn { color: #d14; }
+code > span.fl { color: #D02070; }
+code > span.ch { color: #40A040; }
+code > span.st { color: #40A040; }
+code > span.co { color: #808080; font-style: italic; }
+code > span.ot { color: #2020F0; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #E07020; }  code > span.er { color: #FF0000; }
 code > span.identifier { color: #404040; }
 code > span.number { color: #D02070; }
 code > span.string { color: #40A040; }
@@ -1952,7 +1952,7 @@ newdata &lt;-<span class="st"> </span><span class="kw">expand.grid</span>( pos, 
       <span class="dt">ylab=</span><span class="st">&quot;predicted&quot;</span>,<span class="dt">col=</span><span class="st">&quot;red&quot;</span>, <span class="dt">lwd =</span> <span class="dv">2</span>)
 <span class="kw">lines</span>(pos[<span class="kw">order</span>(pos)], (my.pred[(newdata<span class="op">$</span>RA<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>newdata<span class="op">$</span>T_cell <span class="op">==</span><span class="st"> </span><span class="dv">1</span>)])[<span class="kw">order</span>(pos)], <span class="dt">type=</span><span class="st">&quot;l&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Position&quot;</span>,
       <span class="dt">ylab=</span><span class="st">&quot;predicted&quot;</span>, <span class="dt">col=</span><span class="st">&quot;black&quot;</span>, <span class="dt">lwd =</span> <span class="dv">2</span>)
-<span class="kw">legend</span>(<span class="st">&quot;top&quot;</span>,<span class="kw">c</span>(<span class="st">&quot;RA MONO&quot;</span>,<span class="st">&quot;RA TCELL&quot;</span>,<span class="st">&quot;CTRL MONO&quot;</span>,<span class="st">&quot;CTRL TCELL&quot;</span>), 
+<span class="kw">legend</span>(<span class="st">&quot;top&quot;</span>,<span class="kw">c</span>(<span class="st">&quot;RA MONO&quot;</span>,<span class="st">&quot;RA TCELL&quot;</span>,<span class="st">&quot;CTRL MONO&quot;</span>,<span class="st">&quot;CTRL TCELL&quot;</span>),
        <span class="dt">fill=</span><span class="kw">c</span>(<span class="st">&quot;red&quot;</span>,<span class="st">&quot;black&quot;</span>,<span class="st">&quot;blue&quot;</span>,<span class="st">&quot;green&quot;</span>),
        <span class="dt">title =</span> <span class="st">&quot;Disease and Cell Type&quot;</span>, <span class="dt">bty=</span><span class="st">&quot;n&quot;</span>, <span class="dt">cex=</span><span class="fl">0.8</span>)</code></pre>
 <div class="figure"><span id="fig:unnamed-chunk-20"></span>
@@ -1970,7 +1970,7 @@ Figure 3: <span class="caption-title">The predicted methylation levels in the lo
       <span class="dt">ylab=</span><span class="st">&quot;predicted&quot;</span>,<span class="dt">col=</span><span class="st">&quot;red&quot;</span>, <span class="dt">lwd =</span> <span class="dv">2</span>)
 <span class="kw">lines</span>(pos[<span class="kw">order</span>(pos)], (my.pred[(newdata<span class="op">$</span>RA<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>newdata<span class="op">$</span>T_cell <span class="op">==</span><span class="st"> </span><span class="dv">1</span>)])[<span class="kw">order</span>(pos)], <span class="dt">type=</span><span class="st">&quot;l&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Position&quot;</span>,
       <span class="dt">ylab=</span><span class="st">&quot;predicted&quot;</span>, <span class="dt">col=</span><span class="st">&quot;black&quot;</span>, <span class="dt">lwd =</span> <span class="dv">2</span>)
-<span class="kw">legend</span>(<span class="st">&quot;top&quot;</span>,<span class="kw">c</span>(<span class="st">&quot;RA MONO&quot;</span>,<span class="st">&quot;RA TCELL&quot;</span>,<span class="st">&quot;CTRL MONO&quot;</span>,<span class="st">&quot;CTRL TCELL&quot;</span>), 
+<span class="kw">legend</span>(<span class="st">&quot;top&quot;</span>,<span class="kw">c</span>(<span class="st">&quot;RA MONO&quot;</span>,<span class="st">&quot;RA TCELL&quot;</span>,<span class="st">&quot;CTRL MONO&quot;</span>,<span class="st">&quot;CTRL TCELL&quot;</span>),
        <span class="dt">fill=</span><span class="kw">c</span>(<span class="st">&quot;red&quot;</span>,<span class="st">&quot;black&quot;</span>,<span class="st">&quot;blue&quot;</span>,<span class="st">&quot;green&quot;</span>),
        <span class="dt">title =</span> <span class="st">&quot;Disease and Cell Type&quot;</span>, <span class="dt">bty=</span><span class="st">&quot;n&quot;</span>, <span class="dt">cex=</span><span class="fl">0.8</span>)</code></pre>
 <div class="figure"><span id="fig:unnamed-chunk-21"></span>
@@ -2061,38 +2061,38 @@ compiled running pandoc 2.3.1:</p>
 <pre><code>#&gt; R version 3.5.0 (2018-04-23)
 #&gt; Platform: x86_64-redhat-linux-gnu (64-bit)
 #&gt; Running under: CentOS Linux 7 (Core)
-#&gt; 
+#&gt;
 #&gt; Matrix products: default
 #&gt; BLAS/LAPACK: /var/chroots/hydrars-centos-7/usr/lib64/R/lib/libRblas.so
-#&gt; 
+#&gt;
 #&gt; locale:
-#&gt;  [1] LC_CTYPE=en_US.UTF-8 LC_NUMERIC=C         LC_TIME=C           
-#&gt;  [4] LC_COLLATE=C         LC_MONETARY=C        LC_MESSAGES=C       
-#&gt;  [7] LC_PAPER=C           LC_NAME=C            LC_ADDRESS=C        
-#&gt; [10] LC_TELEPHONE=C       LC_MEASUREMENT=C     LC_IDENTIFICATION=C 
-#&gt; 
+#&gt;  [1] LC_CTYPE=en_US.UTF-8 LC_NUMERIC=C         LC_TIME=C
+#&gt;  [4] LC_COLLATE=C         LC_MONETARY=C        LC_MESSAGES=C
+#&gt;  [7] LC_PAPER=C           LC_NAME=C            LC_ADDRESS=C
+#&gt; [10] LC_TELEPHONE=C       LC_MEASUREMENT=C     LC_IDENTIFICATION=C
+#&gt;
 #&gt; attached base packages:
-#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
-#&gt; 
+#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base
+#&gt;
 #&gt; other attached packages:
-#&gt; [1] SOMNiBUS_0.1.0   BiocStyle_2.10.0 magrittr_1.5    
-#&gt; 
+#&gt; [1] SOMNiBUS_0.1.0   BiocStyle_2.10.0 magrittr_1.5
+#&gt;
 #&gt; loaded via a namespace (and not attached):
 #&gt;  [1] Rcpp_1.0.0         compiler_3.5.0     BiocManager_1.30.4
-#&gt;  [4] highr_0.8          prettyunits_1.0.2  remotes_2.1.0     
-#&gt;  [7] tools_3.5.0        pkgbuild_1.0.2     digest_0.6.18     
-#&gt; [10] packrat_0.5.0      evaluate_0.14      memoise_1.1.0     
-#&gt; [13] nlme_3.1-137       lattice_0.20-35    mgcv_1.8-28       
-#&gt; [16] rlang_0.3.4        Matrix_1.2-14      cli_1.1.0         
-#&gt; [19] rstudioapi_0.10    commonmark_1.7     curl_3.3          
-#&gt; [22] yaml_2.2.0         xfun_0.8           withr_2.1.2       
-#&gt; [25] stringr_1.4.0      knitr_1.23         roxygen2_6.1.1    
-#&gt; [28] xml2_1.2.0         desc_1.2.0         devtools_1.13.6   
-#&gt; [31] rprojroot_1.3-2    grid_3.5.0         R6_2.4.0          
-#&gt; [34] processx_3.3.1     rmarkdown_1.14     bookdown_0.10     
-#&gt; [37] pacman_0.5.1       callr_3.2.0        purrr_0.3.2       
-#&gt; [40] ps_1.3.0           backports_1.1.4    htmltools_0.3.6   
-#&gt; [43] splines_3.5.0      rsconnect_0.8.13   assertthat_0.2.1  
+#&gt;  [4] highr_0.8          prettyunits_1.0.2  remotes_2.1.0
+#&gt;  [7] tools_3.5.0        pkgbuild_1.0.2     digest_0.6.18
+#&gt; [10] packrat_0.5.0      evaluate_0.14      memoise_1.1.0
+#&gt; [13] nlme_3.1-137       lattice_0.20-35    mgcv_1.8-28
+#&gt; [16] rlang_0.3.4        Matrix_1.2-14      cli_1.1.0
+#&gt; [19] rstudioapi_0.10    commonmark_1.7     curl_3.3
+#&gt; [22] yaml_2.2.0         xfun_0.8           withr_2.1.2
+#&gt; [25] stringr_1.4.0      knitr_1.23         roxygen2_6.1.1
+#&gt; [28] xml2_1.2.0         desc_1.2.0         devtools_1.13.6
+#&gt; [31] rprojroot_1.3-2    grid_3.5.0         R6_2.4.0
+#&gt; [34] processx_3.3.1     rmarkdown_1.14     bookdown_0.10
+#&gt; [37] pacman_0.5.1       callr_3.2.0        purrr_0.3.2
+#&gt; [40] ps_1.3.0           backports_1.1.4    htmltools_0.3.6
+#&gt; [43] splines_3.5.0      rsconnect_0.8.13   assertthat_0.2.1
 #&gt; [46] stringi_1.4.3      crayon_1.3.4</code></pre>
 </div>
 <div id="reference" class="section level1 unnumbered">

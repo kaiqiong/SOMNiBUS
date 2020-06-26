@@ -1,14 +1,27 @@
 Package: SOMNiBUS
 Title: SmOoth ModeliNg of BisUlfite Sequencing
 Version: 0.1.0
-Authors@R: person("Kaiqiong", "Zhao", email = "kaiqiong.zhao@mail.mcgill.ca", role = c("aut", "cre"))
-Description: The package aims to analyze count-based methylation data on predefined genomic regions, such as those obtained by targeted sequencing, and thus to identify differentially methylated regions (DMRs) that are associated with phenotypes or traits.
-Depends: R (>= 3.5.0)
-Imports: Matrix, mgcv, pacman
+Authors@R:
+    person(given = "Kaiqiong",
+           family = "Zhao",
+           role = c("aut", "cre"),
+           email = "kaiqiong.zhao@mail.mcgill.ca")
+Description: The package aims to analyze count-based
+    methylation data on predefined genomic regions, such as those obtained
+    by targeted sequencing, and thus to identify differentially methylated
+    regions (DMRs) that are associated with phenotypes or traits.
 License: MIT
+Depends:
+    R (>= 3.5.0)
+Imports:
+    Matrix,
+    mgcv,
+    pacman
+Suggests:
+    knitr,
+    rmarkdown
+VignetteBuilder:
+    knitr
 Encoding: UTF-8
 LazyData: true
-Suggests: knitr,
-    rmarkdown
-VignetteBuilder: knitr
 RoxygenNote: 6.1.1

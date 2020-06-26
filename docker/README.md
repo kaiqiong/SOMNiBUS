@@ -6,7 +6,7 @@ https://hub.docker.com/r/rocker/tidyverse
 
 bash make_docker.sh
 
-# to run Rstudio 
+# to run Rstudio
 
 bash run_docker.sh
 
