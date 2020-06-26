@@ -1,6 +1,7 @@
 name: r_somnibus
 channels:
   - r
+  - anaconda
   - conda-forge
   - defaults
 dependencies:
@@ -19,11 +20,14 @@ dependencies:
   - certifi=2020.6.20
   - cfgv=3.1.0
   - curl=7.69.1
+  - dbus=1.13.14
   - decorator=4.4.2
   - defusedxml=0.6.0
   - distlib=0.3.0
+  - docopt=0.6.2
   - editdistance=0.5.3
   - entrypoints=0.3
+  - expat=2.2.6
   - filelock=3.0.12
   - fontconfig=2.13.0
   - freetype=2.10.2
@@ -36,6 +40,8 @@ dependencies:
   - gmp=6.1.2
   - graphite2=1.3.13
   - gsl=2.4
+  - gst-plugins-base=1.14.0
+  - gstreamer=1.14.0
   - gxx_impl_linux-64=7.3.0
   - gxx_linux-64=7.3.0
   - harfbuzz=1.8.8
@@ -57,6 +63,7 @@ dependencies:
   - libcurl=7.69.1
   - libedit=3.1.20191231
   - libffi=3.3
+  - libgcc=7.2.0
   - libgcc-ng=9.1.0
   - libgfortran-ng=7.3.0
   - libpng=1.6.37
@@ -76,6 +83,7 @@ dependencies:
   - ncurses=6.2
   - nodeenv=1.4.0
   - notebook=6.0.3
+  - openjpeg=2.3.1
   - openssl=1.1.1g
   - packaging=20.4
   - pandoc=2.2.3.2
@@ -87,7 +95,10 @@ dependencies:
   - pickleshare=0.7.5
   - pip=20.1.1
   - pixman=0.38.0
+  - poppler=0.65.0
+  - poppler-data=0.4.9
   - pre-commit=2.5.1
+  - pre_commit=2.5.1
   - prometheus_client=0.8.0
   - prompt-toolkit=3.0.5
   - ptyprocess=0.6.0
@@ -99,6 +110,7 @@ dependencies:
   - python_abi=3.8
   - pyyaml=5.3.1
   - pyzmq=18.1.1
+  - qt=5.6.3
   - r-askpass=1.0
   - r-assertthat=0.2.1
   - r-backports=1.1.4
@@ -106,6 +118,7 @@ dependencies:
   - r-base64enc=0.1_3
   - r-bh=1.69.0_1
   - r-boot=1.3_20
+  - r-brew=1.0_6
   - r-broom=0.5.2
   - r-callr=3.2.0
   - r-caret=6.0_83
@@ -113,16 +126,23 @@ dependencies:
   - r-class=7.3_15
   - r-cli=1.1.0
   - r-clipr=0.6.0
+  - r-clisymbols=1.2.0
   - r-cluster=2.0.8
+  - r-codemetar=0.1.8
   - r-codetools=0.2_16
   - r-colorspace=1.4_1
+  - r-commonmark=1.7
   - r-crayon=1.3.4
+  - r-crul=0.9.0
   - r-curl=3.3
   - r-data.table=1.12.2
   - r-dbi=1.0.0
   - r-dbplyr=1.4.0
+  - r-desc=1.2.0
+  - r-devtools=2.0.2
   - r-dichromat=2.0_0
   - r-digest=0.6.18
+  - r-docopt=0.7
   - r-dplyr=0.8.0.1
   - r-ellipsis=0.1.0
   - r-essentials=3.6.0
@@ -135,6 +155,8 @@ dependencies:
   - r-fs=1.2.7
   - r-generics=0.0.2
   - r-ggplot2=3.1.1
+  - r-gh=1.1.0
+  - r-git2r=0.27.1
   - r-glmnet=2.0_16
   - r-glue=1.3.1
   - r-gower=0.2.0
@@ -145,8 +167,11 @@ dependencies:
   - r-hms=0.4.2
   - r-htmltools=0.3.6
   - r-htmlwidgets=1.3
+  - r-httpcode=0.3.0
   - r-httpuv=1.5.1
   - r-httr=1.4.0
+  - r-hunspell=3.0
+  - r-ini=0.3.1
   - r-ipred=0.9_8
   - r-irdisplay=0.7.0
   - r-irkernel=0.8.15
@@ -165,6 +190,7 @@ dependencies:
   - r-markdown=0.9
   - r-mass=7.3_51.3
   - r-matrix=1.2_17
+  - r-memoise=1.1.0
   - r-mgcv=1.8_28
   - r-mime=0.6
   - r-modelmetrics=1.2.2
@@ -175,10 +201,15 @@ dependencies:
   - r-numderiv=2016.8_1
   - r-openssl=1.3
   - r-pbdzmq=0.3_3
+  - r-pdftools=2.2
   - r-pillar=1.3.1
+  - r-pingr=2.0.1
+  - r-pkgbuild=1.0.8
   - r-pkgconfig=2.0.2
+  - r-pkgload=1.1.0
   - r-plogr=0.2.0
   - r-plyr=1.8.4
+  - r-praise=1.0.0
   - r-prettyunits=1.0.2
   - r-processx=3.3.0
   - r-prodlim=2018.04.18
@@ -186,10 +217,16 @@ dependencies:
   - r-promises=1.0.1
   - r-ps=1.3.0
   - r-purrr=0.3.2
+  - r-qpdf=1.1
   - r-quantmod=0.4_14
+  - r-r.cache=0.14.0
+  - r-r.methodss3=1.8.0
+  - r-r.oo=1.23.0
+  - r-r.utils=2.9.2
   - r-r6=2.4.0
   - r-randomforest=4.6_14
   - r-rbokeh=0.6.3
+  - r-rcmdcheck=1.3.3
   - r-rcolorbrewer=1.1_2
   - r-rcpp=1.0.1
   - r-rcpproll=0.3.0
@@ -198,31 +235,42 @@ dependencies:
   - r-recipes=0.1.5
   - r-recommended=3.6.0
   - r-rematch=1.0.1
+  - r-rematch2=2.1.2
+  - r-remotes=2.1.1
   - r-repr=0.19.2
   - r-reprex=0.2.1
   - r-reshape2=1.4.3
   - r-rlang=0.3.4
   - r-rmarkdown=1.12
+  - r-roxygen2=6.1.1
   - r-rpart=4.1_15
+  - r-rprojroot=1.3_2
   - r-rstudioapi=0.10
   - r-rvest=0.3.3
   - r-scales=1.0.0
   - r-selectr=0.4_1
+  - r-sessioninfo=1.1.1
   - r-shiny=1.3.2
   - r-sourcetools=0.1.7
   - r-spatial=7.3_11
+  - r-spelling=2.1
   - r-squarem=2017.10_1
   - r-stringi=1.4.3
   - r-stringr=1.4.0
+  - r-styler=1.3.2
   - r-survival=2.44_1.1
   - r-sys=3.2
+  - r-testthat=2.1.1
   - r-tibble=2.1.1
   - r-tidyr=0.8.3
   - r-tidyselect=0.2.5
   - r-tidyverse=1.2.1
   - r-timedate=3043.102
   - r-tinytex=0.12
+  - r-triebeard=0.3.0
   - r-ttr=0.23_4
+  - r-urltools=1.7.3
+  - r-usethis=1.5.0
   - r-utf8=1.1.4
   - r-uuid=0.1_2
   - r-viridislite=0.3.0
@@ -230,11 +278,13 @@ dependencies:
   - r-withr=2.1.2
   - r-xfun=0.6
   - r-xml2=1.2.0
+  - r-xopen=1.0.0
   - r-xtable=1.8_4
   - r-xts=0.11_2
   - r-yaml=2.2.0
   - r-zoo=1.8_6
   - readline=8.0
+  - rstudio=1.0.44
   - send2trash=1.5.0
   - setuptools=47.3.0
   - six=1.15.0
