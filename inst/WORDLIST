@@ -342,6 +342,9 @@ usethis
 utf
 uuid
 VignetteBuilder
+VignetteEncoding
+VignetteEngine
+VignetteIndexEntry
 viridislite
 virtualenv
 wcwidth
