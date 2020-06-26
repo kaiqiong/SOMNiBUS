@@ -18,6 +18,8 @@ BEM
 bh
 binom
 binutils
+BiocManager
+BiocStyle
 Bioinformatics
 Biostatistics
 bisulfite
