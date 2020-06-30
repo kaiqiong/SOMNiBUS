@@ -26,7 +26,14 @@ for (i in 1:(length(out_BSMethEM$uni.pos) - 1)) {
 # check if the number of rows in out$SE.out equals the number of unique genomic positions
 expect_equal(length(rownames(out_BSMethEM$SE.out)), length(unique(RAdat.f$Position)))
 
-# check if the genomic positions are well ordered in the dataset provided in the package (ascending order)
+# check if the genomic positions are well ordered in the dataset provided (not filtered for NAs and zero Total_counts) in the package (ascending order)
+for (i in 1:length(unique(RAdat$ID))) {
+  cur <- filter(RAdat, ID == i)
+  for (j in 1:(length(cur$ID) - 1)) {
+    expect_lt(cur$Position[j], cur$Position[j + 1])
+  }
+}
+# check if the genomic positions are well ordered in the dataset provided (filtered) in the package (ascending order)
 for (i in 1:length(unique(RAdat.f$ID))) {
   cur <- filter(RAdat.f, ID == i)
   for (j in 1:(length(cur$ID) - 1)) {
