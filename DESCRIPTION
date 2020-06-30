@@ -20,7 +20,8 @@ Imports:
 Suggests:
     BiocStyle,
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 VignetteBuilder:
     knitr
 Encoding: UTF-8

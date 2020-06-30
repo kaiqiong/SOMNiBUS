@@ -1,2 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+docker
+.pre-commit-config.yaml
+clean_env.sh
+environment.yml
