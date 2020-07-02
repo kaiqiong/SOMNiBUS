@@ -6,8 +6,9 @@ data(RAdat)
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 out_BSMethEM <- BSMethEM(data = RAdat.f, n.k = rep(5, 3), p0 = tp, p1 = fp, epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE)
 
-# check if output corresponds to what is described in the output description of BSMethEM method
-# 13 objects are outputed in a list, the list length should be 13
+# check if output corresponds to the description of BSMethEM method
+# 13 objects are listed for output, the list length should be 13
+# this is wrong, there are 16 objects in the actual output
 expect_false(length(out_BSMethEM) == 13)
 
 

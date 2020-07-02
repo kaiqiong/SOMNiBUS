@@ -25,6 +25,11 @@ link_fct <- "logit" # link fonction (str)
 
 out_BSMethSim <- BSMethSim(n = n_samples, posit = genomics_positions, theta.0 = theta, beta = beta, random.eff = error, mu.e = error_mu, sigma.ee = error_var, p0 = fp, p1 = tp, X = coverage, Z = covariates, binom.link = link_fct)
 
+# check if output corresponds to method description
+# 3 objects are listed for output, the list length should be 3
+# this is wrong, there are 4 objects in the actual output
+expect_false(length(out_BSMethSim) == 3)
+
 expect_equal(ncol(out_BSMethSim$S), n_positions)
 expect_equal(nrow(out_BSMethSim$S), n_samples)
 expect_equal(ncol(out_BSMethSim$Y), n_positions)
