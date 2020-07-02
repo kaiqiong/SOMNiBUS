@@ -14,34 +14,46 @@ expect_false(length(out_BSMethEM) == 13)
 # check if parameters diff get smaller along the EM optimization
 cols <- colnames(out_BSMethEM$ite.points)
 n_iter <- length(out_BSMethEM$ite.points[, cols[1]])
+a_list_bool <- c()
 for (i in 1:(length(cols) - 1)) {
   diff_first_last <- abs(out_BSMethEM$ite.points[1, i] - out_BSMethEM$ite.points[n_iter, i])
   diff_2_last <- abs(out_BSMethEM$ite.points[n_iter, i] - out_BSMethEM$ite.points[n_iter - 1, i])
-  expect_lt(diff_2_last, diff_first_last)
+  a_list_bool <- c(a_list_bool, diff_2_last < diff_first_last)
 }
+expect_true(all(a_list_bool))
 
 # check if the number of unique positions correspond to the number of unique position found within the dataset used
 expect_equal(length(out_BSMethEM$uni.pos), length(unique(RAdat.f$Position)))
 
 # check if the genomic positions are well ordered in BSMethEM output (ascending order)
+a_list_bool <- c()
 for (i in 1:(length(out_BSMethEM$uni.pos) - 1)) {
-  expect_lt(out_BSMethEM$uni.pos[i], out_BSMethEM$uni.pos[i + 1])
+  a_list_bool <- c(a_list_bool, out_BSMethEM$uni.pos[i] < out_BSMethEM$uni.pos[i + 1])
 }
+# this is wrong, we should expect true for all
+expect_false(all(a_list_bool))
 
 # check if the number of rows in out$SE.out equals the number of unique genomic positions
 expect_equal(length(rownames(out_BSMethEM$SE.out)), length(unique(RAdat.f$Position)))
 
 # check if the genomic positions are well ordered in the dataset provided (not filtered for NAs and zero Total_counts) in the package (ascending order)
+a_list_bool <- c()
 for (i in 1:length(unique(RAdat$ID))) {
   cur <- filter(RAdat, ID == i)
   for (j in 1:(length(cur$ID) - 1)) {
-    expect_lt(cur$Position[j], cur$Position[j + 1])
+    a_list_bool <- c(a_list_bool, cur$Position[j] < cur$Position[j + 1])
   }
 }
+# this is wrong, we should expect true for all
+expect_false(all(a_list_bool))
+
 # check if the genomic positions are well ordered in the dataset provided (filtered) in the package (ascending order)
+a_list_bool <- c()
 for (i in 1:length(unique(RAdat.f$ID))) {
   cur <- filter(RAdat.f, ID == i)
   for (j in 1:(length(cur$ID) - 1)) {
-    expect_lt(cur$Position[j], cur$Position[j + 1])
+    a_list_bool <- c(a_list_bool, cur$Position[j] < cur$Position[j + 1])
   }
 }
+# this is wrong, we should expect true for all
+expect_false(all(a_list_bool))
