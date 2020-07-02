@@ -6,6 +6,11 @@ data(RAdat)
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 out_BSMethEM <- BSMethEM(data = RAdat.f, n.k = rep(5, 3), p0 = tp, p1 = fp, epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE)
 
+# check if output corresponds to what is described in the output description of BSMethEM method
+# 13 objects are outputed in a list, the list length should be 13
+expect_false(length(out_BSMethEM) == 13)
+
+
 # check if parameters diff get smaller along the EM optimization
 cols <- colnames(out_BSMethEM$ite.points)
 n_iter <- length(out_BSMethEM$ite.points[, cols[1]])
