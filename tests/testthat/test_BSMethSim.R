@@ -1,4 +1,4 @@
-context("testing parametric-boostrapping? from GAM model given RAdat.f")
+context("testing BSMethSim")
 fp <- 0.003307034 # False positive rate (float)
 tp <- 0.9 # True positive rate (float)
 

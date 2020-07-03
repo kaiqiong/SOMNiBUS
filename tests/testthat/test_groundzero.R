@@ -1,6 +1,3 @@
-require(mgcv)
-require(SOMNiBUS)
-
 context("testing that we recover the same values over and over with a given dataset")
 
 seed_1 <- 1
