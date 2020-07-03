@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+=======
+>>>>>>> e9557d1... added bitbucket-pipeline with private docker image
 Abdous
 abi
 abline
@@ -22,8 +25,10 @@ bibentry
 bibtype
 binom
 binutils
+bioc
 BiocCheck
 BiocManager
+bioconductor
 BiocStyle
 Bioinformatics
 Biometric
@@ -47,11 +52,8 @@ cellranger
 certifi
 cfgv
 Chaieb
-<<<<<<< HEAD
-Ciampi
-=======
 chmod
->>>>>>> e9557d1... added bitbucket-pipeline with private docker image
+Ciampi
 cli
 clipr
 clisymbols
@@ -72,6 +74,7 @@ covs
 cp
 CpG
 CpGs
+cran
 cre
 crul
 Ctype
@@ -130,6 +133,7 @@ gst
 gstreamer
 gtable
 gxx
+gz
 happyregistry
 harfbuzz
 hexbin
@@ -138,6 +142,7 @@ highr
 hms
 htmltools
 htmlwidgets
+http
 httpcode
 httpuv
 httr
@@ -242,6 +247,7 @@ nodeenv
 NONINFRINGEMENT
 nrow
 numderiv
+nz
 onwards
 oo
 openjpeg
@@ -270,6 +276,7 @@ pixman
 pkgbuild
 pkgconfig
 pkgload
+pkgs
 plogr
 Płoski
 plotSMSC
@@ -366,11 +373,8 @@ timedate
 tinytex
 tk
 tktable
-<<<<<<< HEAD
-Tomi
-=======
 tnbc
->>>>>>> e9557d1... added bitbucket-pipeline with private docker image
+Tomi
 toml
 traitlets
 triebeard
