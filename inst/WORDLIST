@@ -12,6 +12,7 @@ attrs
 Aurélie
 aut
 avaialbe
+azurecr
 backcall
 backports
 Belkacem
@@ -46,10 +47,15 @@ cellranger
 certifi
 cfgv
 Chaieb
+<<<<<<< HEAD
 Ciampi
+=======
+chmod
+>>>>>>> e9557d1... added bitbucket-pipeline with private docker image
 cli
 clipr
 clisymbols
+CMD
 codemetar
 codetools
 coef
@@ -57,6 +63,7 @@ Colmegna
 colorspace
 commonmark
 conda
+condacache
 cov
 covar
 covarage
@@ -77,9 +84,11 @@ defusedxml
 denots
 desc
 devtools
+di
 dichromat
 dimention
 distlib
+dk
 DMRs
 Dna
 docopt
@@ -89,7 +98,9 @@ edf
 editdistance
 ee
 entrypoints
+env
 ENV
+envs
 et
 fansi
 filelock
@@ -119,6 +130,7 @@ gst
 gstreamer
 gtable
 gxx
+happyregistry
 harfbuzz
 hexbin
 HHM
@@ -136,6 +148,7 @@ impl
 importlib
 Inés
 ini
+io
 ipred
 ipykernel
 ipython
@@ -167,6 +180,7 @@ LazyData
 lazyeval
 ld
 lelves
+lfs
 libcurl
 libedit
 libffi
@@ -201,6 +215,7 @@ mfrow
 mgcv
 mims
 mistune
+mkdir
 ModeliNg
 modelling
 modelmetrics
@@ -210,6 +225,7 @@ monocytes
 Monocytes
 munsell
 mutex
+mypy
 na
 nagative
 nbconvert
@@ -275,6 +291,8 @@ ptyprocess
 purrr
 pvalue
 pygments
+pylint
+pylintrc
 pyparsing
 pyrsistent
 pyyaml
@@ -288,6 +306,7 @@ randomforest
 RanEff
 rbeta
 rbokeh
+rcfile
 rcmdcheck
 rcolorbrewer
 rcpp
@@ -306,6 +325,7 @@ roxygen
 RoxygenNote
 rpart
 rprojroot
+rsa
 rstudio
 Rstudio
 rstudioapi
@@ -324,6 +344,7 @@ sourcetools
 Spólnicka
 sqlite
 squarem
+src
 Stawi
 Stawiński
 stringi
@@ -345,12 +366,18 @@ timedate
 tinytex
 tk
 tktable
+<<<<<<< HEAD
 Tomi
+=======
+tnbc
+>>>>>>> e9557d1... added bitbucket-pipeline with private docker image
 toml
 traitlets
 triebeard
 ttr
 TZ
+umask
+unittest
 unmethylated
 unsing
 urltools
@@ -365,6 +392,7 @@ viridislite
 virtualenv
 wcwidth
 webencodings
+wes
 wiggliness
 withr
 Wojciech
@@ -378,6 +406,7 @@ xz
 yaml
 ylab
 ylim
+yml
 Zbie
 Zbieć
 zeromq
