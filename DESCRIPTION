@@ -19,6 +19,7 @@ Imports:
     pacman
 Suggests:
     BiocStyle,
+    dplyr,
     knitr,
     rmarkdown,
     testthat
