@@ -1,7 +1,4 @@
-require(mgcv)
-require(SOMNiBUS)
-
-context("toy example using set.seed()")
+context("testing the effect of seed on toy example")
 seed_1 <- 1
 seed_2 <- 2
 # test two seeds are different
@@ -21,7 +18,7 @@ expect_false(isTRUE(all.equal(res_1, res_2)))
 # test using same seeds: we expect same results
 expect_true(isTRUE(all.equal(res_1, res_3)))
 
-context("testing somnibus functions")
+context("testing the effect of seed on somnibus functions")
 
 data(RAdat)
 # this should be done within BSMethEM
