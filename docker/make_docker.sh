@@ -5,4 +5,4 @@ export DOCKER_BUILDKIT=1
 
 echo "THISDIR: " $THISDIR
 echo "PROJECTROOT: " $PROJECTROOT
-docker build $PROJECTROOT --file Dockerfile -t dk-somnibus
+docker build $PROJECTROOT --file Dockerfile -t dk-somnibus:v1

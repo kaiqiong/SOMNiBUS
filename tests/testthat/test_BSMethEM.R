@@ -1,3 +1,4 @@
+library(dplyr)
 context("testing BSMethEM")
 fp <- 0.003307034 # False positive rate (float)
 tp <- 0.9 # True positive rate (float)
