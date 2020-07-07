@@ -118,19 +118,12 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
 
     # Feb 21, 2020  use edf1 to calculate the pearson's dispersion estimate not the edf; because I will use the asympototic chi-square dist. of phi.est
     # March 3, 2020, the dispersion parameter estimated in gam use the edf.out instead of edf1.out
-
-    # my_s_gam <- my_s*sqrt(data$X)
-
     phi_p <- sum(p_res^2) / (length(data$Y) - sum(edf.out))
 
     phi_fletcher <- phi_p / (1 + mean(my_s))
-    # phi_gfletcher <- phi_p/(1+mean(my_s_gam))  # This gives the exact results as mgcv::gam -dispersion
-
     if (reml.scale) {
       phi_fletcher <- gam.int$reml.scale
     }
-    # phi_fletcher <- out$phi_fletcher
-    # phi_fletcher <- summary(gam.int)$dispersion
   }
 
   if (!Quasi) {
@@ -140,8 +133,6 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   if (scale > 0) {
     phi_fletcher <- scale
   }
-
-
 
   if (p0 == 0 & p1 == 1) {
     out <- list(
@@ -165,7 +156,6 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
     # Do the iteration
     # The stopping criterion is that estimator a and b are close enough
     # I exclude the criterio that lambda-a and lambda-b are close
-    # while ( sum((old.par - new.par)^2) > (epsilon/15 * length(new.par)) & i < maxStep & sum((lambda-new.lambda)^2) > epsilon.lambda){
 
     while (sqrt(sum((new.pi.ij - old.pi.ij)^2)) > epsilon & i < maxStep) {
       i <- i + 1
@@ -195,8 +185,6 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   # Pearson Residuals
   p_res <- out$pearson_res
   # Estimated dispersion paramters (Fletcher adjusted)
-  # phi_fletcher <- out$phi_fletcher
-
   phi_fletcher <- out$phi_fletcher
 
   GamObj <- out$GamObj
@@ -239,10 +227,6 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
 
   # Use PredictMat to get BZ.beta
 
-
-
-
-
   cum_s <- cumsum(n.k)
   alpha.sep <- lapply(1:ncol(Z), function(i) {
     new.par[(cum_s[i] + 1):cum_s[i + 1]]
@@ -267,16 +251,12 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   var.alpha.0 <- var.cov.alpha[1:n.k[1], 1:n.k[1]]
   var.alpha.sep <- lapply(1:ncol(Z), function(i) {
     var.cov.alpha[(cum_s[i] + 1):cum_s[i + 1], (cum_s[i] + 1):cum_s[i + 1]]
-  }) # SE of the effect of Zs [beta.1(t), beta.2(t), beta.3(t) ...]
-  # var.cov.alpha  <- matlib::Ginv(-H)
+  })
   # solve and Ginv give very similar results, but MASS is very different from the other two
 
-  # var.cov.alpha <- MASS::ginv(-H)
-  # SE.out --- pointwise standard deviation
 
 
   # A more efficient way to calculate SE rowsum(A*B) is faster than diag(A %*% t(B))
-  # sqrt(pmax(0,rowSums((BZ.beta_now[[2]]%*%var.cov.alpha[7:12,7:12,drop=FALSE])*BZ.beta_now[[2]])))
   SE.out <- cbind(
     sqrt(pmax(0, rowSums((BZ %*% var.alpha.0) * BZ))),
     sapply(1:ncol(Z), function(i) {
@@ -289,17 +269,8 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   SE.pos <- uni.pos
 
 
-  # SE.out <- vector(mode = "list", length = (ncol(Z)+1))
-  # names(SE.out) <- c("Intercept", colnames(Z))
-
-
-  # var.beta.0 <-  BZ %*% var.alpha.0 %*% t(BZ)
-  # var.beta <- lapply(1:ncol(Z), function(i){BZ.beta[[i]] %*% var.alpha.sep[[i]] %*% t(BZ.beta[[i]])})
-
-  # SE.out <- cbind(sqrt(diag(var.beta.0)), sapply(1:ncol(Z), function(i){sqrt(diag(var.beta[[i]]))}))
 
   SE.out.REML.scael <- SE.out / sqrt(phi_fletcher) * sqrt(phi_reml) # phi_reml
-  # SE.out.gFletcher <- SE.out/sqrt(phi_fletcher) * sqrt(phi_gfletcher)
 
   #----------------------------------------------------------------
   # calculate the region-based statistic from the testStats function in mgcv
@@ -386,8 +357,6 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, 
 
   smoth.mat[[length(smoth.mat) + 1]] <- 0 # assume the lambda for the constant of the intercept is 0 -- no penalization
   if (RanEff) {
-    # new.lambda[ncol(Z)+2]
-    # smoth.mat[[length(smoth.mat) + 1]] <- diag(N) /(re_sd^2) # NOTE that the smoothing matrix for the random effects is not identity remember to multiple lambda (1/sigma_0^2)
     smoth.mat[[length(smoth.mat) + 1]] <- diag(N) * new.lambda[ncol(Z) + 2] # !!!! Otherwise, we get very wide CI
     span.penal.matrix <- as.matrix(Matrix::bdiag(smoth.mat[c(length(smoth.mat) - 1, (1:(length(smoth.mat) - 2)), length(smoth.mat))]))
   } else {
@@ -475,11 +444,6 @@ BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, 
 ## Implements Wood (2013) Biometrika 100(1), 221-228
 ## The type argument specifies the type of truncation to use.
 
-
-# res.dif = -1 when no dispersion
-
-# res.dif = residual.df = residual.df<-length(object$y)-sum(object$edf) when est.dispersion = TRUE
-
 testStat <- function(p, X, V, rank = NULL, type = 0, res.df = -1) {
   ## Implements Wood (2013) Biometrika 100(1), 221-228
   ## The type argument specifies the type of truncation to use.
@@ -518,7 +482,6 @@ testStat <- function(p, X, V, rank = NULL, type = 0, res.df = -1) {
   }
 
   ## Get the eigenvectors...
-  # vec <- qr.qy(qrx,rbind(ed$vectors,matrix(0,nrow(X)-ncol(X),ncol(X))))
   vec <- ed$vectors
   if (k1 < ncol(vec)) vec <- vec[, 1:k1, drop = FALSE]
 
@@ -563,7 +526,7 @@ testStat <- function(p, X, V, rank = NULL, type = 0, res.df = -1) {
     if (k1 == 1) {
       rank1 <- val <- 1
     } else {
-      val <- rep(1, k1) ## ed$val[1:k1]
+      val <- rep(1, k1)
       rp <- nu + 1
       val[k] <- (rp + sqrt(rp * (2 - rp))) / 2
       val[k1] <- (rp - val[k])
@@ -571,7 +534,7 @@ testStat <- function(p, X, V, rank = NULL, type = 0, res.df = -1) {
 
     if (res.df <= 0) {
       pval <- (liu2(d, val) + liu2(d1, val)) / 2
-    } else { ##  pval <- davies(d,val)$Qq else
+    } else {
       pval <- (simf(d, val, res.df) + simf(d1, val, res.df)) / 2
     }
   } else {
