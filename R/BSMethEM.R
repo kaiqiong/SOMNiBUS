@@ -492,5 +492,5 @@ BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, 
     rownames(s.table) <- c("Intercept", colnames(Z))
   }
   colnames(s.table)[1] <- "EDF"
-  s.table
+  return(s.table)
 }
