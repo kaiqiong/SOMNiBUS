@@ -15,6 +15,7 @@ avaialbe
 azurecr
 backcall
 backports
+bbs
 Belkacem
 BEM
 bh
@@ -182,6 +183,7 @@ LazyData
 lazyeval
 ld
 lelves
+len
 lfs
 libcurl
 libedit
@@ -243,6 +245,7 @@ nnet
 nodeenv
 NONINFRINGEMENT
 nrow
+num
 numderiv
 nz
 onwards
@@ -385,6 +388,7 @@ urltools
 usethis
 utf
 uuid
+ver
 VignetteBuilder
 VignetteEncoding
 VignetteEngine
