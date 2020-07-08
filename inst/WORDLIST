@@ -5,6 +5,7 @@ Agnieszka
 ai
 al
 alphs
+amet
 appdirs
 askpass
 assertthat
@@ -85,9 +86,11 @@ defusedxml
 denots
 desc
 devtools
+df
 di
 dichromat
 dimention
+disp
 distlib
 dk
 DMRs
@@ -115,6 +118,7 @@ fribidi
 fs
 gam
 GAMM
+GamObj
 Gasperowicz
 gcc
 genutils
@@ -153,6 +157,7 @@ Inés
 ini
 io
 ipred
+ipsum
 ipykernel
 ipython
 irdisplay
@@ -200,6 +205,7 @@ libxcb
 libxml
 linux
 lnicka
+Lorem
 lty
 lubridate
 lwd
@@ -326,6 +332,7 @@ reml
 Renata
 repr
 reprex
+resi
 rlang
 rmarkdown
 roxygen
