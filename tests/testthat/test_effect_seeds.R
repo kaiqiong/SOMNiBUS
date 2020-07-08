@@ -1,8 +1,13 @@
 context("testing the effect of seed on toy example")
+library(mgcv)
+
 seed_1 <- 1
 seed_2 <- 2
-# test two seeds are different
-expect_false(isTRUE(equals(seed_1, seed_2)))
+
+test_that("the two seeds are different", {
+  expect_false(isTRUE(equals(seed_1, seed_2)))
+})
+
 set.seed(seed_1)
 res_1 <- sample(LETTERS, 5)
 
@@ -12,11 +17,13 @@ res_2 <- sample(LETTERS, 5)
 set.seed(seed_1)
 res_3 <- sample(LETTERS, 5)
 
-# test using two different seeds: we expect two different results
-expect_false(isTRUE(all.equal(res_1, res_2)))
+test_that("using two different seeds we get two different results", {
+  expect_false(isTRUE(all.equal(res_1, res_2)))
+})
 
-# test using same seeds: we expect same results
-expect_true(isTRUE(all.equal(res_1, res_3)))
+test_that("using the same seeds we get the same results", {
+  expect_true(isTRUE(all.equal(res_1, res_3)))
+})
 
 context("testing the effect of seed on somnibus functions")
 
@@ -47,13 +54,15 @@ out_2 <- BSMethEM(data = RAdat.f, n.k = n.k, p0 = p0, p1 = p1, epsilon = epsilon
 set.seed(seed_1)
 out_3 <- BSMethEM(data = RAdat.f, n.k = n.k, p0 = p0, p1 = p1, epsilon = epsilon, epsilon.lambda = epsilon.lambda, maxStep = maxStep, detail = detail)
 
-# test using two different seeds: we expect two different results
-# but because seeds don't affect BSMethEM, and later mgcv function called we are expecting the same result
-expect_true(isTRUE(all.equal(out_1, out_2)))
+test_that("using two different seeds we get the same results with BSMethEM", {
+  # this is wrong different seeds settings should output different results with BSMethEM
+  expect_true(isTRUE(all.equal(out_1, out_2)))
+})
 
-# test using same seeds: we expect same results
-expect_true(isTRUE(all.equal(out_1, out_3)))
-
+test_that("using the same seed we get the same results with BSMethEM", {
+  # test using same seeds: we expect same results
+  expect_true(isTRUE(all.equal(out_1, out_3)))
+})
 
 context("testing gam function from mgcv package")
 # example taken from https://cran.r-project.org/web/packages/mgcv/mgcv.pdf
@@ -66,9 +75,10 @@ b_2 <- gam(y ~ x0 + s(x1) + s(x2), data = dat, seed = seed_2)
 
 b_3 <- gam(y ~ x0 + s(x1) + s(x2), data = dat, seed = seed_1)
 
-# test using two different seeds: we expect two different results
-# but because seeds don't affect mgcv functions we are expecting the same result
-expect_true(isTRUE(all.equal(b_1$linear.predictors, b_2$linear.predictors)))
+test_that("using two different seeds we get the same results with mgcv::gam", {
+  expect_true(isTRUE(all.equal(b_1$linear.predictors, b_2$linear.predictors)))
+})
 
-# test using same seeds: we expect same results
-expect_true(isTRUE(all.equal(b_1$linear.predictors, b_3$linear.predictors)))
+test_that("using same seeds we get same results using with mgcv::gam", {
+  expect_true(isTRUE(all.equal(b_1$linear.predictors, b_3$linear.predictors)))
+})
