@@ -346,6 +346,33 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
     ncovs = ncol(Z) + 1, ite.points = Est.points, sigma00 = sigma00
   ))
 }
+#' @title Hessian Lorem ipsum dolor sit amet
+#'
+#' @description Lorem ipsum dolor sit amet
+#' @description Lorem ipsum dolor sit amet
+#' @param w_ij Lorem ipsum dolor sit amet
+#' @param new.par Lorem ipsum dolor sit amet
+#' @param new.lambda Lorem ipsum dolor sit amet
+#' @param X Lorem ipsum dolor sit amet
+#' @param Y Lorem ipsum dolor sit amet
+#' @param my.design.matrix Lorem ipsum dolor sit amet
+#' @param gam.int Lorem ipsum dolor sit amet
+#' @param Z Lorem ipsum dolor sit amet
+#' @param pred.pi Lorem ipsum dolor sit amet
+#' @param p0 Lorem ipsum dolor sit amet
+#' @param p1 Lorem ipsum dolor sit amet
+#' @param disp_est Lorem ipsum dolor sit amet
+#' @param RanEff Lorem ipsum dolor sit amet
+#' @param N Lorem ipsum dolor sit amet
+#' @return Lorem ipsum dolor sit amet
+#' \itemize{
+#' \item Lorem ipsum dolor sit amet
+#' }
+#' @author  Kaiqiong Zhao
+#' @examples
+#' #------------------------------------------------------------#
+#' # Lorem ipsum dolor sit amet
+#' @importFrom Matrix bdiag
 Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, Z, pred.pi, p0, p1, disp_est, RanEff, N) {
 
   # Q1: the second partial derivative w.r.t alpha^2
@@ -373,6 +400,34 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, 
 
   return(Q1_with_lambda + Q2)
 }
+#' @title BSMethEM_summary Lorem ipsum dolor sit amet
+#'
+#' @description Lorem ipsum dolor sit amet
+#' @description Lorem ipsum dolor sit amet
+#' @param GamObj Lorem ipsum dolor sit amet
+#' @param var.cov.alpha Lorem ipsum dolor sit amet
+#' @param new.par Lorem ipsum dolor sit amet
+#' @param edf.out Lorem ipsum dolor sit amet
+#' @param edf1.out Lorem ipsum dolor sit amet
+#' @param X_d Lorem ipsum dolor sit amet
+#' @param gam.int Lorem ipsum dolor sit amet
+#' @param resi_df Lorem ipsum dolor sit amet
+#' @param Quasi Lorem ipsum dolor sit amet
+#' @param scale Lorem ipsum dolor sit amet
+#' @param p1 Lorem ipsum dolor sit amet
+#' @param disp_est Lorem ipsum dolor sit amet
+#' @param RanEff Lorem ipsum dolor sit amet
+#' @param re.test Lorem ipsum dolor sit amet
+#' @param Z Lorem ipsum dolor sit amet
+#' @return Lorem ipsum dolor sit amet
+#' \itemize{
+#' \item Lorem ipsum dolor sit amet
+#' }
+#' @author  Kaiqiong Zhao
+#' @examples
+#' #------------------------------------------------------------#
+#' # Lorem ipsum dolor sit amet
+#' @import mgcv
 BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff, re.test, Z) {
   ii <- 0
   m <- length(GamObj$smooth)
