@@ -15,8 +15,7 @@ Depends:
     R (>= 3.5.0)
 Imports:
     Matrix,
-    mgcv,
-    pacman
+    mgcv
 Suggests:
     BiocStyle,
     dplyr,
