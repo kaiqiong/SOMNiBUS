@@ -146,6 +146,12 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
 
     Est.points <- c(new.par, new.lambda, phi_fletcher)
   } else {
+
+    # code used to generate /tests/testthat/data/ref_input_BSMethEMUpdate.RDS
+    # input = list(data = data, old.pi.ij = old.pi.ij, p0 = p0, p1 = p1, n.k = n.k, binom.link = binom.link, method = method, Z = Z, my.covar.fm = my.covar.fm, Quasi = Quasi, scale = phi_fletcher)
+    # path_ref_input_BSMethEMUpdate <- paste(paste(getwd(), "/tests/testthat/data/", sep = ""), "ref_input_BSMethEMUpdate.RDS", sep = "")
+    # saveRDS(input, path_ref_input_BSMethEMUpdate)
+
     out <- BSMethEMUpdate(data, old.pi.ij, p0 = p0, p1 = p1, n.k = n.k, binom.link = binom.link, method = method, Z = Z, my.covar.fm = my.covar.fm, Quasi = Quasi, scale = phi_fletcher)
     new.par <- out$par
     new.lambda <- out$lambda
