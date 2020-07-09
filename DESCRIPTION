@@ -10,7 +10,7 @@ Description: The package aims to analyze count-based
     methylation data on predefined genomic regions, such as those obtained
     by targeted sequencing, and thus to identify differentially methylated
     regions (DMRs) that are associated with phenotypes or traits.
-License: MIT | file LICENSE
+License: MIT + file LICENSE
 Depends:
     R (>= 3.5.0)
 Imports:
