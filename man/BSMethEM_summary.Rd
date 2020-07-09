@@ -32,11 +32,7 @@ BSMethEM_summary(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, X_d,
 
 \item{Z}{Lorem ipsum dolor sit amet}
 
-\item{gam.int}{Lorem ipsum dolor sit amet}
-
 \item{p1}{Lorem ipsum dolor sit amet}
-
-\item{disp_est}{Lorem ipsum dolor sit amet}
 }
 \value{
 Lorem ipsum dolor sit amet
