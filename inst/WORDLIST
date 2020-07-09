@@ -59,6 +59,7 @@ clisymbols
 CMD
 codemetar
 codetools
+codoc
 coef
 Colmegna
 colorspace
@@ -97,6 +98,7 @@ DMRs
 Dna
 docopt
 docType
+dontrun
 dplyr
 edf
 editdistance
