@@ -29,7 +29,7 @@ BSMethEMUpdate(data, pi.ij, p0, p1, n.k, binom.link, method, Z,
 \value{
 The function returns a list of following objects
 \itemize{
-\item \code{pi.ij}  fitted methylation proportions
+\item \code{pi.ij} fitted methylation proportions
 \item \code{par} updated basis coefficients
 \item \code{lambda} updated smoothing parameters
 \item \code{edf1} Effective degree of freedoms for each smooth terms in the model}
