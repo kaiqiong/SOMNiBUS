@@ -47,12 +47,12 @@ For a more comprehensive introduction of the **SOMNiBUS** approach, please read
 
 Currently, the software package can be installed from [github](https://github.com/kaiqiong/SOMNiBUS).
 
-```{r, eval = F, echo = F}
+```{r, eval = FALSE, echo = FALSE}
 devtools::document("/mnt/GREENWOOD_JBOD1/GREENWOOD_BACKUP/home/kaiqiong.zhao/Packages/SOMNiBUS")
 devtools::load_all("/mnt/GREENWOOD_JBOD1/GREENWOOD_BACKUP/home/kaiqiong.zhao/Packages/SOMNiBUS")
 ```
 
-```{r, eval =T}
+```{r, eval =TRUE}
 pacman::p_load_current_gh("kaiqiong/SOMNiBUS")
 ```
 
@@ -108,7 +108,7 @@ out <- BSMethEM(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, Quasi = F
 
 Or, we can use the argument `covs` to specify that we only want the covariate `T_cell` in the model.
 
-```{r, eval = F}
+```{r, eval = FALSE}
 out.ctype <- BSMethEM(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, covs = "T_cell")
 ```
 
@@ -149,7 +149,7 @@ plot_BSMethEM(out)
 We can also force the covariate effect plots to have the same vertical range, for all covariates, by specifying `same.range= T`.
 
 ```{r , fig.cap = "The estimates (solid red lines) and 95% pointwise confidence intervals (dashed red lines) of the intercept, the smooth effect of cell type and RA on methylation levels. (Same ranges of Y axis.)", fig.height= 4, fig.width=9}
-plot_BSMethEM(out, same.range = T)
+plot_BSMethEM(out, same.range = TRUE)
 ```
 
 ## Predicted methylation levels
@@ -227,7 +227,7 @@ RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 
 ```{r}
 time0 <- Sys.time()
-out_quasi <- BSMethEM(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, Quasi = TRUE, RanEff = F)
+out_quasi <- BSMethEM(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, Quasi = TRUE, RanEff = FALSE)
 print(Sys.time() - time0)
 out_quasi$reg.out
 ```
@@ -245,7 +245,7 @@ head(RAdat2)
 ```{r}
 nCpG <- length(unique(RAdat2$Position))
 time0 <- Sys.time()
-out_RA2 <- BSMethEM(data = RAdat2, n.k = c(5, rep(max(3, round(nCpG / 20)), 9)), p0 = 0.003, p1 = 0.9, Quasi = TRUE, RanEff = F)
+out_RA2 <- BSMethEM(data = RAdat2, n.k = c(5, rep(max(3, round(nCpG / 20)), 9)), p0 = 0.003, p1 = 0.9, Quasi = TRUE, RanEff = FALSE)
 print(Sys.time() - time0)
 ```
 ```{r}
@@ -263,7 +263,7 @@ We can also specify no error
 
 ```{r}
 time0 <- Sys.time()
-out_RA2_noError <- BSMethEM(data = RAdat2, n.k = c(5, rep(max(3, round(nCpG / 20)), 9)), p0 = 0, p1 = 1, Quasi = TRUE, RanEff = F)
+out_RA2_noError <- BSMethEM(data = RAdat2, n.k = c(5, rep(max(3, round(nCpG / 20)), 9)), p0 = 0, p1 = 1, Quasi = TRUE, RanEff = FALSE)
 print(Sys.time() - time0)
 ```
 

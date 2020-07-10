@@ -14,11 +14,11 @@
 #' RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 #' out <- BSMethEM(
 #'   data = RAdat.f, n.k = rep(5, 3), p0 = 0.003307034, p1 = 0.9,
-#'   epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = F
+#'   epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE
 #' )
-#' plot_BSMethEM(out, same.range = F)
+#' plot_BSMethEM(out, same.range = FALSE)
 #' @export
-plot_BSMethEM <- function(BEM.obj, mfrow = NULL, same.range = F) {
+plot_BSMethEM <- function(BEM.obj, mfrow = NULL, same.range = FALSE) {
   ncovs <- ncol(BEM.obj$Beta.out)
 
   if (is.null(mfrow)) {
@@ -32,7 +32,7 @@ plot_BSMethEM <- function(BEM.obj, mfrow = NULL, same.range = F) {
 
   yylim <- matrix(NA, nrow = ncovs, ncol = 2)
   if (same.range) {
-    yylim <- matrix(rep(c(min(ll), max(hh)), ncovs), ncol = 2, byrow = T)
+    yylim <- matrix(rep(c(min(ll), max(hh)), ncovs), ncol = 2, byrow = TRUE)
   } else {
     yylim <- t(sapply(1:ncovs, function(i) {
       yylim[i, ] <- c(ifelse(min(ll[, i]) > 0, 0, min(ll[, i])), max(hh[, i]))
@@ -44,7 +44,7 @@ plot_BSMethEM <- function(BEM.obj, mfrow = NULL, same.range = F) {
       col = "red", xaxt = "n",
       type = "l", xlab = "Genomic Position", ylab = " ", main = covs.names[ii], lwd = 2, ylim = yylim[ii, ]
     )
-    axis(side = 1, at = BEM.obj$uni.pos[order(BEM.obj$uni.pos)], labels = F, lwd = 0.5, lwd.ticks = 0.5, tck = 0.03)
+    axis(side = 1, at = BEM.obj$uni.pos[order(BEM.obj$uni.pos)], labels = FALSE, lwd = 0.5, lwd.ticks = 0.5, tck = 0.03)
     axis(side = 1, at = seq(round(min(BEM.obj$uni.pos)), round(max(BEM.obj$uni.pos)), length.out = 10), tck = -0.02)
     lines(BEM.obj$uni.pos[order(BEM.obj$uni.pos)], ll[order(BEM.obj$uni.pos), ii], lty = 2, col = "red")
     lines(BEM.obj$uni.pos[order(BEM.obj$uni.pos)], hh[order(BEM.obj$uni.pos), ii], lty = 2, col = "red")
