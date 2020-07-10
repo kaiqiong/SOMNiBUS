@@ -51,7 +51,7 @@
 #' @importFrom Matrix bdiag
 #' @importFrom stats as.formula binomial pchisq rbinom rnorm
 #' @export
-BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE, binom.link = "logit", method = "REML", covs = NULL, RanEff = T, reml.scale = F, scale = -2) {
+BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE, binom.link = "logit", method = "REML", covs = NULL, RanEff = TRUE, reml.scale = FALSE, scale = -2) {
   n.k <<- n.k # an error of 'n.k is not found' would appear if without this golable environment assignment; so I save n.k in a parent scope
   data <- data.frame(data)
 
@@ -109,7 +109,7 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   edf1.out <- gam.int$edf1
 
   # Note: this phi_fletcher can be also self-calculated
-  if (Quasi & scale <= 0) { # calculate the estimate of phi if Quasi = T and scale is unknown
+  if (Quasi & scale <= 0) { # calculate the estimate of phi if Quasi = TRUE and scale is unknown
     my_s <- (1 - 2 * old.pi.ij) / (data$X * old.pi.ij * (1 - old.pi.ij)) * (data$Y - data$X * old.pi.ij) #* sqrt(data$X)
 
     # Note: the estimator implemented in the mgcv calculated my_s with an additional multiplier sqrt(data$X)
@@ -224,7 +224,7 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   BZ.beta <- lapply(1:ncol(Z), function(i) {
     mgcv::smooth.construct(mgcv::s(Posit,
       k = n.k[i + 1],
-      fx = F, bs = "cr"
+      fx = FALSE, bs = "cr"
     ),
     data = data[uni.id, ],
     knots = NULL
