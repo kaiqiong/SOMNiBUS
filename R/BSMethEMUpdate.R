@@ -24,7 +24,7 @@
 #' @importFrom mgcv gam
 #' @export
 
-BSMethEMUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method, Z, my.covar.fm, Quasi = T, scale) {
+BSMethEMUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method, Z, my.covar.fm, Quasi = TRUE, scale) {
   if (!(nrow(data) == length(pi.ij))) message("The row of data should be compatible with the length of initial value pi.ij")
   # The E-step
   # Calculate the "posterior" probability
