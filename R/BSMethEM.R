@@ -419,7 +419,6 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, 
 #' @param resi_df Lorem ipsum dolor sit amet
 #' @param Quasi Lorem ipsum dolor sit amet
 #' @param scale Lorem ipsum dolor sit amet
-#' @param p1 Lorem ipsum dolor sit amet
 #' @param RanEff Lorem ipsum dolor sit amet
 #' @param re.test Lorem ipsum dolor sit amet
 #' @param Z Lorem ipsum dolor sit amet
