@@ -13,9 +13,9 @@
 #' RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 #' out <- BSMethEM(
 #'   data = RAdat.f, n.k = rep(5, 3), p0 = 0.003307034, p1 = 0.9,
-#'   epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = F
+#'   epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE
 #' )
-#' plot_BSMethEM(out, same.range = F)
+#' plot_BSMethEM(out, same.range = FALSE)
 #' @export
 pred_BSMethEM <- function(BEM.obj, newdata = NULL, type = "proportion") {
   uni.pos <- BEM.obj$uni.pos
