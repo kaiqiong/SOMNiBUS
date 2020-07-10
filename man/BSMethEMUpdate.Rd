@@ -25,6 +25,10 @@ BSMethEMUpdate(data, pi.ij, p0, p1, n.k, binom.link, method, Z,
 \item{Z}{the covariate matrix used in BSMethEM}
 
 \item{my.covar.fm}{the formula fitted in the GAM}
+
+\item{Quasi}{Lorem ipsum dolor sit amet}
+
+\item{scale}{Lorem ipsum dolor sit amet}
 }
 \value{
 The function returns a list of following objects
