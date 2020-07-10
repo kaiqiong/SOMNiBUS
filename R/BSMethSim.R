@@ -21,7 +21,7 @@
 #' @author  Kaiqiong Zhao
 #' @export
 BSMethSim <-
-  function(n, posit, theta.0, beta, random.eff = F, mu.e = 0,
+  function(n, posit, theta.0, beta, random.eff = FALSE, mu.e = 0,
            sigma.ee = 1, p0 = 0.003, p1 = 0.9, X, Z, binom.link = "logit") {
     if (!is.matrix((Z))) message("covariate Z is not a matrix")
     #  if( !is.matrix(beta) ) message ("the covariate effect parameter beta is not a matrix")
@@ -31,7 +31,7 @@ BSMethSim <-
     if (ncol(beta) != ncol(Z)) message("beta and Z should have the same dimentions")
 
     # the random effect term
-    if (random.eff == T) {
+    if (random.eff == TRUE) {
       my.e <- rnorm(n, mean = mu.e, sd = sqrt(sigma.ee))
     } else {
       my.e <- rep(mu.e, n)
