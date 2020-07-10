@@ -22,6 +22,7 @@
 #' @examples
 #' #------------------------------------------------------------#
 #' @importFrom mgcv gam
+#' @importFrom stats quasibinomial residuals binomial
 #' @export
 
 BSMethEMUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method, Z, my.covar.fm, Quasi = TRUE, scale) {

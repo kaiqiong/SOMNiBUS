@@ -49,7 +49,7 @@
 #' @importFrom mgcv model.matrix.gam
 #' @importFrom mgcv s
 #' @importFrom Matrix bdiag
-#' @importFrom stats as.formula binomial pchisq rbinom rnorm
+#' @importFrom stats as.formula binomial pchisq rbinom rnorm quasibinomial residuals predict model.matrix
 #' @export
 BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE, binom.link = "logit", method = "REML", covs = NULL, RanEff = TRUE, reml.scale = FALSE, scale = -2) {
   n.k <<- n.k # an error of 'n.k is not found' would appear if without this golable environment assignment; so I save n.k in a parent scope
