@@ -4,7 +4,7 @@
 \alias{BSMethSim}
 \title{Simulate Bisulfite sequencing data from specified smooth covariate effects}
 \usage{
-BSMethSim(n, posit, theta.0, beta, random.eff = F, mu.e = 0,
+BSMethSim(n, posit, theta.0, beta, random.eff = FALSE, mu.e = 0,
   sigma.ee = 1, p0 = 0.003, p1 = 0.9, X, Z, binom.link = "logit")
 }
 \arguments{

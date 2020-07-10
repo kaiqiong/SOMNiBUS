@@ -4,7 +4,7 @@
 \alias{plot_BSMethEM}
 \title{A smoothed-EM algorithm to estimate covariate effects and test regional association in Bisulfite Sequencing-derived methylation data}
 \usage{
-plot_BSMethEM(BEM.obj, mfrow = NULL, same.range = F)
+plot_BSMethEM(BEM.obj, mfrow = NULL, same.range = FALSE)
 }
 \arguments{
 \item{BEM.obj}{an output object from function \code{BSMethEM}}
@@ -27,9 +27,9 @@ head(RAdat)
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 out <- BSMethEM(
   data = RAdat.f, n.k = rep(5, 3), p0 = 0.003307034, p1 = 0.9,
-  epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = F
+  epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE
 )
-plot_BSMethEM(out, same.range = F)
+plot_BSMethEM(out, same.range = FALSE)
 }
 \author{
 Kaiqiong Zhao

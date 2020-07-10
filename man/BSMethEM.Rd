@@ -7,7 +7,7 @@
 BSMethEM(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
   epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200,
   detail = FALSE, binom.link = "logit", method = "REML",
-  covs = NULL, RanEff = T, reml.scale = F, scale = -2)
+  covs = NULL, RanEff = TRUE, reml.scale = FALSE, scale = -2)
 }
 \arguments{
 \item{data}{a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.}

@@ -5,7 +5,7 @@
 \title{One-step update inside the EM algorithm for fitting the functional parameter theta.0 and beta.}
 \usage{
 BSMethEMUpdate(data, pi.ij, p0, p1, n.k, binom.link, method, Z,
-  my.covar.fm, Quasi = T, scale)
+  my.covar.fm, Quasi = TRUE, scale)
 }
 \arguments{
 \item{data}{a matrix with  \code{n*p} rows and the columns should include Y, X, Posit, Ctype and ID}
