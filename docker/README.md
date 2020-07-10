@@ -1,6 +1,6 @@
-# unsing rocker/tidyverse docker
+# unsing rocker/verse docker
 
-https://hub.docker.com/r/rocker/tidyverse
+https://hub.docker.com/r/rocker/verse
 
 # to make docker
 
