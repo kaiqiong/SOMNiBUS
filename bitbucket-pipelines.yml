@@ -11,6 +11,6 @@ pipelines:
         script:
           - R CMD build .
           # http://r-pkgs.had.co.nz/check.html
-          - R CMD check --no-clean --no-codoc --no-examples  --no-install --no-manual  --no-vignettes --no-build-vignettes  --ignore-vignettes --run-dontrun SOMNiBUS_0.1.0.tar.gz
+          - R CMD check --no-manual  --no-vignettes --no-build-vignettes  --ignore-vignettes --run-dontrun SOMNiBUS_0.1.0.tar.gz
           # http://bioconductor.org/packages/release/bioc/vignettes/BiocCheck/inst/doc/BiocCheck.html
           - R CMD BiocCheck --no-check-dependencies --no-check-deprecated --no-check-remotes --no-check-version-num --no-check-R-ver --no-check-pkg-size --no-check-file-size --no-check-bioc-views --no-check-bbs --no-check-namespace --no-check-vignettes --no-check-library-calls --no-check-install-self --no-check-coding-practices --no-check-function-len --no-check-man-doc --no-check-news --no-check-formatting --no-check-CRAN --no-check-bioc-help SOMNiBUS_0.1.0.tar.gz
