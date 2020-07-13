@@ -12,7 +12,6 @@ output:
     keep_md: true
     fig_caption: yes
 bibliography: bibliography.bib
-
 vignette: >
   %\VignetteIndexEntry{Analyzing Targeted Bisulfite Sequencing data with SOMNiBUS}
   %\VignetteEngine{knitr::rmarkdown}
@@ -37,11 +36,11 @@ Major advantages of **SOMNiBUS**
 - Allow for multiple covariates, such as proportions of different cell types.
 - Enable estimating smooth covariate effects and assessing statistical significance of methylation regions
 
-For a more comprehensive introduction of the **SOMNiBUS** approach, please read
+For a more comprehensive introduction of the **SOMNiBUS** approach, please read our SOMNiBUS paper [@Zhao2020].
 
-> Zhao, K., Oualkacha, K., Lakhal-Chaieb, L., Klein, K., Hudson, M., and Greenwood, C.M.T.
-> A novel statistical method for modeling covariate effects in bisulfite sequencing derived measures of DNA methylation
-> *submitted*, 2019.
+## Citation
+
+If you use this package, please cite our SOMNiBUS paper [@Zhao2020].
 
 # Installation
 

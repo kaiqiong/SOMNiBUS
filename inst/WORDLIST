@@ -32,6 +32,7 @@ BiocManager
 bioconductor
 BiocStyle
 Bioinformatics
+biom
 Biometric
 Biostatistics
 bisulfite
@@ -102,6 +103,7 @@ DMRs
 Dna
 docopt
 docType
+DOI
 dontrun
 dplyr
 edf
