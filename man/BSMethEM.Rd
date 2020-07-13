@@ -4,23 +4,10 @@
 \alias{BSMethEM}
 \title{A smoothed-EM algorithm to estimate covariate effects and test regional association in Bisulfite Sequencing-derived methylation data}
 \usage{
-BSMethEM(
-  data,
-  n.k,
-  p0 = 0.003,
-  p1 = 0.9,
-  Quasi = TRUE,
-  epsilon = 10^(-6),
-  epsilon.lambda = 10^(-3),
-  maxStep = 200,
-  detail = FALSE,
-  binom.link = "logit",
-  method = "REML",
-  covs = NULL,
-  RanEff = TRUE,
-  reml.scale = FALSE,
-  scale = -2
-)
+BSMethEM(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
+  epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200,
+  detail = FALSE, binom.link = "logit", method = "REML",
+  covs = NULL, RanEff = TRUE, reml.scale = FALSE, scale = -2)
 }
 \arguments{
 \item{data}{a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.}
@@ -43,7 +30,7 @@ BSMethEM(
 
 \item{binom.link}{the link function used in the binomial regression model; the default is the logit link}
 
-\item{method}{the method used to estimate the smoothing parameters. The default is the "REML" method which is generally better than prediction based criterion \code{GCV.cp}}
+\item{method}{the method used to estimate the smoothing parameters. The default is the 'REML' method which is generally better than prediction based criterion \code{GCV.cp}}
 
 \item{covs}{a vector of covariate names. The covariates with names in \code{covs} will be included in the model and their covariate effects will be estimated.}
 

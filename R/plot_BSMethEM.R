@@ -40,14 +40,28 @@ plot_BSMethEM <- function(BEM.obj, mfrow = NULL, same.range = FALSE) {
   }
 
   for (ii in 1:ncovs) {
-    plot(BEM.obj$uni.pos[order(BEM.obj$uni.pos)], BEM.obj$Beta.out[order(BEM.obj$uni.pos), ii],
-      col = "red", xaxt = "n",
-      type = "l", xlab = "Genomic Position", ylab = " ", main = covs.names[ii], lwd = 2, ylim = yylim[ii, ]
+    plot(BEM.obj$uni.pos[order(BEM.obj$uni.pos)], BEM.obj$Beta.out[
+      order(BEM.obj$uni.pos),
+      ii
+    ],
+    col = "red", xaxt = "n", type = "l", xlab = "Genomic Position",
+    ylab = " ", main = covs.names[ii], lwd = 2, ylim = yylim[ii, ]
     )
-    axis(side = 1, at = BEM.obj$uni.pos[order(BEM.obj$uni.pos)], labels = FALSE, lwd = 0.5, lwd.ticks = 0.5, tck = 0.03)
-    axis(side = 1, at = seq(round(min(BEM.obj$uni.pos)), round(max(BEM.obj$uni.pos)), length.out = 10), tck = -0.02)
-    lines(BEM.obj$uni.pos[order(BEM.obj$uni.pos)], ll[order(BEM.obj$uni.pos), ii], lty = 2, col = "red")
-    lines(BEM.obj$uni.pos[order(BEM.obj$uni.pos)], hh[order(BEM.obj$uni.pos), ii], lty = 2, col = "red")
+    axis(
+      side = 1, at = BEM.obj$uni.pos[order(BEM.obj$uni.pos)], labels = FALSE,
+      lwd = 0.5, lwd.ticks = 0.5, tck = 0.03
+    )
+    axis(side = 1, at = seq(round(min(BEM.obj$uni.pos)), round(max(BEM.obj$uni.pos)),
+      length.out = 10
+    ), tck = -0.02)
+    lines(BEM.obj$uni.pos[order(BEM.obj$uni.pos)], ll[
+      order(BEM.obj$uni.pos),
+      ii
+    ], lty = 2, col = "red")
+    lines(BEM.obj$uni.pos[order(BEM.obj$uni.pos)], hh[
+      order(BEM.obj$uni.pos),
+      ii
+    ], lty = 2, col = "red")
     abline(h = 0, lty = 2)
   }
 }

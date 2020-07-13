@@ -20,7 +20,9 @@
 pred_BSMethEM <- function(BEM.obj, newdata = NULL, type = "proportion") {
   uni.pos <- BEM.obj$uni.pos
   covs <- colnames(BEM.obj$Beta.out)
-  if (!type %in% c("proportion", "link.scale")) stop("type should be either proportion or link.scale")
+  if (!type %in% c("proportion", "link.scale")) {
+    stop("type should be either proportion or link.scale")
+  }
 
   if (is.null(newdata)) {
     if (type == "proportion") {

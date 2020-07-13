@@ -10,10 +10,11 @@ repos:
 -   repo: https://github.com/lorenzwalthert/precommit
     rev: v0.1.2
     hooks:
-    # -   id: lintr
+    #-   id: lintr
+    # args: [--warn_only]
+    # verbose: true
     -   id: style-files
-        #args: [--style_pkg=styler, '--style_transformers=tidyverse_style(scope = "tokens")']
-        #exclude: '^tests/testthat/.*/*\.R'
+        args: [--style_pkg=styler, --style_fun=tidyverse_style]
     -   id: roxygenize
     -   id: parsable-R
     -   id: no-browser-statement

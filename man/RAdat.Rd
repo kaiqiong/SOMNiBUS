@@ -4,8 +4,7 @@
 \name{RAdat}
 \alias{RAdat}
 \title{Methylation data from a rheumatoid arthritis study}
-\format{
-A data frame of 5289 rows and 6 columns. Each row represents a CpG site for a sample. Columns include in order
+\format{A data frame of 5289 rows and 6 columns. Each row represents a CpG site for a sample. Columns include in order
 \describe{
  \item{Meth_Counts}{Number of methylated reads}
  \item{Total_Counts}{Total number of reads; read-depth}
@@ -13,8 +12,7 @@ A data frame of 5289 rows and 6 columns. Each row represents a CpG site for a sa
  \item{ID}{indicates which sample the CpG site belongs to}
  \item{T_cell}{whether a sample is from T cell or monocyte}
  \item{RA}{whether a sample is an RA patient or control}
-}
-}
+}}
 \source{
 Dr. Marie Hudson (McGill University)
 }

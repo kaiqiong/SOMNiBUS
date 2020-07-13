@@ -43,19 +43,29 @@ n.k <- rep(5, 3)
 path_ref_data <- paste(paste(getwd(), "/data/", sep = ""), "ref_results.RDS", sep = "")
 ref <- readRDS(path_ref_data)
 ref_mut <- readRDS(path_ref_data)
-ref_mut$est.pi[1000] <- -999.0
+ref_mut$est.pi[1000] <- -999
 
 set.seed(seed_1)
-out_1 <- BSMethEM(data = RAdat.f, n.k = n.k, p0 = p0, p1 = p1, epsilon = epsilon, epsilon.lambda = epsilon.lambda, maxStep = maxStep, detail = detail)
+out_1 <- BSMethEM(
+  data = RAdat.f, n.k = n.k, p0 = p0, p1 = p1, epsilon = epsilon,
+  epsilon.lambda = epsilon.lambda, maxStep = maxStep, detail = detail
+)
 
 set.seed(seed_2)
-out_2 <- BSMethEM(data = RAdat.f, n.k = n.k, p0 = p0, p1 = p1, epsilon = epsilon, epsilon.lambda = epsilon.lambda, maxStep = maxStep, detail = detail)
+out_2 <- BSMethEM(
+  data = RAdat.f, n.k = n.k, p0 = p0, p1 = p1, epsilon = epsilon,
+  epsilon.lambda = epsilon.lambda, maxStep = maxStep, detail = detail
+)
 
 set.seed(seed_1)
-out_3 <- BSMethEM(data = RAdat.f, n.k = n.k, p0 = p0, p1 = p1, epsilon = epsilon, epsilon.lambda = epsilon.lambda, maxStep = maxStep, detail = detail)
+out_3 <- BSMethEM(
+  data = RAdat.f, n.k = n.k, p0 = p0, p1 = p1, epsilon = epsilon,
+  epsilon.lambda = epsilon.lambda, maxStep = maxStep, detail = detail
+)
 
 test_that("using two different seeds we get the same results with BSMethEM", {
-  # this is wrong different seeds settings should output different results with BSMethEM
+  # this is wrong different seeds settings should output different results with
+  # BSMethEM
   expect_true(isTRUE(all.equal(out_1, out_2)))
 })
 
