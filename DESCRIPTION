@@ -14,8 +14,10 @@ License: MIT + file LICENSE
 Depends:
     R (>= 4.0)
 Imports:
+    graphics,
     Matrix,
-    mgcv
+    mgcv,
+    stats
 Suggests:
     BiocStyle,
     dplyr,
