@@ -28,10 +28,7 @@ Suggests:
     testthat
 VignetteBuilder:
     knitr
-BiocStyleViews: DNAMethylation, Software
+BiocViews: DNAMethylation, Software
 Encoding: UTF-8
 LazyData: true
-output: BiocStyle::html_document vignette: >
-    %\VignetteIndexEntry{Vignette Title}
-    %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 RoxygenNote: 7.1.0
