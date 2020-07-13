@@ -11,6 +11,8 @@ Description: The package aims to analyze count-based
     by targeted sequencing, and thus to identify differentially methylated
     regions (DMRs) that are associated with phenotypes or traits.
 License: MIT + file LICENSE
+URL: https://github.com/kaiqiong/SOMNiBUS
+BugReports: https://github.com/kaiqiong/SOMNiBUS/issues
 Depends:
     R (>= 4.0)
 Imports:
