@@ -31,8 +31,6 @@ BSMethEM_summary(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, X_d,
 \item{re.test}{Lorem ipsum dolor sit amet}
 
 \item{Z}{Lorem ipsum dolor sit amet}
-
-\item{p1}{Lorem ipsum dolor sit amet}
 }
 \value{
 Lorem ipsum dolor sit amet

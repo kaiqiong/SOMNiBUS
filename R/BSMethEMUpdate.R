@@ -10,8 +10,8 @@
 #' @param method the method used to estimate the smoothing parameters. The default is the "REML" method which is generally better than prediction based criterion \code{GCV.cp}
 #' @param Z the covariate matrix used in BSMethEM
 #' @param my.covar.fm the formula fitted in the GAM
-#' @param Quasi
-#' @param scale
+#' @param Quasi Lorem ipsum dolor sit amet
+#' @param scale Lorem ipsum dolor sit amet
 #' @return The function returns a list of following objects
 #' \itemize{
 #' \item \code{pi.ij} fitted methylation proportions
@@ -22,6 +22,7 @@
 #' @examples
 #' #------------------------------------------------------------#
 #' @importFrom mgcv gam
+#' @importFrom stats quasibinomial residuals binomial
 #' @export
 
 BSMethEMUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method, Z, my.covar.fm, Quasi = TRUE, scale) {
