@@ -24,6 +24,7 @@ Suggests:
     testthat
 VignetteBuilder:
     knitr
+BiocStyleViews: DNAMethylation, Software
 Encoding: UTF-8
 LazyData: true
 output: BiocStyle::html_document vignette: >
