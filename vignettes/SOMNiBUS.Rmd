@@ -47,13 +47,16 @@ For a more comprehensive introduction of the **SOMNiBUS** approach, please read
 
 Currently, the software package can be installed from [github](https://github.com/kaiqiong/SOMNiBUS).
 
+
 ```{r, eval = FALSE, echo = FALSE}
-devtools::document("/mnt/GREENWOOD_JBOD1/GREENWOOD_BACKUP/home/kaiqiong.zhao/Packages/SOMNiBUS")
-devtools::load_all("/mnt/GREENWOOD_JBOD1/GREENWOOD_BACKUP/home/kaiqiong.zhao/Packages/SOMNiBUS")
+ROOT_PACKAGE_PATH <- paste(getwd(), "/", sep = "")
+devtools::document(ROOT_PACKAGE_PATH)
+devtools::load_all(ROOT_PACKAGE_PATH)
 ```
 
 ```{r, eval =TRUE}
-pacman::p_load_current_gh("kaiqiong/SOMNiBUS")
+devtools::install_git("https://github.com/kaiqiong/SOMNiBUS.git")
+library(SOMNiBUS)
 ```
 
 Make sure to run `install.packages("pacman")` if you have not installed the `pacman` package.
