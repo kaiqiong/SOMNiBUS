@@ -33,6 +33,7 @@ bioconductor
 BiocStyle
 BiocStyleViews
 Bioinformatics
+biom
 Biometric
 Biostatistics
 bisulfite
@@ -104,6 +105,7 @@ Dna
 DNAMethylation
 docopt
 docType
+DOI
 dontrun
 dplyr
 edf
