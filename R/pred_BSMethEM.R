@@ -44,7 +44,7 @@ pred_BSMethEM <- function(BEM.obj, newdata = NULL, type = "proportion") {
       newdata <- newdata[, -which(colnames(newdata) == "Position")]
       newdata <- newdata[, match(covs, colnames(newdata))]
 
-      pred.link <- sapply(1:nrow(newdata), function(i) {
+      pred.link <- sapply(seq_len(nrow(newdata)), function(i) {
         sum(beta.s[i, ] * newdata[i, ])
       })
 

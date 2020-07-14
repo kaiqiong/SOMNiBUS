@@ -73,8 +73,8 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   )
 
   if (is.null(covs)) {
-    Z <- as.matrix(data[, -(1:4)], ncol = ncol(data) - 4)
-    colnames(Z) <- colnames(data)[-c(1:4)]
+    Z <- as.matrix(data[, -seq_len(4)], ncol = ncol(data) - 4)
+    colnames(Z) <- colnames(data)[-seq_len(4)]
   } else {
     id <- match(covs, colnames(data))
     if (any(is.na(id))) {
@@ -99,7 +99,7 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   }
 
   # The smoothing formula corresponding to the Z
-  formula.z.part <- vapply(1:(ncol(Z)), function(i) {
+  formula.z.part <- vapply(seq_len(ncol(Z)), function(i) {
     paste0(
       "s(Posit, k = n.k[", i + 1, "], fx=FALSE, bs=\"cr\", by = Z[,", i,
       "])"
@@ -262,8 +262,8 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   # ------ 3: estimate of beta(t) --- #
   uni.pos <- unique(data$Posit)
   uni.id <- match(uni.pos, data$Posit)
-  BZ <- my.design.matrix[uni.id, 1:n.k[1]]
-  BZ.beta <- lapply(1:ncol(Z), function(i) {
+  BZ <- my.design.matrix[uni.id, seq_len(n.k[1])]
+  BZ.beta <- lapply(seq_len(ncol(Z)), function(i) {
     mgcv::smooth.construct(mgcv::s(Posit, k = n.k[i + 1], fx = FALSE, bs = "cr"),
       data = data[uni.id, ], knots = NULL
     )$X
@@ -272,12 +272,12 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   # Use PredictMat to get BZ.beta
 
   cum_s <- cumsum(n.k)
-  alpha.sep <- lapply(1:ncol(Z), function(i) {
+  alpha.sep <- lapply(seq_len(ncol(Z)), function(i) {
     new.par[(cum_s[i] + 1):cum_s[i + 1]]
   })
-  alpha.0 <- new.par[1:n.k[1]]
+  alpha.0 <- new.par[seq_len(n.k[1])]
 
-  Beta.out <- cbind(BZ %*% alpha.0, sapply(1:ncol(Z), function(i) {
+  Beta.out <- cbind(BZ %*% alpha.0, sapply(seq_len(ncol(Z)), function(i) {
     BZ.beta[[i]] %*% alpha.sep[[i]]
   }))
 
@@ -295,8 +295,8 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   )
 
   var.cov.alpha <- solve(-H)
-  var.alpha.0 <- var.cov.alpha[1:n.k[1], 1:n.k[1]]
-  var.alpha.sep <- lapply(1:ncol(Z), function(i) {
+  var.alpha.0 <- var.cov.alpha[seq_len(n.k[1]), seq_len(n.k[1])]
+  var.alpha.sep <- lapply(seq_len(ncol(Z)), function(i) {
     var.cov.alpha[(cum_s[i] + 1):cum_s[i + 1], (cum_s[i] + 1):cum_s[i + 1]]
   })
   # solve and Ginv give very similar results, but MASS is very different from the
@@ -307,7 +307,7 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   # A more efficient way to calculate SE rowsum(A*B) is faster than diag(A %*%
   # t(B))
   SE.out <- cbind(sqrt(pmax(0, rowSums((BZ %*% var.alpha.0) * BZ))), sapply(
-    1:ncol(Z),
+    seq_len(ncol(Z)),
     function(i) {
       sqrt(pmax(0, rowSums((BZ.beta[[i]] %*% var.alpha.sep[[i]]) * BZ.beta[[i]])))
     }
@@ -347,7 +347,7 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
       kind <- RNGkind(NULL)
       RNGkind("default", "default")
       set.seed(11) ## ensure repeatability
-      ind <- sample(1:nrow(GamObj$model), sub.samp, replace = FALSE) ## sample these rows from X
+      ind <- sample(seq_len(nrow(GamObj$model)), sub.samp, replace = FALSE) ## sample these rows from X
       X_d <- predict(GamObj, GamObj$model[ind, ], type = "lpmatrix")
       RNGkind(kind[1], kind[2])
       assign(".Random.seed", seed, envir = .GlobalEnv) ## RNG behaves as if it had not been used
@@ -427,10 +427,10 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, 
 
   # Q1: the second partial derivative w.r.t alpha^2 Q2: the second derivative w.r.t
   # alpha & alpha_star
-  res <- outer(1:length(new.par), 1:length(new.par), Vectorize(function(l, m) {
+  res <- outer(seq_len(length(new.par)), seq_len(length(new.par)), Vectorize(function(l, m) {
     sum(-X * w_ij * my.design.matrix[, m] * my.design.matrix[, l])
   }))
-  smoth.mat <- lapply(as.list(1:(ncol(Z) + 1)), function(i) {
+  smoth.mat <- lapply(as.list(seq_len(ncol(Z) + 1)), function(i) {
     gam.int$smooth[[i]]$S[[1]] * new.lambda[i]
   }) # extract the penalty matrix
 
@@ -438,18 +438,18 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, 
   if (RanEff) {
     smoth.mat[[length(smoth.mat) + 1]] <- diag(N) * new.lambda[ncol(Z) + 2] # !!!! Otherwise, we get very wide CI
     span.penal.matrix <- as.matrix(Matrix::bdiag(smoth.mat[c(length(smoth.mat) -
-      1, (1:(length(smoth.mat) - 2)), length(smoth.mat))]))
+      1, (seq_len((length(smoth.mat) - 2))), length(smoth.mat))]))
   } else {
     span.penal.matrix <- as.matrix(Matrix::bdiag(smoth.mat[c(
       length(smoth.mat),
-      (1:(length(smoth.mat) - 1))
+      (seq_len((length(smoth.mat) - 1)))
     )]))
   }
 
   Q1_with_lambda <- res - span.penal.matrix / disp_est
   Q1_no_lambda <- res
 
-  Q2 <- outer(1:length(new.par), 1:length(new.par), Vectorize(function(l, m) {
+  Q2 <- outer(seq_len(length(new.par)), seq_len(length(new.par)), Vectorize(function(l, m) {
     term1 <- Y * p1 * p0 / (p1 * pred.pi + p0 * (1 - pred.pi))^2 + (X - Y) * (1 -
       p1) * (1 - p0) / ((1 - p1) * pred.pi + (1 - p0) * (1 - pred.pi))^2
     sum(term1 * w_ij * my.design.matrix[, m] * my.design.matrix[, l])
@@ -487,7 +487,7 @@ BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, 
   ii <- 0
   m <- length(GamObj$smooth)
   df <- edf1 <- edf <- s.pv <- chi.sq <- array(0, m)
-  for (i in 1:m) {
+  for (i in seq_len(m)) {
     start <- GamObj$smooth[[i]]$first.para
     stop <- GamObj$smooth[[i]]$last.para
 
@@ -534,11 +534,11 @@ BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, 
     if (ii == 0) {
       df <- edf1 <- edf <- s.pv <- chi.sq <- array(0, 0)
     } else {
-      df <- df[1:ii]
-      chi.sq <- chi.sq[1:ii]
-      edf1 <- edf1[1:ii]
-      edf <- edf[1:ii]
-      s.pv <- s.pv[1:ii]
+      df <- df[seq_len(ii)]
+      chi.sq <- chi.sq[seq_len(ii)]
+      edf1 <- edf1[seq_len(ii)]
+      edf <- edf[seq_len(ii)]
+      s.pv <- s.pv[seq_len(ii)]
     }
     if (!Quasi || scale >= 0) {
       s.table <- cbind(edf, df, chi.sq, s.pv)

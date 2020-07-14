@@ -45,8 +45,8 @@ BSMethSim <- function(n, posit, theta.0, beta, random.eff = FALSE, mu.e = 0, sig
     my.e <- rep(mu.e, n)
   }
 
-  my.theta <- t(sapply(1:n, function(i) {
-    theta.0 + rowSums(sapply(1:ncol(Z), function(j) {
+  my.theta <- t(sapply(seq_len(n), function(i) {
+    theta.0 + rowSums(sapply(seq_len(ncol(Z)), function(j) {
       Z[i, j] * beta[, j]
     })) + my.e[i]
   }))
@@ -54,15 +54,15 @@ BSMethSim <- function(n, posit, theta.0, beta, random.eff = FALSE, mu.e = 0, sig
 
   # Transform my.theta to my.pi for each (i, j)
 
-  my.pi <- t(sapply(1:nrow(my.theta), function(i) {
+  my.pi <- t(sapply(seq_len(nrow(my.theta)), function(i) {
     # exp(my.theta[i,])/(1+exp(my.theta[i,]))
     binomial(link = binom.link)$linkinv(my.theta[i, ])
   }))
   # Generate S-ij based on the my.pi and my.Z
   #---------------------------------------------------#
   my.S <- my.pi
-  for (i in 1:nrow(my.S)) {
-    for (j in 1:ncol(my.S)) {
+  for (i in seq_len(nrow(my.S))) {
+    for (j in seq_len(ncol(my.S))) {
       my.S[i, j] <- rbinom(1, size = X[i, j], prob = my.pi[i, j])
     }
   }
@@ -70,8 +70,8 @@ BSMethSim <- function(n, posit, theta.0, beta, random.eff = FALSE, mu.e = 0, sig
   # Generate Y-ij based on the S-ij and the error rate (1-p1) and p0
   #---------------------------------------------------#
   my.Y <- my.S
-  for (i in 1:nrow(my.Y)) {
-    for (j in 1:ncol(my.Y)) {
+  for (i in seq_len(nrow(my.Y))) {
+    for (j in seq_len(ncol(my.Y))) {
       my.Y[i, j] <- sum(rbinom(my.S[i, j], size = 1, prob = p1)) + sum(rbinom(X[
         i,
         j
