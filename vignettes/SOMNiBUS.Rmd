@@ -18,7 +18,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -47,7 +47,7 @@ If you use this package, please cite our SOMNiBUS paper [@Zhao2020].
 Currently, the software package can be installed from [github](https://github.com/kaiqiong/SOMNiBUS).
 
 
-```{r, eval = FALSE, echo = FALSE}
+```{r, eval=FALSE, echo=FALSE}
 ROOT_PACKAGE_PATH <- paste(getwd(), "/", sep = "")
 devtools::document(ROOT_PACKAGE_PATH)
 devtools::load_all(ROOT_PACKAGE_PATH)
@@ -110,14 +110,14 @@ out <- BSMethEM(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, Quasi = F
 
 Or, we can use the argument `covs` to specify that we only want the covariate `T_cell` in the model.
 
-```{r, eval = FALSE}
+```{r, eval=FALSE}
 out.ctype <- BSMethEM(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, covs = "T_cell")
 ```
 
 ## Error rates $p_0$ and $p_1$
 
 In the example data set, we have cell type separated samples. The error rates for individual samples can be estimated by a E-M algorithm [@lakhal2017smoothed] using the package `SmoothMSC`. The error rate default values,
-$p_0 = 0.003$ and $p_1 = 0.9$, were estimated as the average incomplete ($p_0$) or over- conversion ($1-p_1$). These two estimated values coincide roughly with the incomplete and over conversion rates in a bisulfite sequencing experiment reported in @prochenka2015cautionary.
+$p_0=0.003$ and $p_1=0.9$, were estimated as the average incomplete ($p_0$) or over- conversion ($1-p_1$). These two estimated values coincide roughly with the incomplete and over conversion rates in a bisulfite sequencing experiment reported in @prochenka2015cautionary.
 
 For experiments with samples from a tissue containing a mixture of cell types, the user could consider the following ways to specify the error rates $p_0$ and $1-p_1$.
 
@@ -143,14 +143,14 @@ out$reg.out
 
 
 
-```{r , fig.cap = "The estimates (solid red lines) and 95% pointwise confidence intervals (dashed red lines) of the intercept, the smooth effect of cell type and RA on methylation levels. ", fig.height= 4, fig.width=9}
+```{r , fig.cap="The estimates (solid red lines) and 95% pointwise confidence intervals (dashed red lines) of the intercept, the smooth effect of cell type and RA on methylation levels. ", fig.height= 4, fig.width=9}
 plot_BSMethEM(out)
 ```
 
 
 We can also force the covariate effect plots to have the same vertical range, for all covariates, by specifying `same.range= T`.
 
-```{r , fig.cap = "The estimates (solid red lines) and 95% pointwise confidence intervals (dashed red lines) of the intercept, the smooth effect of cell type and RA on methylation levels. (Same ranges of Y axis.)", fig.height= 4, fig.width=9}
+```{r , fig.cap="The estimates (solid red lines) and 95% pointwise confidence intervals (dashed red lines) of the intercept, the smooth effect of cell type and RA on methylation levels. (Same ranges of Y axis.)", fig.height= 4, fig.width=9}
 plot_BSMethEM(out, same.range = TRUE)
 ```
 
@@ -171,7 +171,7 @@ The predicted methylation levels can be calculated from function `pred_BSMethEM`
 my.pred <- pred_BSMethEM(out, newdata, type = "link.scale")
 ```
 
-```{r,  fig.height= 6, fig.width=6, fig.cap = "The predicted methylation levels in the logit scale for the 4 groups of samples with different disease and cell type status."}
+```{r,  fig.height= 6, fig.width=6, fig.cap="The predicted methylation levels in the logit scale for the 4 groups of samples with different disease and cell type status."}
 plot(pos[order(pos)], (my.pred[(newdata$RA == 0 & newdata$T_cell == 0)])[order(pos)],
   type = "l", xlab = "Position",
   ylab = "Predicted methylation levels (in logit scale)", col = "blue", main = "Logit scale", ylim = c(min(my.pred), max(my.pred)), lwd = 2
@@ -194,7 +194,7 @@ legend("top", c("RA MONO", "RA TCELL", "CTRL MONO", "CTRL TCELL"),
 )
 ```
 
-```{r, fig.height= 6, fig.width=6 , fig.cap = "The predicted methylation levels  proportion scale (right) for the 4 groups of samples with different disease and cell type status."}
+```{r, fig.height= 6, fig.width=6 , fig.cap="The predicted methylation levels  proportion scale (right) for the 4 groups of samples with different disease and cell type status."}
 my.pred <- pred_BSMethEM(out, newdata, type = "proportion")
 plot(pos[order(pos)], (my.pred[(newdata$RA == 0 & newdata$T_cell == 0)])[order(pos)],
   type = "l", xlab = "Position",
