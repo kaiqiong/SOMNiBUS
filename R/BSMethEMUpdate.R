@@ -7,7 +7,7 @@
 #' @param p1 the probability of observing a methylated read when the underlying true status is methylated.
 #' @param n.k a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the degrees of each functional parameters.
 #' @param binom.link the link function used in the binomial regression model; the default is the logit link
-#' @param method the method used to estimate the smoothing parameters. The default is the "REML" method which is generally better than prediction based criterion \code{GCV.cp}
+#' @param method the method used to estimate the smoothing parameters. The default is the 'REML' method which is generally better than prediction based criterion \code{GCV.cp}
 #' @param Z the covariate matrix used in BSMethEM
 #' @param my.covar.fm the formula fitted in the GAM
 #' @param Quasi Lorem ipsum dolor sit amet
@@ -25,10 +25,12 @@
 #' @importFrom stats quasibinomial residuals binomial
 #' @export
 
-BSMethEMUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method, Z, my.covar.fm, Quasi = TRUE, scale) {
-  if (!(nrow(data) == length(pi.ij))) message("The row of data should be compatible with the length of initial value pi.ij")
-  # The E-step
-  # Calculate the "posterior" probability
+BSMethEMUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method, Z, my.covar.fm,
+                           Quasi = TRUE, scale) {
+  if (!(nrow(data) == length(pi.ij))) {
+    message("The row of data should be compatible with the length of initial value pi.ij")
+  }
+  # The E-step Calculate the 'posterior' probability
   eta.1 <- p1 * pi.ij / (p1 * pi.ij + p0 * (1 - pi.ij)) # posterior probability given an observed methylated rates, what is the probability that the reads are truely methylated
   eta.0 <- (1 - p1) * pi.ij / ((1 - p1) * pi.ij + (1 - p0) * (1 - pi.ij))
 
@@ -38,13 +40,12 @@ BSMethEMUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method, Z, my.c
 
   if (Quasi) {
     gam.int.see <- suppressWarnings(mgcv::gam(as.formula(paste0("E.S/X ~", my.covar.fm)),
-      family = quasibinomial(link = binom.link), weights = X,
-      data = data, method = method, scale = scale
+      family = quasibinomial(link = binom.link), weights = X, data = data,
+      method = method, scale = scale
     ))
   } else {
     gam.int.see <- suppressWarnings(mgcv::gam(as.formula(paste0("E.S/X ~", my.covar.fm)),
-      family = binomial(link = binom.link), weights = X,
-      data = data, method = method
+      family = binomial(link = binom.link), weights = X, data = data, method = method
     ))
   }
 
@@ -55,7 +56,8 @@ BSMethEMUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method, Z, my.c
   out <- list(
     pi.ij = gam.int.see$fitted.values, par = gam.int.see$coefficients,
     lambda = gam.int.see$sp, edf1 = gam.int.see$edf1, pearson_res = p_res, deviance_res = d_res,
-    edf = gam.int.see$edf, phi_fletcher = phi_fletcher, GamObj = gam.int.see, E.S = E.S
+    edf = gam.int.see$edf, phi_fletcher = phi_fletcher, GamObj = gam.int.see,
+    E.S = E.S
   )
   return(out)
 }

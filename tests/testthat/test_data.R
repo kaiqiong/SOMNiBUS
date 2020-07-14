@@ -9,7 +9,8 @@ test_that("the genomic positions are well ordered in the dataset provided (not f
   for (i in 1:length(unique(RAdat$ID))) {
     cur <- filter(RAdat, ID == i)
     for (j in 1:(length(cur$ID) - 1)) {
-      a_list_bool <- c(a_list_bool, cur$Position[j] < cur$Position[j + 1])
+      a_list_bool <- c(a_list_bool, cur$Position[j] < cur$Position[j +
+        1])
     }
   }
   # this is wrong, we should expect true for all
@@ -21,7 +22,8 @@ test_that("the genomic positions are well ordered in the dataset provided (filte
   for (i in 1:length(unique(RAdat.f$ID))) {
     cur <- filter(RAdat.f, ID == i)
     for (j in 1:(length(cur$ID) - 1)) {
-      a_list_bool <- c(a_list_bool, cur$Position[j] < cur$Position[j + 1])
+      a_list_bool <- c(a_list_bool, cur$Position[j] < cur$Position[j +
+        1])
     }
   }
   # this is wrong, we should expect true for all

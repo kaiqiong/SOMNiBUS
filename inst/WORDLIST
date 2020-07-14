@@ -124,6 +124,7 @@ fontconfig
 forcats
 foreach
 formatr
+formatR
 freetype
 fribidi
 fs
@@ -214,6 +215,7 @@ libtiff
 libuuid
 libxcb
 libxml
+lintr
 linux
 lnicka
 Lorem
@@ -235,6 +237,7 @@ Methylation
 mfrow
 mgcv
 mims
+miniUI
 mistune
 mkdir
 ModeliNg
