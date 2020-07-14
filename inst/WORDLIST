@@ -32,6 +32,7 @@ BiocManager
 bioconductor
 BiocStyle
 BiocStyleViews
+BiocViews
 Bioinformatics
 biom
 Biometric
