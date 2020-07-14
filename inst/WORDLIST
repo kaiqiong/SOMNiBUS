@@ -1,14 +1,20 @@
+’
 Abdous
 abi
 abline
 ACPA
+AfterComma
 Agnieszka
 ai
 aiqiong
 al
+AllClasses
+AllGenerics
 alphs
 amet
 appdirs
+AroundBinaryOperator
+AroundEqualOperator
 askpass
 assertthat
 attrs
@@ -52,6 +58,8 @@ bwidget
 bzip
 cairo
 callr
+camelCaps
+CamelCaps
 Ccount
 cellranger
 certifi
@@ -65,6 +73,7 @@ clisymbols
 CMD
 codemetar
 codetools
+CodingStyle
 codoc
 coef
 Colmegna
@@ -107,6 +116,7 @@ DNAMethylation
 docopt
 docType
 DOI
+DoNotUse
 dontrun
 dplyr
 edf
@@ -215,6 +225,7 @@ libtiff
 libuuid
 libxcb
 libxml
+LineLength
 lintr
 linux
 lnicka
@@ -326,6 +337,7 @@ pyyaml
 pyzmq
 qpdf
 quantmod
+R’
 RAdat
 Rafa
 Rafał
@@ -335,9 +347,11 @@ rbeta
 rbokeh
 rcfile
 rcmdcheck
+RCode
 rcolorbrewer
 rcpp
 rcpproll
+Rd’
 readline
 readr
 readxl
@@ -366,6 +380,7 @@ setuptools
 simon
 SmOoth
 SMSC
+somefunc
 somnibus
 SOMNiBUS
 sourcetools
@@ -406,6 +421,7 @@ unittest
 unmethylated
 unsing
 urltools
+UseOfSpace
 usethis
 utf
 uuid
