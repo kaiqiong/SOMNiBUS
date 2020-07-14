@@ -6,5 +6,7 @@ bibentry(
  number="",
  pages="",
  year="2020",
+ doi="10.1111/biom.13307",
+ pubmed= "32438470",
  author="Kaiqiong Zhao, Karim Oualkacha, Lajmi Lakhal‐Chaieb, Aurélie Labbe, Kathleen Klein, Antonio Ciampi, Marie Hudson, Inés Colmegna, Tomi Pastinen, Tieyuan Zhang, Denise Daley, Celia M.T. Greenwood",
  textVersion="Kaiqiong Zhao, Karim Oualkacha, Lajmi Lakhal‐Chaieb, Aurélie Labbe, Kathleen Klein, Antonio Ciampi, Marie Hudson, Inés Colmegna, Tomi Pastinen, Tieyuan Zhang, Denise Daley, Celia M.T. Greenwood (2020) A novel statistical method for modeling covariate effects in bisulfite sequencing derived measures of DNA methylation. Journal of the International Biometric Society")

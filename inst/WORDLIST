@@ -106,6 +106,7 @@ Dna
 DNAMethylation
 docopt
 docType
+doi
 DOI
 dontrun
 dplyr
@@ -315,6 +316,7 @@ prodlim
 prometheus
 ps
 ptyprocess
+pubmed
 purrr
 pvalue
 pygments
