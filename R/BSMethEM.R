@@ -99,12 +99,12 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   }
 
   # The smoothing formula corresponding to the Z
-  formula.z.part <- sapply(1:(ncol(Z)), function(i) {
+  formula.z.part <- vapply(1:(ncol(Z)), function(i) {
     paste0(
       "s(Posit, k = n.k[", i + 1, "], fx=FALSE, bs=\"cr\", by = Z[,", i,
       "])"
     )
-  })
+  }, "")
   my.covar.fm <- paste(c("s(Posit, k=n.k[1], fx=FALSE, bs=\"cr\")", formula.z.part),
     collapse = "+"
   )
