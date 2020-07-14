@@ -38,6 +38,7 @@ BiocManager
 bioconductor
 BiocStyle
 BiocStyleViews
+biocViews
 BiocViews
 Bioinformatics
 biom
@@ -106,6 +107,7 @@ devtools
 df
 di
 dichromat
+DifferentialMethylation
 dimention
 disp
 distlib
@@ -127,6 +129,7 @@ entrypoints
 env
 ENV
 envs
+Epigenetics
 et
 fansi
 filelock
