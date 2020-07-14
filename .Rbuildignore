@@ -6,3 +6,4 @@ clean_env.sh
 environment.yml
 bitbucket-pipelines.yml
 SOMNiBUS_*.tar.gz
+.BioconductorQualitative.yml

@@ -1,0 +1,25 @@
+
+Bioconductor:
+    CodingStyle:
+      Indentation: "Use 4 spaces for indenting. No tabs."
+      LineLength: "No lines longer than 80 characters."
+      Variable:
+        Name: "Use camelCaps: initial lowercase, then alternate case between words."
+      Function:
+        Name: "Use camelCaps: initial lower case, then alternate case between words."
+        DoNotUse: "Do not use ‘.’ (in the S3 class system, some(x) where x is class A will dispatch to some.A)."
+        Prefix: "Prefix non-exported functions with a ‘.’."
+      Class:
+        Name: "Use CamelCaps: initial upper case, then alternate case between words."
+      File:
+        RCode:
+          Name:
+            Prefix: "Use the prefix ‘methods-‘ for S4 class methods, e.g., ‘methods-coverage.R’. Generic definitions can be listed in a single file, ‘AllGenerics.R’, and class definitions in ‘AllClasses.R’."
+            Extension: "Filename extension for R code should be ‘.R’."
+        man:
+          Name:
+            Extension: "Filename extension for man pages should be ‘.Rd’."
+      UseOfSpace:
+        AfterComma: "Always use space after a comma. This: a, b, c."
+        AroundEqualOperator: "No space around “=” when using named arguments to functions. This: somefunc(a=1, b=2)"
+        AroundBinaryOperator: "Space around all binary operators: a == b."
