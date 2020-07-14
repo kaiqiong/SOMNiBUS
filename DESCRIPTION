@@ -22,6 +22,7 @@ Imports:
     stats
 Suggests:
     BiocStyle,
+    devtools,
     dplyr,
     knitr,
     rmarkdown,
