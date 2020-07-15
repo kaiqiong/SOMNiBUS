@@ -33,6 +33,7 @@ bibtype
 binom
 binutils
 bioc
+bioccheck
 BiocCheck
 BiocManager
 bioconductor
