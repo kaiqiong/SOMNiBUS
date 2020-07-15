@@ -6,7 +6,6 @@ Authors@R:
            family = "Zhao",
            role = c("aut", "cre"),
            email = "kaiqiong.zhao@mail.mcgill.ca")
-Maintainer: Kaiqiong Zhao <kaiqiong.zhao@mail.mcgill.ca>
 Description: The package aims to analyze count-based
     methylation data on predefined genomic regions, such as those obtained
     by targeted sequencing, and thus to identify differentially methylated

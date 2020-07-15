@@ -23,3 +23,41 @@ Bioconductor:
         AfterComma: "Always use space after a comma. This: a, b, c."
         AroundEqualOperator: "No space around “=” when using named arguments to functions. This: somefunc(a=1, b=2)"
         AroundBinaryOperator: "Space around all binary operators: a == b."
+    build:
+      Command: R build .
+    check:
+      Guidelines: http://r-pkgs.had.co.nz/check.html
+      Checks:
+          Metadata:
+          Package structure:
+          Description:
+          Namespace:
+          R code:
+          Data:
+          Documentation:
+          Demos:
+          Compiled code:
+          Tests:
+          Vignettes:
+    BiocCheck:
+      Guidelines: http://bioconductor.org/packages/release/bioc/vignettes/BiocCheck/inst/doc/BiocCheck.html#bioccheck
+      Checks:
+        Dependency Checks:
+        Deprecated Package Checks:
+        Remotes Usage Check:
+        Version Checks:
+        Package and File Size Check:
+        biocViews Checks:
+        Build System Compatibility Checks:
+        NAMESPACE checks:
+        Vignette Checks:
+        Checking Install or Update Package Calls in R code:
+        Coding Practices Checks:
+        Function length checking:
+        man page checking:
+        NEWS checks:
+        Unit Test Checks:
+        Formatting checks:
+        Duplication checks:
+        bioc-devel Subscription Check:
+        Support Site Registration Check:
