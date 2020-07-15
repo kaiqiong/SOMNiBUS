@@ -26,10 +26,10 @@ The estimation is performed by an iterated EM algorithm. Each M step constitutes
 head(RAdat)
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 out <- BSMethEM(
-  data = RAdat.f, n.k = rep(5, 3), p0 = 0.003307034, p1 = 0.9,
-  epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE
+  data=RAdat.f, n.k=rep(5, 3), p0=0.003307034, p1=0.9,
+  epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE
 )
-plot_BSMethEM(out, same.range = FALSE)
+plot_BSMethEM(out, same.range=FALSE)
 }
 \author{
 Kaiqiong Zhao
