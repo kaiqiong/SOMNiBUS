@@ -34,12 +34,12 @@ plot_BSMethEM <- function(BEM.obj, mfrow = NULL, same.range = FALSE) {
   if (same.range) {
     yylim <- matrix(rep(c(min(ll), max(hh)), ncovs), ncol = 2, byrow = TRUE)
   } else {
-    yylim <- t(sapply(1:ncovs, function(i) {
+    yylim <- t(sapply(seq_len(ncovs), function(i) {
       yylim[i, ] <- c(ifelse(min(ll[, i]) > 0, 0, min(ll[, i])), max(hh[, i]))
     }))
   }
 
-  for (ii in 1:ncovs) {
+  for (ii in seq_len(ncovs)) {
     plot(BEM.obj$uni.pos[order(BEM.obj$uni.pos)], BEM.obj$Beta.out[
       order(BEM.obj$uni.pos),
       ii
