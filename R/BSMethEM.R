@@ -339,18 +339,8 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
     sub.samp <- max(1000, 2 * length(GamObj$coefficients))
     if (nrow(GamObj$model) > sub.samp) {
       ## subsample to get X for p-values calc.
-      seed <- try(get(".Random.seed", envir = .GlobalEnv), silent = TRUE) ## store RNG seed
-      if (inherits(seed, "try-error")) {
-        runif(1)
-        seed <- get(".Random.seed", envir = .GlobalEnv)
-      }
-      kind <- RNGkind(NULL)
-      RNGkind("default", "default")
-      set.seed(11) ## ensure repeatability
       ind <- sample(seq_len(nrow(GamObj$model)), sub.samp, replace = FALSE) ## sample these rows from X
       X_d <- predict(GamObj, GamObj$model[ind, ], type = "lpmatrix")
-      RNGkind(kind[1], kind[2])
-      assign(".Random.seed", seed, envir = .GlobalEnv) ## RNG behaves as if it had not been used
     } else {
       ## don't need to subsample
       X_d <- model.matrix(GamObj)
