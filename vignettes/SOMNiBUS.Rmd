@@ -54,7 +54,7 @@ devtools::load_all(ROOT_PACKAGE_PATH)
 ```
 
 ```{r, eval =TRUE}
-devtools::install_git("https://github.com/kaiqiong/SOMNiBUS.git")
+# devtools::install_git("https://github.com/kaiqiong/SOMNiBUS.git")
 library(SOMNiBUS)
 ```
 
