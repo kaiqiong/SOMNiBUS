@@ -9,7 +9,7 @@ path_ref_data <- paste(paste(getwd(), "/data/", sep = ""), "ref_results.RDS", se
 ref <- readRDS(path_ref_data)
 data(RAdat)
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
-# theta, beta parameters vectors are draw from normal distribution (mu = 0,
+# theta, beta parameters vectors are draw from normal distribution (mu=0,
 # std=1) coverage
 n_samples <- length(unique(RAdat.f$ID)) # int: number of samples
 n_positions <- length(ref$uni.pos) # int: number of CpG positions

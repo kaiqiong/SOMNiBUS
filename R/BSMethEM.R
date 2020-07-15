@@ -101,7 +101,7 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   # The smoothing formula corresponding to the Z
   formula.z.part <- vapply(seq_len(ncol(Z)), function(i) {
     paste0(
-      "s(Posit, k = n.k[", i + 1, "], fx=FALSE, bs=\"cr\", by = Z[,", i,
+      "s(Posit, k=n.k[", i + 1, "], fx=FALSE, bs=\"cr\", by=Z[,", i,
       "])"
     )
   }, "")
@@ -109,7 +109,7 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
     collapse = "+"
   )
   if (RanEff) {
-    my.covar.fm <- paste0(my.covar.fm, "+ s(ID, bs = \"re\")")
+    my.covar.fm <- paste0(my.covar.fm, "+ s(ID, bs=\"re\")")
     data$ID <- as.factor(data$ID)
   }
   # Fit gam for the initial value
@@ -128,14 +128,14 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   old.pi.ij <- gam.int$fitted.values
   old.par <- gam.int$coefficients
   lambda <- gam.int$sp
-  # phi_fletcher = summary(gam.int)$dispersion
+  # phi_fletcher=summary(gam.int)$dispersion
   p_res <- residuals(gam.int, type = "pearson")
   d_res <- residuals(gam.int, type = "deviance")
   edf.out <- gam.int$edf
   edf1.out <- gam.int$edf1
 
   # Note: this phi_fletcher can be also self-calculated calculate the estimate of
-  # phi if Quasi = TRUE and scale is unknown
+  # phi if Quasi=TRUE and scale is unknown
   if (Quasi & scale <= 0) {
     my_s <- (1 - 2 * old.pi.ij) / (data$X * old.pi.ij * (1 - old.pi.ij)) * (data$Y -
       data$X * old.pi.ij) #* sqrt(data$X)
@@ -178,11 +178,11 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
   } else {
 
     # code used to generate /tests/testthat/data/ref_input_BSMethEMUpdate.RDS input =
-    # list(data = data, old.pi.ij = old.pi.ij, p0 = p0, p1 = p1, n.k = n.k,
-    # binom.link = binom.link, method = method, Z = Z, my.covar.fm = my.covar.fm,
-    # Quasi = Quasi, scale = phi_fletcher) path_ref_input_BSMethEMUpdate <-
-    # paste(paste(getwd(), '/tests/testthat/data/', sep = ''),
-    # 'ref_input_BSMethEMUpdate.RDS', sep = '') saveRDS(input,
+    # list(data=data, old.pi.ij=old.pi.ij, p0=p0, p1=p1, n.k=n.k,
+    # binom.link=binom.link, method=method, Z=Z, my.covar.fm=my.covar.fm,
+    # Quasi=Quasi, scale=phi_fletcher) path_ref_input_BSMethEMUpdate <-
+    # paste(paste(getwd(), '/tests/testthat/data/', sep=''),
+    # 'ref_input_BSMethEMUpdate.RDS', sep='') saveRDS(input,
     # path_ref_input_BSMethEMUpdate)
 
     out <- BSMethEMUpdate(data, old.pi.ij,
@@ -373,10 +373,10 @@ BSMethEM <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, epsilon = 10
     new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff, re.test,
     Z
   )
-  # var_out = list(cov1 = var.cov.alpha, reg.out = reg.out, SE.out = SE.out,
-  # uni.pos = SE.pos, pvalue = pvalue , ncovs = ncol(Z)+1) Est_out = list(est =
-  # new.par, lambda = new.lambda, est.pi = new.pi.ij, ite.points = Est.points,
-  # Beta.out = Beta.out, phi_fletcher = phi_fletcher)
+  # var_out=list(cov1=var.cov.alpha, reg.out=reg.out, SE.out=SE.out,
+  # uni.pos=SE.pos, pvalue=pvalue , ncovs=ncol(Z)+1) Est_out=list(est =
+  # new.par, lambda=new.lambda, est.pi=new.pi.ij, ite.points=Est.points,
+  # Beta.out=Beta.out, phi_fletcher=phi_fletcher)
 
 
   if (RanEff) {
