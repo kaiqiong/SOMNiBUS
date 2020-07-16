@@ -4,8 +4,20 @@
 \alias{BSMethEM_summary}
 \title{BSMethEM_summary Lorem ipsum dolor sit amet}
 \usage{
-BSMethEM_summary(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, X_d,
-  resi_df, Quasi, scale, RanEff, re.test, Z)
+BSMethEM_summary(
+  GamObj,
+  var.cov.alpha,
+  new.par,
+  edf.out,
+  edf1.out,
+  X_d,
+  resi_df,
+  Quasi,
+  scale,
+  RanEff,
+  re.test,
+  Z
+)
 }
 \arguments{
 \item{GamObj}{Lorem ipsum dolor sit amet}

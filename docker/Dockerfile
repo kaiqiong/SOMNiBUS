@@ -10,6 +10,8 @@ RUN install2.r --error \
 	styler \
 	formatR \
 	miniUI \
+	magick \
+	shiny \
     && R -e "BiocManager::install(c('BiocStyle','BiocCheck'), update=FALSE, ask=FALSE)"
 
 ENV TZ=America/Montreal

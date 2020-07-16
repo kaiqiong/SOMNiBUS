@@ -38,14 +38,9 @@ Major advantages of **SOMNiBUS**
 
 For a more comprehensive introduction of the **SOMNiBUS** approach, please read our SOMNiBUS paper [@Zhao2020].
 
-## Citation
-
-If you use this package, please cite our SOMNiBUS paper [@Zhao2020].
-
-# Installation
+## Installation
 
 Currently, the software package can be installed from [github](https://github.com/kaiqiong/SOMNiBUS).
-
 
 ```{r, eval=FALSE, echo=FALSE}
 ROOT_PACKAGE_PATH <- paste(getwd(), "/", sep = "")
@@ -53,12 +48,18 @@ devtools::document(ROOT_PACKAGE_PATH)
 devtools::load_all(ROOT_PACKAGE_PATH)
 ```
 
-```{r, eval =TRUE}
-# devtools::install_git("https://github.com/kaiqiong/SOMNiBUS.git")
+## Dependencies
+
+```{r dependencies, warning=FALSE, message=FALSE}
 library(SOMNiBUS)
 ```
 
-Make sure to run `install.packages("pacman")` if you have not installed the `pacman` package.
+## System Requirements
+
+
+## Citation
+
+If you use this package, please cite our SOMNiBUS paper [@Zhao2020].
 
 # Data example
 
@@ -282,4 +283,4 @@ compiled running pandoc `r rmarkdown::pandoc_version()`:
 sessionInfo()
 ```
 
-# Reference {.unnumbered}
+# References {.unnumbered}
