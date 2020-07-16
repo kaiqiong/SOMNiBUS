@@ -38,6 +38,7 @@ The function returns a list of following objects
 \item \code{S} the true methylation counts; a numeric matrix of \code{n} rows and \code{p} columns
 \item \code{Y} the observed methylation counts; a numeric matrix of \code{n} rows and \code{p} columns
 \item \code{theta} the methylation parameter (after the logit transformation); a numeric matrix of \code{n} rows and \code{p} columns
+\item \code{pi}
 }
 }
 \description{

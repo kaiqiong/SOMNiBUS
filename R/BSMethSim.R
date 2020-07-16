@@ -19,6 +19,7 @@
 #' \item \code{S} the true methylation counts; a numeric matrix of \code{n} rows and \code{p} columns
 #' \item \code{Y} the observed methylation counts; a numeric matrix of \code{n} rows and \code{p} columns
 #' \item \code{theta} the methylation parameter (after the logit transformation); a numeric matrix of \code{n} rows and \code{p} columns
+#' \item \code{pi}
 #' }
 #' @author  Kaiqiong Zhao
 BSMethSim <- function(n, posit, theta.0, beta, random.eff=FALSE, mu.e=0,
@@ -38,7 +39,7 @@ BSMethSim <- function(n, posit, theta.0, beta, random.eff=FALSE, mu.e=0,
         message("beta and Z should have the same dimentions")
     }
 
-    # the random effect term
+    ## the random effect term
     if (random.eff == TRUE) {
         my.e <- rnorm(n, mean=mu.e, sd=sqrt(sigma.ee))
     } else {
@@ -52,19 +53,19 @@ BSMethSim <- function(n, posit, theta.0, beta, random.eff=FALSE, mu.e=0,
     }))
 
 
-    # Transform my.theta to my.pi for each (i, j)
+    ## Transform my.theta to my.pi for each (i, j)
     my.pi <- t(sapply(seq_len(nrow(my.theta)), function(i) {
-        # exp(my.theta[i,])/(1+exp(my.theta[i,]))
+        ## exp(my.theta[i,])/(1+exp(my.theta[i,]))
         binomial(link=binom.link)$linkinv(my.theta[i, ])
     }))
-    # Generate S-ij based on the my.pi and my.Z
+    ## Generate S-ij based on the my.pi and my.Z
     my.S <- my.pi
     for (i in seq_len(nrow(my.S))) {
         for (j in seq_len(ncol(my.S))) {
             my.S[i, j] <- rbinom(1, size=X[i, j], prob=my.pi[i, j])
         }
     }
-    # Generate Y-ij based on the S-ij and the error rate (1-p1) and p0
+    ## Generate Y-ij based on the S-ij and the error rate (1-p1) and p0
     my.Y <- my.S
     for (i in seq_len(nrow(my.Y))) {
         for (j in seq_len(ncol(my.Y))) {

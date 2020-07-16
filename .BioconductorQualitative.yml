@@ -61,7 +61,7 @@ Bioconductor:
           Marker: Use “##” to start full-line comments
           Indentation: Indent at the same level as surrounding code.
         Status:
-          NOTE: REVIEW NEEDED
+          NOTE: OK
       UseOfSpace:
         Usage:
           AfterComma: Always use space after a comma. This a, b, c.
