@@ -1,40 +1,114 @@
 
 Bioconductor:
+    package:
+      Multi platform build/check:
+        Status: REVIEW NEEDED
+      argument values:
+        Usage: Don’t trust users to provide correct argument values
+        Status:
+          NOTES:
+          1: inputs types should be checked
+          2: vector, matrix, list dimension should be checked
+      Choose good package name:
+        Status: OK
+      Make sure that your package idea is actually new:
+        Status: OK
     CodingStyle:
-      Indentation: "Use 4 spaces for indenting. No tabs."
-      LineLength: "No lines longer than 80 characters."
+      Indentation:
+        Usage: Use 4 spaces for indenting. No tabs.
+        Status: OK
+      LineLength:
+        Usage: No lines longer than 80 characters.
+        Status:
+        NOTE:
+            1: seem impossible to format to 80, even using limits of 70 char, and this using formatR or orther r stylers (e.g., tidyverse-style)
       Variable:
-        Name: "Use camelCaps: initial lowercase, then alternate case between words."
+        Name:
+          Usage:
+            1: Use camelCaps  initial lowercase, then alternate case between words.
+            Status:
+              Note: REVIEW NEEDED
       Function:
-        Name: "Use camelCaps: initial lower case, then alternate case between words."
-        DoNotUse: "Do not use ‘.’ (in the S3 class system, some(x) where x is class A will dispatch to some.A)."
-        Prefix: "Prefix non-exported functions with a ‘.’."
+        Name:
+          Usage:
+            1: Use camelCaps initial lower case, then alternate case between words.
+            2: DoNotUse Do not use ‘.’ (in the S3 class system, some(x) where x is class A will dispatch to some.A).
+            3: Prefix Prefix non-exported functions with a ‘.’.
+            Status:
+              NOTE: REVIEW NEEDED
       Class:
-        Name: "Use CamelCaps: initial upper case, then alternate case between words."
+        Name:
+          Usage:
+            Use CamelCaps: initial upper case, then alternate case between words.
+            Status: OK
       File:
         RCode:
           Name:
-            Prefix: "Use the prefix ‘methods-‘ for S4 class methods, e.g., ‘methods-coverage.R’. Generic definitions can be listed in a single file, ‘AllGenerics.R’, and class definitions in ‘AllClasses.R’."
-            Extension: "Filename extension for R code should be ‘.R’."
+            Usage:
+              Prefix: Use the prefix ‘methods-‘ for S4 class methods, e.g., ‘methods-coverage.R’. Generic definitions can be listed in a single file, ‘AllGenerics.R’, and class definitions in ‘AllClasses.R’.
+              Extension: Filename extension for R code should be ‘.R’.
+              Status:
+                NOTE: REVIEW NEEDED
         man:
           Name:
-            Extension: "Filename extension for man pages should be ‘.Rd’."
+            Usage:
+              Extension: Filename extension for man pages should be ‘.Rd’.
+              Status:
+                NOTE: REVIEW NEEDED
+      Comments:
+        Usage:
+          Marker: Use “##” to start full-line comments
+          Indentation: Indent at the same level as surrounding code.
+        Status:
+          NOTE: REVIEW NEEDED
       UseOfSpace:
-        AfterComma: "Always use space after a comma. This: a, b, c."
-        AroundEqualOperator: "No space around “=” when using named arguments to functions. This: somefunc(a=1, b=2)"
-        AroundBinaryOperator: "Space around all binary operators: a == b."
+        Usage:
+          AfterComma: Always use space after a comma. This a, b, c.
+          AroundEqualOperator: No space around “=” when using named arguments to functions. This somefunc(a=1, b=2)
+          AroundBinaryOperator: Space around all binary operators a == b.
+          Status: OK
+      Namespaces:
+        Usage: Import all symbols used from packages other than “base”. Except for default packages (base, graphics, stats, etc.) or when overly tedious, fully enumerate imports.
+        Export: Export all symbols useful to end users. Fully enumerate exports.
+      End-User messages:
+        Usage:
+          messages: message() communicates diagnostic messages (e.g., progress during lengthy computations) during code evaluation.
+          Warnings: warning() communicates unusual situations handled by your code.
+          stop: stop() indicates an error condition.
+          print: cat() or print() are used only when displaying an object to the user, e.g., in a show method.
+      Test coverage:
+        Usage:
+        Status: REVIEW NEEDED
     build:
       Command: R build .
+      Status: OK
     check:
       Guidelines: http://r-pkgs.had.co.nz/check.html
       Checks:
+        Global Status:
+          ERROR: 1
+          WARNING: 1
+          NOTE: 2
           Metadata:
+            Status: OK
           Package structure:
+            Status: OK
           Description:
+            Status: OK
           Namespace:
+            Status: OK
           R code:
-          Data:
+            Status:
+              NOTE:
+                1: "Unexported objects imported by ':::' calls"
+                2: "Undefined global functions or variables"
+          Data: OK
           Documentation:
+            Status:
+              WARNING:
+                1: checking PDF version of manual
+              ERROR:
+                1: checking PDF version of manual without hyperrefs or index
           Demos:
           Compiled code:
           Tests:
@@ -42,22 +116,59 @@ Bioconductor:
     BiocCheck:
       Guidelines: http://bioconductor.org/packages/release/bioc/vignettes/BiocCheck/inst/doc/BiocCheck.html#bioccheck
       Checks:
+        Global Status:
+          ERROR: 2
+          WARNING: 0
+          NOTE: 7
         Dependency Checks:
+          Status:
+            NOTE:
+              1: Consider clarifying how 1 object(s) are initialized. Maybe it is part of a data set loaded with data(), or perhaps part of       an object referenced in with() or within().
         Deprecated Package Checks:
+          Status:
         Remotes Usage Check:
+          Status:
         Version Checks:
+          Status:
         Package and File Size Check:
+          Status:
         biocViews Checks:
+          Status:
         Build System Compatibility Checks:
+          Status:
         NAMESPACE checks:
+          Status:
         Vignette Checks:
+          Status:
         Checking Install or Update Package Calls in R code:
+          Status:
         Coding Practices Checks:
+          Status:
+            NOTE:
+              1: Avoid '<<-' if possible (found in 1 files)
+              2: Avoid sapply(); use vapply()
         Function length checking:
+          Status:
+            NOTE:
+              1: Recommended function length <= 50 lines.
         man page checking:
+          Status:
+            ERROR:
+              1: Consider shorter lines; 198 lines (12%) are > 80 charactersAt least 80% of man pages documenting exported objects must have runnable examples. The following pages do not (BSMethEMUpdate.Rd, BSMethSim.Rd)
         NEWS checks:
+          Status:
         Unit Test Checks:
+          Status:
         Formatting checks:
+          Status:
+            NOTE:
+              1: Consider shorter lines; 198 lines (12%) are > 80 characters
+              2: Consider multiples of 4 spaces for line indents, 116
         Duplication checks:
+          Status:
         bioc-devel Subscription Check:
+          Status:
+            ERROR:
         Support Site Registration Check:
+          Status:
+            ERROR:

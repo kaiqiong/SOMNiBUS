@@ -69,3 +69,19 @@ testing specific file like tests/testhat/test_groundzero.R ensuring we get same 
 '''
 > testthat::test_file("tests/testthat/test_groundzero.R")
 '''
+
+## other usefull tricks
+from R console
+to shorten compilation time of vignettes that depend on internet access, it is possible to precompile the vignettes
+
+'''
+library(knitr)
+knit("vignettes/vignette.Rmd.orig", "vignettes/vignette.Rmd")
+'''
+where vignette orig is the copy of the original vignette
+updates are made to vignette.Rmd.orig prior to appyl precompilation
+then the vignette is compiled
+'''
+library(devtools)
+build_vignettes()
+'''

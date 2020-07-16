@@ -13,6 +13,7 @@ AllGenerics
 alphs
 amet
 appdirs
+appyl
 AroundBinaryOperator
 AroundEqualOperator
 askpass
@@ -67,6 +68,7 @@ cellranger
 certifi
 cfgv
 Chaieb
+charactersAt
 chmod
 Ciampi
 cli
@@ -180,6 +182,7 @@ httpcode
 httpuv
 httr
 hunspell
+hyperrefs
 icu
 ij
 impl
@@ -243,6 +246,7 @@ lty
 lubridate
 lwd
 lz
+magick
 magrittr
 markupsafe
 maxStep
@@ -292,6 +296,7 @@ onwards
 oo
 openjpeg
 openssl
+orther
 oski
 Oualkacha
 Ouhourane
@@ -326,6 +331,8 @@ poppler
 pos
 postions
 pre
+precompilation
+precompile
 pred
 prettyunits
 processx
@@ -373,6 +380,7 @@ reprex
 resi
 rlang
 rmarkdown
+Rmd
 roclets
 roxygen
 RoxygenNote
@@ -383,7 +391,9 @@ rstudio
 Rstudio
 RStudio
 rstudioapi
+runnable
 rvest
+sapply
 seealso
 selectr
 sep
@@ -439,6 +449,7 @@ UseOfSpace
 usethis
 utf
 uuid
+vapply
 ver
 VignetteBuilder
 VignetteEncoding

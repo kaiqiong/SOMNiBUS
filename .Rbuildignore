@@ -7,3 +7,5 @@ environment.yml
 bitbucket-pipelines.yml
 SOMNiBUS_*.tar.gz
 .BioconductorQualitative.yml
+^doc$
+^Meta$
