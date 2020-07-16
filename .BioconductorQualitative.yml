@@ -2,7 +2,8 @@
 Bioconductor:
     package:
       Multi platform build/check:
-        Status: REVIEW NEEDED
+        Usage: https://builder.r-hub.io/
+        Status: OK
       argument values:
         Usage: Don’t trust users to provide correct argument values
         Status:
