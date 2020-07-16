@@ -17,14 +17,11 @@
 #' \item \code{pi.ij} fitted methylation proportions
 #' \item \code{par} updated basis coefficients
 #' \item \code{lambda} updated smoothing parameters
-#' \item \code{edf1} Effective degree of freedoms for each smooth terms in the model}
+#' \item \code{edf1} Effective degree of freedoms for each smooth terms in the model
+#' }
 #' @author  Kaiqiong Zhao
-#' @examples
-#' #------------------------------------------------------------#
 #' @importFrom mgcv gam
 #' @importFrom stats quasibinomial residuals binomial
-#' @export
-
 BSMethEMUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method,
     Z, my.covar.fm, Quasi=TRUE, scale) {
     if (!(nrow(data) == length(pi.ij))) {

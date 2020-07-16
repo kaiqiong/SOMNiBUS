@@ -28,10 +28,10 @@
 #' \item \code{chi.sq}: chi-square statistics for each covariates (including intercept) w.r.t the zero regional effect tests
 #' \item \code{pvalue}: the p value from the regional tests for each covariate
 #' \item \code{pvalue.log}: the log of \code{pvalue}
-#' \item \code{SE.out} a matrix of the estimated pointwise Standard Errors (SE); number of rows are the number of unique CpG sites in the input data and the number of columns equal to the total number of covariates fitted in the model (the first one is the intercept)
-#' \item \code{SE.pos} the genomic postions for each row of CpG sites in the matrix \code{SE.out}
-#' \item \code{Beta.out} a matrix of the estimated covariate effects beta(t), here t denots the genomic positions.
-#' \item \code{ncovs} number of functional paramters in the model (including the intercept)
+#' \item \code{SE.out}: a matrix of the estimated pointwise Standard Errors (SE); number of rows are the number of unique CpG sites in the input data and the number of columns equal to the total number of covariates fitted in the model (the first one is the intercept)
+#' \item \code{SE.pos}: the genomic postions for each row of CpG sites in the matrix \code{SE.out}
+#' \item \code{Beta.out}: a matrix of the estimated covariate effects beta(t), here t denots the genomic positions.
+#' \item \code{ncovs}: number of functional paramters in the model (including the intercept)
 #' }
 #' @author  Kaiqiong Zhao
 #' @seealso  \link[mgcv]{gam}
@@ -356,7 +356,7 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
     reg.out.gam <- summary(GamObj)$s.table
 
 
-    return(out=list(est=new.par, lambda=new.lambda, est.pi=new.pi.ij,
+    return(out<-list(est=new.par, lambda=new.lambda, est.pi=new.pi.ij,
         Beta.out=Beta.out, phi_fletcher=phi_fletcher, phi_reml=phi_reml,
         reg.out=s.table, reg.out.reml.scale=s.table.REML.scale, cov1=var.cov.alpha,
         reg.out.gam=reg.out.gam, SE.out=SE.out, SE.out.REML.scale=SE.out.REML.scael,
@@ -382,13 +382,7 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
 #' @param RanEff Lorem ipsum dolor sit amet
 #' @param N Lorem ipsum dolor sit amet
 #' @return Lorem ipsum dolor sit amet
-#' \itemize{
-#' \item Lorem ipsum dolor sit amet
-#' }
 #' @author  Kaiqiong Zhao
-#' @examples
-#' #------------------------------------------------------------#
-#' # Lorem ipsum dolor sit amet
 #' @importFrom Matrix bdiag
 Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
     gam.int, Z, pred.pi, p0, p1, disp_est, RanEff, N) {
@@ -446,13 +440,7 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
 #' @param re.test Lorem ipsum dolor sit amet
 #' @param Z Lorem ipsum dolor sit amet
 #' @return Lorem ipsum dolor sit amet
-#' \itemize{
-#' \item Lorem ipsum dolor sit amet
-#' }
 #' @author  Kaiqiong Zhao
-#' @examples
-#' #------------------------------------------------------------#
-#' # Lorem ipsum dolor sit amet
 #' @import mgcv
 BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out,
     X_d, resi_df, Quasi, scale, RanEff, re.test, Z) {

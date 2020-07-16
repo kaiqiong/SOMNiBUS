@@ -4,20 +4,8 @@
 \alias{BSMethSim}
 \title{Simulate Bisulfite sequencing data from specified smooth covariate effects}
 \usage{
-BSMethSim(
-  n,
-  posit,
-  theta.0,
-  beta,
-  random.eff = FALSE,
-  mu.e = 0,
-  sigma.ee = 1,
-  p0 = 0.003,
-  p1 = 0.9,
-  X,
-  Z,
-  binom.link = "logit"
-)
+BSMethSim(n, posit, theta.0, beta, random.eff = FALSE, mu.e = 0,
+  sigma.ee = 1, p0 = 0.003, p1 = 0.9, X, Z, binom.link = "logit")
 }
 \arguments{
 \item{n}{sample size}
@@ -46,12 +34,11 @@ BSMethSim(
 }
 \value{
 The function returns a list of following objects
-
-\code{S} the true methylation counts; a numeric matrix of \code{n} rows and \code{p} columns
-
-\code{Y} the observed methylation counts; a numeric matrix of \code{n} rows and \code{p} columns
-
-\code{theta} the methylation parameter (after the logit transformation); a numeric matrix of \code{n} rows and \code{p} columns
+\itemize{
+\item \code{S} the true methylation counts; a numeric matrix of \code{n} rows and \code{p} columns
+\item \code{Y} the observed methylation counts; a numeric matrix of \code{n} rows and \code{p} columns
+\item \code{theta} the methylation parameter (after the logit transformation); a numeric matrix of \code{n} rows and \code{p} columns
+}
 }
 \description{
 Simulate Bisulfite sequencing data from a Generalized Additive Model with functional parameters varying with the genomic position. Both the true methylated counts and observed methylated counts are generated, given the error/conversion rate parameters \code{p0} and \code{p1}.

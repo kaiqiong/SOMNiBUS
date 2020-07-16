@@ -4,26 +4,13 @@
 \alias{BSMethEM}
 \title{A smoothed-EM algorithm to estimate covariate effects and test regional association in Bisulfite Sequencing-derived methylation data}
 \usage{
-BSMethEM(
-  data,
-  n.k,
-  p0 = 0.003,
-  p1 = 0.9,
-  Quasi = TRUE,
-  epsilon = 10^(-6),
-  epsilon.lambda = 10^(-3),
-  maxStep = 200,
-  detail = FALSE,
-  binom.link = "logit",
-  method = "REML",
-  covs = NULL,
-  RanEff = TRUE,
-  reml.scale = FALSE,
-  scale = -2
-)
+BSMethEM(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
+  epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200,
+  detail = FALSE, binom.link = "logit", method = "REML",
+  covs = NULL, RanEff = TRUE, reml.scale = FALSE, scale = -2)
 }
 \arguments{
-\item{data}{a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.}
+\item{data}{a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of \code{Meth_Counts} (methylated counts), \code{Total_Counts} (read depths), \code{Position} (Genomic position for the CpG site) and \code{ID} (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.}
 
 \item{n.k}{a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the degrees of each functional parameters.}
 
@@ -65,10 +52,10 @@ This function return a \code{list} including objects:
 \item \code{chi.sq}: chi-square statistics for each covariates (including intercept) w.r.t the zero regional effect tests
 \item \code{pvalue}: the p value from the regional tests for each covariate
 \item \code{pvalue.log}: the log of \code{pvalue}
-\item \code{SE.out} a matrix of the estimated pointwise Standard Errors (SE); number of rows are the number of unique CpG sites in the input data and the number of columns equal to the total number of covariates fitted in the model (the first one is the intercept)
-\item \code{SE.pos} the genomic postions for each row of CpG sites in the matrix \code{SE.out}
-\item \code{Beta.out} a matrix of the estimated covariate effects beta(t), here t denots the genomic positions.
-\item \code{ncovs} number of functional paramters in the model (including the intercept)
+\item \code{SE.out}: a matrix of the estimated pointwise Standard Errors (SE); number of rows are the number of unique CpG sites in the input data and the number of columns equal to the total number of covariates fitted in the model (the first one is the intercept)
+\item \code{SE.pos}: the genomic postions for each row of CpG sites in the matrix \code{SE.out}
+\item \code{Beta.out}: a matrix of the estimated covariate effects beta(t), here t denots the genomic positions.
+\item \code{ncovs}: number of functional paramters in the model (including the intercept)
 }
 }
 \description{

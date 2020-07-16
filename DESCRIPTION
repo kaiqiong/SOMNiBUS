@@ -25,10 +25,12 @@ Suggests:
     devtools,
     dplyr,
     knitr,
+    magick,
     rmarkdown,
     testthat
 VignetteBuilder:
-    knitr
+    knitr,
+    rmarkdown
 biocViews: DNAMethylation, Regression, Epigenetics,
     DifferentialMethylation, Sequencing
 Encoding: UTF-8
