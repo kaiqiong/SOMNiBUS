@@ -9,3 +9,4 @@ SOMNiBUS_*.tar.gz
 .BioconductorQualitative.yml
 ^doc$
 ^Meta$
+^scripts$
