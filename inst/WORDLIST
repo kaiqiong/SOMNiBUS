@@ -236,6 +236,7 @@ libcurl
 libedit
 libffi
 libgcc
+libgdal
 libgfortran
 libleptonica
 libmagick
@@ -247,6 +248,7 @@ libstdcxx
 libtesseract
 libtiff
 libuuid
+libwebp
 libxcb
 libxml
 LineLength
