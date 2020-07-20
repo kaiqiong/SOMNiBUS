@@ -1,4 +1,4 @@
-FROM rocker/verse:3.6.3
+FROM rocker/verse:latest
 #Author: simon@mims.ai
 #Date created: June 22th, 2020
 

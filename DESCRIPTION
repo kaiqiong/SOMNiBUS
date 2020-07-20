@@ -11,7 +11,7 @@ License: MIT + file LICENSE
 URL: https://github.com/kaiqiong/SOMNiBUS
 BugReports: https://github.com/kaiqiong/SOMNiBUS/issues
 Depends:
-    R (>= 4.0)
+    R (>= 3.6.3)
 Imports:
     graphics,
     Matrix,
