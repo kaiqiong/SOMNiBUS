@@ -18,13 +18,13 @@ path_ref_data <- paste(paste(getwd(), "/data/", sep = ""), "ref_results.RDS", se
 ref <- readRDS(path_ref_data)
 
 set.seed(seed_1)
-out_1 <- BSMethEM(
+out_1 <- binomRegMethModel(
   data = RAdat.f, n.k = n.k, p0 = p0, p1 = p1, epsilon = epsilon,
   epsilon.lambda = epsilon.lambda, maxStep = maxStep, detail = detail
 )
 # this was used to save output object when we started working on that directory:
 # 'saveRDS(out_1, path_ref_data)'
 
-test_that("all values in reference output, saved on disk, equals actual values coming from BSMethEM because both results were obtained using the same seed setting", {
+test_that("all values in reference output, saved on disk, equals actual values coming from binomRegMethModel because both results were obtained using the same seed setting", {
   expect_true(isTRUE(all.equal(out_1, ref)))
 })

@@ -6,10 +6,7 @@ Bioconductor:
         Status: OK
       argument values:
         Usage: Don’t trust users to provide correct argument values
-        Status:
-          NOTES:
-          1: inputs types should be checked
-          2: vector, matrix, list dimension should be checked
+        Status: OK
       Choose good package name:
         Status: OK
       Make sure that your package idea is actually new:
@@ -36,7 +33,7 @@ Bioconductor:
             2: DoNotUse Do not use ‘.’ (in the S3 class system, some(x) where x is class A will dispatch to some.A).
             3: Prefix Prefix non-exported functions with a ‘.’.
             Status:
-              NOTE: REVIEW NEEDED
+              NOTE: OK
       Class:
         Name:
           Usage:
@@ -49,13 +46,13 @@ Bioconductor:
               Prefix: Use the prefix ‘methods-‘ for S4 class methods, e.g., ‘methods-coverage.R’. Generic definitions can be listed in a single file, ‘AllGenerics.R’, and class definitions in ‘AllClasses.R’.
               Extension: Filename extension for R code should be ‘.R’.
               Status:
-                NOTE: REVIEW NEEDED
+                NOTE: OK
         man:
           Name:
             Usage:
               Extension: Filename extension for man pages should be ‘.Rd’.
               Status:
-                NOTE: REVIEW NEEDED
+                NOTE: OK
       Comments:
         Usage:
           Marker: Use “##” to start full-line comments
@@ -79,12 +76,13 @@ Bioconductor:
           print: cat() or print() are used only when displaying an object to the user, e.g., in a show method.
       Test coverage:
         Usage:
-        Status: REVIEW NEEDED
+        Status: OK
     build:
       Command: R build .
       Status: OK
     check:
       Guidelines: http://r-pkgs.had.co.nz/check.html
+      Command: R CMD check SOMNiBUS_*.tar.gz
       Checks:
         Global Status:
           ERROR: 1
@@ -105,11 +103,7 @@ Bioconductor:
                 2: "Undefined global functions or variables"
           Data: OK
           Documentation:
-            Status:
-              WARNING:
-                1: checking PDF version of manual
-              ERROR:
-                1: checking PDF version of manual without hyperrefs or index
+            Status: OK
           Demos:
           Compiled code:
           Tests:

@@ -33,6 +33,12 @@ bh
 bibentry
 bibtype
 binom
+binomRegMethModel
+binomRegMethModelPlot
+binomRegMethModelPred
+binomRegMethModelSim
+binomRegMethModelSummary
+binomRegMethModelUpdate
 binutils
 bioc
 bioccheck
@@ -176,6 +182,7 @@ gxx
 gz
 happyregistry
 harfbuzz
+hessianComp
 hexbin
 HHM
 highr

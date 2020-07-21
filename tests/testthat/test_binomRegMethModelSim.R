@@ -1,4 +1,4 @@
-context("testing BSMethSim")
+context("testing binomRegMethModelSim")
 fp <- 0.003307034 # False positive rate (float)
 tp <- 0.9 # True positive rate (float)
 
@@ -26,18 +26,18 @@ error_mu <- 0 # mean value (float)
 error_var <- 1 # variance value (float)
 link_fct <- "logit" # link fonction (str)
 
-out_BSMethSim <- BSMethSim(
+out_binomRegMethModelSim <- binomRegMethModelSim(
   n = n_samples, posit = genomics_positions, theta.0 = theta,
   beta = beta, random.eff = error, mu.e = error_mu, sigma.ee = error_var, p0 = fp,
   p1 = tp, X = coverage, Z = covariates, binom.link = link_fct
 )
 
-test_that("the output corresponds to BSMethSim method description", {
-  expect_false(length(out_BSMethSim) == 3)
-  expect_equal(ncol(out_BSMethSim$S), n_positions)
-  expect_equal(nrow(out_BSMethSim$S), n_samples)
-  expect_equal(ncol(out_BSMethSim$Y), n_positions)
-  expect_equal(nrow(out_BSMethSim$Y), n_samples)
-  expect_equal(ncol(out_BSMethSim$theta), n_positions)
-  expect_equal(nrow(out_BSMethSim$theta), n_samples)
+test_that("the output corresponds to binomRegMethModelSim method description", {
+  expect_false(length(out_binomRegMethModelSim) == 3)
+  expect_equal(ncol(out_binomRegMethModelSim$S), n_positions)
+  expect_equal(nrow(out_binomRegMethModelSim$S), n_samples)
+  expect_equal(ncol(out_binomRegMethModelSim$Y), n_positions)
+  expect_equal(nrow(out_binomRegMethModelSim$Y), n_samples)
+  expect_equal(ncol(out_binomRegMethModelSim$theta), n_positions)
+  expect_equal(nrow(out_binomRegMethModelSim$theta), n_samples)
 })

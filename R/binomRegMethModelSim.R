@@ -22,7 +22,7 @@
 #' \item \code{pi}
 #' }
 #' @author  Kaiqiong Zhao
-BSMethSim <- function(n, posit, theta.0, beta, random.eff=FALSE, mu.e=0,
+binomRegMethModelSim <- function(n, posit, theta.0, beta, random.eff=FALSE, mu.e=0,
     sigma.ee=1, p0=0.003, p1=0.9, X, Z, binom.link="logit") {
     if (!is.matrix((Z))) {
         message("covariate Z is not a matrix")

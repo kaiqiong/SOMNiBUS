@@ -2,7 +2,7 @@
 #'
 #' @description This function fits a binomial regression model where the outcome - methylated reads- are contaminated by known error rates \code{p0} and \code{p1} and the covariate effects are smoothly varying across genomic positions. The functional parameters of the smooth covariate effects are first represented by a linear combination of a bunch of restricted cubic splines (with dimention \code{n.k}), and a smoothness penalization term which depends on the smoothing parameters \code{lambdas} is also added to control smoothness.
 #' @description The estimation is performed by an iterated EM algorithm. Each M step constitutes an outer Newton's iteration to estimate smoothing parameters \code{lambdas} and an inner P-IRLS iteration to estimate spline coefficients \code{alpha} for the covariate effects. Currently, the computation in the M step depends the implementation of \code{gam()} in package \code{mgcv}.
-#' @param BEM.obj an output object from function \code{BSMethEM}
+#' @param BEM.obj an output object from function \code{binomRegMethModel}
 #' @param mfrow the plot parameters to specify the layout of each plot
 #' @param same.range specify whether the plots should be in the same vertical scale
 #' @return This function return a plot of smooth covariate effects and its pointwise confidence intervals
@@ -12,13 +12,13 @@
 #' #------------------------------------------------------------#
 #' head(RAdat)
 #' RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
-#' out <- BSMethEM(
+#' out <- binomRegMethModel(
 #'   data=RAdat.f, n.k=rep(5, 3), p0=0.003307034, p1=0.9,
 #'   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE
 #' )
-#' plot_BSMethEM(out, same.range=FALSE)
+#' binomRegMethModelPlot(out, same.range=FALSE)
 #' @export
-plot_BSMethEM <- function(BEM.obj, mfrow=NULL, same.range=FALSE) {
+binomRegMethModelPlot <- function(BEM.obj, mfrow=NULL, same.range=FALSE) {
     ncovs <- ncol(BEM.obj$Beta.out)
 
     if (is.null(mfrow)) {

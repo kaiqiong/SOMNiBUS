@@ -28,7 +28,7 @@ test_that("using the same seeds we get the same results", {
 context("testing the effect of seed on somnibus functions")
 
 data(RAdat)
-# this should be done within BSMethEM
+# this should be done within binomRegMethModel
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 
 # default parameters to be used
@@ -46,30 +46,30 @@ ref_mut <- readRDS(path_ref_data)
 ref_mut$est.pi[1000] <- -999
 
 set.seed(seed_1)
-out_1 <- BSMethEM(
+out_1 <- binomRegMethModel(
   data = RAdat.f, n.k = n.k, p0 = p0, p1 = p1, epsilon = epsilon,
   epsilon.lambda = epsilon.lambda, maxStep = maxStep, detail = detail
 )
 
 set.seed(seed_2)
-out_2 <- BSMethEM(
+out_2 <- binomRegMethModel(
   data = RAdat.f, n.k = n.k, p0 = p0, p1 = p1, epsilon = epsilon,
   epsilon.lambda = epsilon.lambda, maxStep = maxStep, detail = detail
 )
 
 set.seed(seed_1)
-out_3 <- BSMethEM(
+out_3 <- binomRegMethModel(
   data = RAdat.f, n.k = n.k, p0 = p0, p1 = p1, epsilon = epsilon,
   epsilon.lambda = epsilon.lambda, maxStep = maxStep, detail = detail
 )
 
-test_that("using two different seeds we get the same results with BSMethEM", {
+test_that("using two different seeds we get the same results with binomRegMethModel", {
   # this is wrong different seeds settings should output different results with
-  # BSMethEM
+  # binomRegMethModel
   expect_true(isTRUE(all.equal(out_1, out_2)))
 })
 
-test_that("using the same seed we get the same results with BSMethEM", {
+test_that("using the same seed we get the same results with binomRegMethModel", {
   # test using same seeds: we expect same results
   expect_true(isTRUE(all.equal(out_1, out_3)))
 })
