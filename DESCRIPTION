@@ -29,7 +29,7 @@ Suggests:
 VignetteBuilder:
     knitr
 biocViews: DNAMethylation, Regression, Epigenetics,
-    DifferentialMethylation, Sequencing
+    DifferentialMethylation, Sequencing, FunctionalPrediction
 Encoding: UTF-8
 Language: en-US
 LazyData: true
