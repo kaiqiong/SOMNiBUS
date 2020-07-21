@@ -1,6 +1,6 @@
 context("testing binomRegMethModelupdate")
 
-path_ref_input_binomRegMethModelUpdate <- paste(paste(getwd(), "/data/", sep = ""), "ref_input_binomRegMethModelUpdate.RDS",
+path_ref_input_binomRegMethModelUpdate <- paste(paste(getwd(), "/data/", sep = ""), "ref_input_BSMethEMUpdate.RDS",
   sep = ""
 )
 ref_input_binomRegMethModelUpdate <- readRDS(path_ref_input_binomRegMethModelUpdate)
