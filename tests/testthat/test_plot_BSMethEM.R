@@ -9,8 +9,8 @@ out_binomRegMethModel <- binomRegMethModel(
   epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE
 )
 
-p.plot <- plot_binomRegMethModel(out_binomRegMethModel, same.range = FALSE)
-test_that("plot_binomRegMethModel return NULL", {
+p.plot <- binomRegMethModelPlot(out_binomRegMethModel, same.range = FALSE)
+test_that("binomRegMethModelPlot return NULL", {
   # this is wrong the program should return a plot as said in the description
   expect_null(p.plot)
 })
