@@ -35,6 +35,7 @@ bibtype
 binom
 binomRegMethModel
 binomRegMethModelPlot
+binomRegMethModelPred
 binomRegMethModelSim
 binomRegMethModelSummary
 binomRegMethModelUpdate

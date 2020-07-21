@@ -1,4 +1,4 @@
-context("testing pred_binomRegMethModel")
+context("testing binomRegMethModelPred")
 fp <- 0.003307034 # False positive rate (float)
 tp <- 0.9 # True positive rate (float)
 
@@ -9,7 +9,7 @@ out_binomRegMethModel <- binomRegMethModel(
   epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE
 )
 
-out_pred_binomRegMethModel <- pred_binomRegMethModel(out_binomRegMethModel)
-test_that("the output retrieved from pred_binomRegMethModel have the same number of elements than the number of samples times the number of genomic positions", {
-  expect_equal(length(out_pred_binomRegMethModel), length(RAdat.f$Total_Counts))
+out_binomRegMethModelPred <- binomRegMethModelPred(out_binomRegMethModel)
+test_that("the output retrieved from binomRegMethModelPred have the same number of elements than the number of samples times the number of genomic positions", {
+  expect_equal(length(out_binomRegMethModelPred), length(RAdat.f$Total_Counts))
 })

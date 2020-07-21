@@ -2,7 +2,7 @@
 
 export(binomRegMethModel)
 export(binomRegMethModelPlot)
-export(pred_binomRegMethModel)
+export(binomRegMethModelPred)
 import(mgcv)
 importFrom(Matrix,bdiag)
 importFrom(graphics,abline)
