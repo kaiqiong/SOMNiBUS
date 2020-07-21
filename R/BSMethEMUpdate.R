@@ -8,7 +8,7 @@
 #' @param n.k a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the degrees of each functional parameters.
 #' @param binom.link the link function used in the binomial regression model; the default is the logit link
 #' @param method the method used to estimate the smoothing parameters. The default is the 'REML' method which is generally better than prediction based criterion \code{GCV.cp}
-#' @param Z the covariate matrix used in BSMethEM
+#' @param Z the covariate matrix used in binomRegMethModel
 #' @param my.covar.fm the formula fitted in the GAM
 #' @param Quasi Lorem ipsum dolor sit amet
 #' @param scale Lorem ipsum dolor sit amet
@@ -22,7 +22,7 @@
 #' @author  Kaiqiong Zhao
 #' @importFrom mgcv gam
 #' @importFrom stats quasibinomial residuals binomial
-BSMethEMUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method,
+binomRegMethModelUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method,
     Z, my.covar.fm, Quasi=TRUE, scale) {
     if (!(nrow(data) == length(pi.ij))) {
         message("The row of data should be compatible with the length of initial value pi.ij")

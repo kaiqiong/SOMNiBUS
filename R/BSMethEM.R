@@ -40,7 +40,7 @@
 #' data(RAdat)
 #' head(RAdat)
 #' RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
-#' out <- BSMethEM(
+#' out <- binomRegMethModel(
 #'   data=RAdat.f, n.k=rep(5, 3), p0=0.003307034, p1=0.9,
 #'   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE
 #' )
@@ -51,7 +51,7 @@
 #' @importFrom Matrix bdiag
 #' @importFrom stats as.formula binomial pchisq rbinom rnorm quasibinomial residuals predict model.matrix runif
 #' @export
-BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
+binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
     epsilon.lambda=10^(-3), maxStep=200, detail=FALSE, binom.link="logit",
     method="REML", covs=NULL, RanEff=TRUE, reml.scale=FALSE, scale=-2) {
     ## an error of 'n.k is not found' would appear if without this golable
@@ -174,15 +174,15 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
     } else {
 
         ## code used to generate
-        ## /tests/testthat/data/ref_input_BSMethEMUpdate.RDS input =
+        ## /tests/testthat/data/ref_input_binomRegMethModelUpdate.RDS input =
         ## list(data=data, old.pi.ij=old.pi.ij, p0=p0, p1=p1, n.k=n.k,
         ## binom.link=binom.link, method=method, Z=Z, my.covar.fm=my.covar.fm,
-        ## Quasi=Quasi, scale=phi_fletcher) path_ref_input_BSMethEMUpdate <-
+        ## Quasi=Quasi, scale=phi_fletcher) path_ref_input_binomRegMethModelUpdate <-
         ## paste(paste(getwd(), '/tests/testthat/data/', sep=''),
-        ## 'ref_input_BSMethEMUpdate.RDS', sep='') saveRDS(input,
-        ## path_ref_input_BSMethEMUpdate)
+        ## 'ref_input_binomRegMethModelUpdate.RDS', sep='') saveRDS(input,
+        ## path_ref_input_binomRegMethModelUpdate)
 
-        out <- BSMethEMUpdate(data, old.pi.ij, p0=p0, p1=p1, n.k=n.k,
+        out <- binomRegMethModelUpdate(data, old.pi.ij, p0=p0, p1=p1, n.k=n.k,
             binom.link=binom.link, method=method, Z=Z, my.covar.fm=my.covar.fm,
             Quasi=Quasi, scale=phi_fletcher)
         new.par <- out$par
@@ -201,7 +201,7 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
             old.par <- new.par
             old.pi.ij <- new.pi.ij
 
-            out <- BSMethEMUpdate(data, old.pi.ij, p0=p0, p1=p1, binom.link=binom.link,
+            out <- binomRegMethModelUpdate(data, old.pi.ij, p0=p0, p1=p1, binom.link=binom.link,
                 method=method, Z=Z, my.covar.fm=my.covar.fm, Quasi=Quasi,
                 scale=phi_fletcher)
             new.par <- out$par
@@ -336,9 +336,9 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
     ## pinv.  1. Round down to k if k<= rank < k+0.05, otherwise up.  res.df
     ## is residual dof used to estimate scale. <=0 implies fixed scale.
 
-    s.table <- BSMethEM_summary(GamObj, var.cov.alpha, new.par, edf.out,
+    s.table <- binomRegMethModel_summary(GamObj, var.cov.alpha, new.par, edf.out,
         edf1.out, X_d, resi_df, Quasi, scale, RanEff, re.test, Z)
-    s.table.REML.scale <- BSMethEM_summary(GamObj, var.cov.alpha/phi_fletcher *
+    s.table.REML.scale <- binomRegMethModel_summary(GamObj, var.cov.alpha/phi_fletcher *
         phi_reml, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale,
         RanEff, re.test, Z)
     ## var_out=list(cov1=var.cov.alpha, reg.out=reg.out, SE.out=SE.out,
@@ -423,7 +423,7 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
 
     return(Q1_with_lambda + Q2)
 }
-#' @title BSMethEM_summary Lorem ipsum dolor sit amet
+#' @title binomRegMethModel_summary Lorem ipsum dolor sit amet
 #'
 #' @description Lorem ipsum dolor sit amet
 #' @description Lorem ipsum dolor sit amet
@@ -442,7 +442,7 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
 #' @return Lorem ipsum dolor sit amet
 #' @author  Kaiqiong Zhao
 #' @import mgcv
-BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out,
+binomRegMethModel_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out,
     X_d, resi_df, Quasi, scale, RanEff, re.test, Z) {
     ii <- 0
     m <- length(GamObj$smooth)

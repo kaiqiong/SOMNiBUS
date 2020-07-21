@@ -33,6 +33,8 @@ bh
 bibentry
 bibtype
 binom
+binomRegMethModel
+binomRegMethModelUpdate
 binutils
 bioc
 bioccheck

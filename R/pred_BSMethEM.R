@@ -2,7 +2,7 @@
 #'
 #' @description This function fits a binomial regression model where the outcome - methylated reads- are contaminated by known error rates \code{p0} and \code{p1} and the covariate effects are smoothly varying across genomic positions. The functional parameters of the smooth covariate effects are first represented by a linear combination of a bunch of restricted cubic splines (with dimention \code{n.k}), and a smoothness penalization term which depends on the smoothing parameters \code{lambdas} is also added to control smoothness.
 #' @description The estimation is performed by an iterated EM algorithm. Each M step constitutes an outer Newton's iteration to estimate smoothing parameters \code{lambdas} and an inner P-IRLS iteration to estimate spline coefficients \code{alpha} for the covariate effects. Currently, the computation in the M step depends the implementation of \code{gam()} in package \code{mgcv}.
-#' @param BEM.obj an output from the function \code{BSMethEM}
+#' @param BEM.obj an output from the function \code{binomRegMethModel}
 #' @param newdata the data set whose predictions are calculated
 #' @param type return the predicted methylation proportion or the predicted response (in logit or other binom.link scale)
 #' @return This function returns the predicted methylation levels
@@ -11,13 +11,13 @@
 #' #------------------------------------------------------------#
 #' head(RAdat)
 #' RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
-#' out <- BSMethEM(
+#' out <- binomRegMethModel(
 #'   data=RAdat.f, n.k=rep(5, 3), p0=0.003307034, p1=0.9,
 #'   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE
 #' )
-#' plot_BSMethEM(out, same.range=FALSE)
+#' plot_binomRegMethModel(out, same.range=FALSE)
 #' @export
-pred_BSMethEM <- function(BEM.obj, newdata=NULL, type="proportion") {
+pred_binomRegMethModel <- function(BEM.obj, newdata=NULL, type="proportion") {
     uni.pos <- BEM.obj$uni.pos
     covs <- colnames(BEM.obj$Beta.out)
     if (!type %in% c("proportion", "link.scale")) {

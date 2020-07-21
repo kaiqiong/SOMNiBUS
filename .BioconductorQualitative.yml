@@ -6,10 +6,7 @@ Bioconductor:
         Status: OK
       argument values:
         Usage: Don’t trust users to provide correct argument values
-        Status:
-          NOTES:
-          1: inputs types should be checked
-          2: vector, matrix, list dimension should be checked
+        Status: OK
       Choose good package name:
         Status: OK
       Make sure that your package idea is actually new:
@@ -85,6 +82,7 @@ Bioconductor:
       Status: OK
     check:
       Guidelines: http://r-pkgs.had.co.nz/check.html
+      Command: R CMD check SOMNiBUS_*.tar.gz
       Checks:
         Global Status:
           ERROR: 1
@@ -105,11 +103,7 @@ Bioconductor:
                 2: "Undefined global functions or variables"
           Data: OK
           Documentation:
-            Status:
-              WARNING:
-                1: checking PDF version of manual
-              ERROR:
-                1: checking PDF version of manual without hyperrefs or index
+            Status: OK
           Demos:
           Compiled code:
           Tests:
