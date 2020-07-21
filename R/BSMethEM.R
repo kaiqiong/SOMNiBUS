@@ -273,10 +273,10 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     colnames(Beta.out) <- c("Intercept", colnames(Z))
 
     ##---------------------------------------------------------------
-    ## calculate var_cov (for alpha & beta) from the Hessian matrix
+    ## calculate var_cov (for alpha & beta) from the hessianComp matrix
     ##---------------------------------------------------------------
 
-    H <- Hessian(w_ij=pred.pi * (1 - pred.pi)/phi_fletcher, new.par,
+    H <- hessianComp(w_ij=pred.pi * (1 - pred.pi)/phi_fletcher, new.par,
         new.lambda, X, Y, my.design.matrix, GamObj, Z, pred.pi, p0, p1,
         disp_est=phi_fletcher, RanEff=RanEff, N=N)
 
@@ -363,7 +363,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
         uni.pos=SE.pos, ncovs=ncol(Z) + 1, ite.points=Est.points,
         sigma00=sigma00))
 }
-#' @title Hessian Lorem ipsum dolor sit amet
+#' @title hessianComp Lorem ipsum dolor sit amet
 #'
 #' @description Lorem ipsum dolor sit amet
 #' @description Lorem ipsum dolor sit amet
@@ -384,7 +384,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 #' @return Lorem ipsum dolor sit amet
 #' @author  Kaiqiong Zhao
 #' @importFrom Matrix bdiag
-Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
+hessianComp <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
     gam.int, Z, pred.pi, p0, p1, disp_est, RanEff, N) {
 
     ## Q1: the second partial derivative w.r.t alpha^2 Q2: the second
