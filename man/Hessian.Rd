@@ -4,22 +4,8 @@
 \alias{Hessian}
 \title{Hessian Lorem ipsum dolor sit amet}
 \usage{
-Hessian(
-  w_ij,
-  new.par,
-  new.lambda,
-  X,
-  Y,
-  my.design.matrix,
-  gam.int,
-  Z,
-  pred.pi,
-  p0,
-  p1,
-  disp_est,
-  RanEff,
-  N
-)
+Hessian(w_ij, new.par, new.lambda, X, Y, my.design.matrix, gam.int, Z,
+  pred.pi, p0, p1, disp_est, RanEff, N)
 }
 \arguments{
 \item{w_ij}{Lorem ipsum dolor sit amet}
@@ -52,18 +38,11 @@ Hessian(
 }
 \value{
 Lorem ipsum dolor sit amet
-\itemize{
-\item Lorem ipsum dolor sit amet
-}
 }
 \description{
 Lorem ipsum dolor sit amet
 
 Lorem ipsum dolor sit amet
-}
-\examples{
-#------------------------------------------------------------#
-# Lorem ipsum dolor sit amet
 }
 \author{
 Kaiqiong Zhao

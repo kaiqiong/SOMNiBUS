@@ -28,10 +28,10 @@
 #' \item \code{chi.sq}: chi-square statistics for each covariates (including intercept) w.r.t the zero regional effect tests
 #' \item \code{pvalue}: the p value from the regional tests for each covariate
 #' \item \code{pvalue.log}: the log of \code{pvalue}
-#' \item \code{SE.out} a matrix of the estimated pointwise Standard Errors (SE); number of rows are the number of unique CpG sites in the input data and the number of columns equal to the total number of covariates fitted in the model (the first one is the intercept)
-#' \item \code{SE.pos} the genomic postions for each row of CpG sites in the matrix \code{SE.out}
-#' \item \code{Beta.out} a matrix of the estimated covariate effects beta(t), here t denots the genomic positions.
-#' \item \code{ncovs} number of functional paramters in the model (including the intercept)
+#' \item \code{SE.out}: a matrix of the estimated pointwise Standard Errors (SE); number of rows are the number of unique CpG sites in the input data and the number of columns equal to the total number of covariates fitted in the model (the first one is the intercept)
+#' \item \code{SE.pos}: the genomic postions for each row of CpG sites in the matrix \code{SE.out}
+#' \item \code{Beta.out}: a matrix of the estimated covariate effects beta(t), here t denots the genomic positions.
+#' \item \code{ncovs}: number of functional paramters in the model (including the intercept)
 #' }
 #' @author  Kaiqiong Zhao
 #' @seealso  \link[mgcv]{gam}
@@ -54,14 +54,14 @@
 BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
     epsilon.lambda=10^(-3), maxStep=200, detail=FALSE, binom.link="logit",
     method="REML", covs=NULL, RanEff=TRUE, reml.scale=FALSE, scale=-2) {
-    # an error of 'n.k is not found' would appear if without this golable
-    # environment assignment; so I save n.k in a parent scope
+    ## an error of 'n.k is not found' would appear if without this golable
+    ## environment assignment; so I save n.k in a parent scope
     n.k <<- n.k
     data <- data.frame(data)
 
     if (is.factor(data$Position)) {
-        # message('The Position in the data set should be numeric other than a
-        # factor')
+        ## message('The Position in the data set should be numeric other than a
+        ## factor')
         data$Position <- as.numeric(as.character(data$Position))
     }
 
@@ -99,7 +99,7 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
         stop("Please transform the covariate information into numeric values, eg. use dummy variables for the categorical covariates")
     }
 
-    # The smoothing formula corresponding to the Z
+    ## The smoothing formula corresponding to the Z
     formula.z.part <- vapply(seq_len(ncol(Z)), function(i) {
         paste0("s(Posit, k=n.k[", i + 1, "], fx=FALSE, bs=\"cr\", by=Z[,",
             i, "])")
@@ -110,7 +110,7 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
         my.covar.fm <- paste0(my.covar.fm, "+ s(ID, bs=\"re\")")
         data$ID <- as.factor(data$ID)
     }
-    # Fit gam for the initial value
+    ## Fit gam for the initial value
     if (Quasi) {
         gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)),
             family=quasibinomial(link=binom.link), weights=X, data=data,
@@ -120,31 +120,31 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
             family=binomial(link=binom.link), weights=X, data=data,
             method=method, scale=scale)
     }
-    # Estimates
+    ## Estimates
     old.pi.ij <- gam.int$fitted.values
     old.par <- gam.int$coefficients
     lambda <- gam.int$sp
-    # phi_fletcher=summary(gam.int)$dispersion
+    ## phi_fletcher=summary(gam.int)$dispersion
     p_res <- residuals(gam.int, type="pearson")
     d_res <- residuals(gam.int, type="deviance")
     edf.out <- gam.int$edf
     edf1.out <- gam.int$edf1
 
-    # Note: this phi_fletcher can be also self-calculated calculate the
-    # estimate of phi if Quasi=TRUE and scale is unknown
+    ## Note: this phi_fletcher can be also self-calculated calculate the
+    ## estimate of phi if Quasi=TRUE and scale is unknown
     if (Quasi & scale <= 0) {
-        # * sqrt(data$X)
+        ## * sqrt(data$X)
         my_s <- (1 - 2 * old.pi.ij)/(data$X * old.pi.ij * (1 - old.pi.ij)) *
             (data$Y - data$X * old.pi.ij)
 
-        # Note: the estimator implemented in the mgcv calculated my_s with an
-        # additional multiplier sqrt(data$X) But from the paper there shouldn't
-        # be this one phi_p=sum( p_res^2)/(length(data$Y) - sum(edf.out))
+        ## Note: the estimator implemented in the mgcv calculated my_s with an
+        ## additional multiplier sqrt(data$X) But from the paper there shouldn't
+        ## be this one phi_p=sum( p_res^2)/(length(data$Y) - sum(edf.out))
 
-        # Feb 21, 2020 use edf1 to calculate the pearson's dispersion estimate
-        # not the edf; because I will use the asympototic chi-square dist. of
-        # phi.est March 3, 2020, the dispersion parameter estimated in gam use
-        # the edf.out instead of edf1.out
+        ## Feb 21, 2020 use edf1 to calculate the pearson's dispersion estimate
+        ## not the edf; because I will use the asympototic chi-square dist. of
+        ## phi.est March 3, 2020, the dispersion parameter estimated in gam use
+        ## the edf.out instead of edf1.out
         phi_p <- sum(p_res^2)/(length(data$Y) - sum(edf.out))
 
         phi_fletcher <- phi_p/(1 + mean(my_s))
@@ -173,14 +173,14 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
         Est.points <- c(new.par, new.lambda, phi_fletcher)
     } else {
 
-        # code used to generate
-        # /tests/testthat/data/ref_input_BSMethEMUpdate.RDS input =
-        # list(data=data, old.pi.ij=old.pi.ij, p0=p0, p1=p1, n.k=n.k,
-        # binom.link=binom.link, method=method, Z=Z, my.covar.fm=my.covar.fm,
-        # Quasi=Quasi, scale=phi_fletcher) path_ref_input_BSMethEMUpdate <-
-        # paste(paste(getwd(), '/tests/testthat/data/', sep=''),
-        # 'ref_input_BSMethEMUpdate.RDS', sep='') saveRDS(input,
-        # path_ref_input_BSMethEMUpdate)
+        ## code used to generate
+        ## /tests/testthat/data/ref_input_BSMethEMUpdate.RDS input =
+        ## list(data=data, old.pi.ij=old.pi.ij, p0=p0, p1=p1, n.k=n.k,
+        ## binom.link=binom.link, method=method, Z=Z, my.covar.fm=my.covar.fm,
+        ## Quasi=Quasi, scale=phi_fletcher) path_ref_input_BSMethEMUpdate <-
+        ## paste(paste(getwd(), '/tests/testthat/data/', sep=''),
+        ## 'ref_input_BSMethEMUpdate.RDS', sep='') saveRDS(input,
+        ## path_ref_input_BSMethEMUpdate)
 
         out <- BSMethEMUpdate(data, old.pi.ij, p0=p0, p1=p1, n.k=n.k,
             binom.link=binom.link, method=method, Z=Z, my.covar.fm=my.covar.fm,
@@ -192,9 +192,9 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
         i <- 1
         Est.points <- rbind(c(old.par, lambda, phi_fletcher), c(new.par,
             new.lambda, new.phi))
-        # Do the iteration The stopping criterion is that estimator a and b are
-        # close enough I exclude the criterio that lambda-a and lambda-b are
-        # close
+        ## Do the iteration The stopping criterion is that estimator a and b are
+        ## close enough I exclude the criterio that lambda-a and lambda-b are
+        ## close
 
         while (sqrt(sum((new.pi.ij - old.pi.ij)^2)) > epsilon & i < maxStep) {
             i <- i + 1
@@ -214,44 +214,44 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
                 print(paste0("iteration", i))
             }
         }
-        # Update
+        ## Update
         phi_fletcher <- out$phi_fletcher
     }
-    # Effective degrees of freedom: edf1 -- good for chisquare test and p
-    # value calculation tr(2A - A^2)
+    ## Effective degrees of freedom: edf1 -- good for chisquare test and p
+    ## value calculation tr(2A - A^2)
     edf1.out <- out$edf1
-    # Effective degree of freedom: edf --trace of the hat matrix
+    ## Effective degree of freedom: edf --trace of the hat matrix
     edf.out <- out$edf
-    # the residuals degrees of freedom
+    ## the residuals degrees of freedom
     resi_df <- nrow(data) - sum(edf.out)
-    # Pearson Residuals
+    ## Pearson Residuals
     p_res <- out$pearson_res
-    # Estimated dispersion paramters (Fletcher adjusted)
+    ## Estimated dispersion paramters (Fletcher adjusted)
     phi_fletcher <- out$phi_fletcher
 
     GamObj <- out$GamObj
 
 
 
-    #--------------------------------------------
-    # Calculate SE of alpha
-    #-------------------------------------------
-    # the part to calculate the SE of alpha the model matrix for the GamObj
-    # and the FinalGamObj is the same. the difference is only on the
-    # outcomes
+    ##-------------------------------------------
+    ## Calculate SE of alpha
+    ##------------------------------------------
+    ## the part to calculate the SE of alpha the model matrix for the GamObj
+    ## and the FinalGamObj is the same. the difference is only on the
+    ## outcomes
     my.design.matrix <- mgcv::model.matrix.gam(GamObj)
     Y <- data$Y
     X <- data$X
     pred.pi <- new.pi.ij
     N <- length(unique(data$ID))
     phi_reml <- GamObj$reml.scale
-    #-------------------------------------------------------------------------
-    # from the variance-covariance of alpha, to report 1. var(beta_p(t)) 2.
-    # Report the chi-square statistic for each covariate 3. Report the
-    # p-value for each covariate
-    #-------------------------------------------------------------------------
+    ##------------------------------------------------------------------------
+    ## from the variance-covariance of alpha, to report 1. var(beta_p(t)) 2.
+    ## Report the chi-square statistic for each covariate 3. Report the
+    ## p-value for each covariate
+    ##------------------------------------------------------------------------
 
-    # ------ 3: estimate of beta(t) --- #
+    ## ------ 3: estimate of beta(t) --- #
     uni.pos <- unique(data$Posit)
     uni.id <- match(uni.pos, data$Posit)
     BZ <- my.design.matrix[uni.id, seq_len(n.k[1])]
@@ -272,9 +272,9 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
 
     colnames(Beta.out) <- c("Intercept", colnames(Z))
 
-    #----------------------------------------------------------------
-    # calculate var_cov (for alpha & beta) from the Hessian matrix
-    #----------------------------------------------------------------
+    ##---------------------------------------------------------------
+    ## calculate var_cov (for alpha & beta) from the Hessian matrix
+    ##---------------------------------------------------------------
 
     H <- Hessian(w_ij=pred.pi * (1 - pred.pi)/phi_fletcher, new.par,
         new.lambda, X, Y, my.design.matrix, GamObj, Z, pred.pi, p0, p1,
@@ -301,13 +301,13 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
 
     SE.out.REML.scael <- SE.out/sqrt(phi_fletcher) * sqrt(phi_reml)
 
-    #----------------------------------------------------------------
-    # calculate the region-based statistic from the testStats function in
-    # mgcv
-    #----------------------------------------------------------------
+    ##---------------------------------------------------------------
+    ## calculate the region-based statistic from the testStats function in
+    ## mgcv
+    ##---------------------------------------------------------------
 
-    # A more efficient way to extract design matrix. use a random sample of
-    # rows of the data to reduce the computational cost
+    ## A more efficient way to extract design matrix. use a random sample of
+    ## rows of the data to reduce the computational cost
     if (RanEff) {
         re.test <- TRUE
     } else {
@@ -319,32 +319,32 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
     } else {
         sub.samp <- max(1000, 2 * length(GamObj$coefficients))
         if (nrow(GamObj$model) > sub.samp) {
-            # subsample to get X for p-values calc.  sample these rows from X
+            ## subsample to get X for p-values calc.  sample these rows from X
             ind <- sample(seq_len(nrow(GamObj$model)), sub.samp, replace=FALSE)
             X_d <- predict(GamObj, GamObj$model[ind, ], type="lpmatrix")
         } else {
-            # don't need to subsample
+            ## don't need to subsample
             X_d <- model.matrix(GamObj)
         }
-        # exclude NA's (possible under na.exclude)
+        ## exclude NA's (possible under na.exclude)
         X_d <- X_d[!is.na(rowSums(X_d)), ]
     }  ## end if (m>0)
 
-    # p : estimated paramters --- alpha.0, alpha.seq Xt: the design matrix
-    # --- my.design.matrix V: estimated variance matrix on entry `rank'
-    # should be an edf estimate 0. Default using the fractionally truncated
-    # pinv.  1. Round down to k if k<= rank < k+0.05, otherwise up.  res.df
-    # is residual dof used to estimate scale. <=0 implies fixed scale.
+    ## p : estimated paramters --- alpha.0, alpha.seq Xt: the design matrix
+    ## --- my.design.matrix V: estimated variance matrix on entry `rank'
+    ## should be an edf estimate 0. Default using the fractionally truncated
+    ## pinv.  1. Round down to k if k<= rank < k+0.05, otherwise up.  res.df
+    ## is residual dof used to estimate scale. <=0 implies fixed scale.
 
     s.table <- BSMethEM_summary(GamObj, var.cov.alpha, new.par, edf.out,
         edf1.out, X_d, resi_df, Quasi, scale, RanEff, re.test, Z)
     s.table.REML.scale <- BSMethEM_summary(GamObj, var.cov.alpha/phi_fletcher *
         phi_reml, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale,
         RanEff, re.test, Z)
-    # var_out=list(cov1=var.cov.alpha, reg.out=reg.out, SE.out=SE.out,
-    # uni.pos=SE.pos, pvalue=pvalue , ncovs=ncol(Z)+1) Est_out=list(est =
-    # new.par, lambda=new.lambda, est.pi=new.pi.ij, ite.points=Est.points,
-    # Beta.out=Beta.out, phi_fletcher=phi_fletcher)
+    ## var_out=list(cov1=var.cov.alpha, reg.out=reg.out, SE.out=SE.out,
+    ## uni.pos=SE.pos, pvalue=pvalue , ncovs=ncol(Z)+1) Est_out=list(est =
+    ## new.par, lambda=new.lambda, est.pi=new.pi.ij, ite.points=Est.points,
+    ## Beta.out=Beta.out, phi_fletcher=phi_fletcher)
 
 
     if (RanEff) {
@@ -356,7 +356,7 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
     reg.out.gam <- summary(GamObj)$s.table
 
 
-    return(out=list(est=new.par, lambda=new.lambda, est.pi=new.pi.ij,
+    return(out<-list(est=new.par, lambda=new.lambda, est.pi=new.pi.ij,
         Beta.out=Beta.out, phi_fletcher=phi_fletcher, phi_reml=phi_reml,
         reg.out=s.table, reg.out.reml.scale=s.table.REML.scale, cov1=var.cov.alpha,
         reg.out.gam=reg.out.gam, SE.out=SE.out, SE.out.REML.scale=SE.out.REML.scael,
@@ -382,31 +382,25 @@ BSMethEM <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
 #' @param RanEff Lorem ipsum dolor sit amet
 #' @param N Lorem ipsum dolor sit amet
 #' @return Lorem ipsum dolor sit amet
-#' \itemize{
-#' \item Lorem ipsum dolor sit amet
-#' }
 #' @author  Kaiqiong Zhao
-#' @examples
-#' #------------------------------------------------------------#
-#' # Lorem ipsum dolor sit amet
 #' @importFrom Matrix bdiag
 Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
     gam.int, Z, pred.pi, p0, p1, disp_est, RanEff, N) {
 
-    # Q1: the second partial derivative w.r.t alpha^2 Q2: the second
-    # derivative w.r.t alpha & alpha_star
+    ## Q1: the second partial derivative w.r.t alpha^2 Q2: the second
+    ## derivative w.r.t alpha & alpha_star
     res <- outer(seq_len(length(new.par)), seq_len(length(new.par)), Vectorize(function(l,
         m) {
         sum(-X * w_ij * my.design.matrix[, m] * my.design.matrix[, l])
     }))
     smoth.mat <- lapply(as.list(seq_len(ncol(Z) + 1)), function(i) {
         gam.int$smooth[[i]]$S[[1]] * new.lambda[i]
-    })  # extract the penalty matrix
-    # assume the lambda for the constant of the intercept is 0 -- no
-    # penalization
+    })  ## extract the penalty matrix
+    ## assume the lambda for the constant of the intercept is 0 -- no
+    ## penalization
     smoth.mat[[length(smoth.mat) + 1]] <- 0
     if (RanEff) {
-        # !!!! Otherwise, we get very wide CI
+        ## !!!! Otherwise, we get very wide CI
         smoth.mat[[length(smoth.mat) + 1]] <- diag(N) * new.lambda[ncol(Z) +
             2]
         span.penal.matrix <- as.matrix(Matrix::bdiag(smoth.mat[c(length(smoth.mat) -
@@ -446,13 +440,7 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
 #' @param re.test Lorem ipsum dolor sit amet
 #' @param Z Lorem ipsum dolor sit amet
 #' @return Lorem ipsum dolor sit amet
-#' \itemize{
-#' \item Lorem ipsum dolor sit amet
-#' }
 #' @author  Kaiqiong Zhao
-#' @examples
-#' #------------------------------------------------------------#
-#' # Lorem ipsum dolor sit amet
 #' @import mgcv
 BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out,
     X_d, resi_df, Quasi, scale, RanEff, re.test, Z) {
@@ -465,9 +453,9 @@ BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out,
 
         V <- var.cov.alpha[start:stop, start:stop, drop=FALSE]  ## Bayesian
 
-        p <- new.par[start:stop]  # params for smooth
-        edfi <- sum(edf.out[start:stop])  # edf for this smooth
-        # extract alternative edf estimate for this smooth, if possible...
+        p <- new.par[start:stop]  ## params for smooth
+        edfi <- sum(edf.out[start:stop])  ## edf for this smooth
+        ## extract alternative edf estimate for this smooth, if possible...
         edf1i <- sum(edf1.out[start:stop])
         Xt <- X_d[, start:stop, drop=FALSE]
         fx <- if (inherits(GamObj$smooth[[i]], "tensor.smooth") && !is.null(GamObj$smooth[[i]]$fx)) {
@@ -476,15 +464,15 @@ BSMethEM_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out,
             GamObj$smooth[[i]]$fixed
         }
         if (!fx && GamObj$smooth[[i]]$null.space.dim == 0 && !is.null(GamObj$R)) {
-            # random effect or fully penalized term
+            ## random effect or fully penalized term
             res <- if (re.test) {
                 mgcv:::reTest(GamObj, i)
             } else {
                 NULL
             }
-            # Test the mth smooth for equality to zero (m is not the RE term) and
-            # accounting for all random effects in model Inverted Nychka interval
-            # statistics
+            ## Test the mth smooth for equality to zero (m is not the RE term) and
+            ## accounting for all random effects in model Inverted Nychka interval
+            ## statistics
         } else {
             if (Quasi) {
                 rdf <- resi_df

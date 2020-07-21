@@ -39,7 +39,7 @@ pred_BSMethEM <- function(BEM.obj, newdata=NULL, type="proportion") {
             if (any(is.na(id))) {
                 stop("The positions in the newdata should be the exactly the same as the positions fited in object BEM.obj")
             }
-            # estimated beta(t) for each t in the role of newdata
+            ## estimated beta(t) for each t in the role of newdata
             beta.s <- BEM.obj$Beta.out[id, ]
 
             newdata <- newdata[, -which(colnames(newdata) == "Position")]

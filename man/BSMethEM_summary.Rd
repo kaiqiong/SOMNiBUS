@@ -4,20 +4,8 @@
 \alias{BSMethEM_summary}
 \title{BSMethEM_summary Lorem ipsum dolor sit amet}
 \usage{
-BSMethEM_summary(
-  GamObj,
-  var.cov.alpha,
-  new.par,
-  edf.out,
-  edf1.out,
-  X_d,
-  resi_df,
-  Quasi,
-  scale,
-  RanEff,
-  re.test,
-  Z
-)
+BSMethEM_summary(GamObj, var.cov.alpha, new.par, edf.out, edf1.out, X_d,
+  resi_df, Quasi, scale, RanEff, re.test, Z)
 }
 \arguments{
 \item{GamObj}{Lorem ipsum dolor sit amet}
@@ -46,18 +34,11 @@ BSMethEM_summary(
 }
 \value{
 Lorem ipsum dolor sit amet
-\itemize{
-\item Lorem ipsum dolor sit amet
-}
 }
 \description{
 Lorem ipsum dolor sit amet
 
 Lorem ipsum dolor sit amet
-}
-\examples{
-#------------------------------------------------------------#
-# Lorem ipsum dolor sit amet
 }
 \author{
 Kaiqiong Zhao

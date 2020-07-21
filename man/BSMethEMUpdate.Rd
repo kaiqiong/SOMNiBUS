@@ -4,19 +4,8 @@
 \alias{BSMethEMUpdate}
 \title{One-step update inside the EM algorithm for fitting the functional parameter theta.0 and beta.}
 \usage{
-BSMethEMUpdate(
-  data,
-  pi.ij,
-  p0,
-  p1,
-  n.k,
-  binom.link,
-  method,
-  Z,
-  my.covar.fm,
-  Quasi = TRUE,
-  scale
-)
+BSMethEMUpdate(data, pi.ij, p0, p1, n.k, binom.link, method, Z,
+  my.covar.fm, Quasi = TRUE, scale)
 }
 \arguments{
 \item{data}{a matrix with  \code{n*p} rows and the columns should include Y, X, Posit, Ctype and ID}
@@ -47,13 +36,11 @@ The function returns a list of following objects
 \item \code{pi.ij} fitted methylation proportions
 \item \code{par} updated basis coefficients
 \item \code{lambda} updated smoothing parameters
-\item \code{edf1} Effective degree of freedoms for each smooth terms in the model}
+\item \code{edf1} Effective degree of freedoms for each smooth terms in the model
+}
 }
 \description{
 Since the presence of conversion errors, the true methylated counts at a CpG sites are unknown. The first step inside this function is the E-step, calculating the conditional expectation of methylated counts given the observed counts. Then the second step involves maximizing the penalized likelihood using the avaialbe function \code{gam} in Package \code{mgcv}. This function fits the model where there is no random effect for individuals. Thus, the log-likelihood are sum of two parts; one is the normal approximated log-likelihood for binomial outcomes and the second part quantifies the penalization of the wiggliness of two functional parameters theta.0 and beta.
-}
-\examples{
-#------------------------------------------------------------#
 }
 \author{
 Kaiqiong Zhao
