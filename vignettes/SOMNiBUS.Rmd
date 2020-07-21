@@ -103,16 +103,16 @@ RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 
 # Analysis
 
-The smooth covariate estimation and the region-wise test steps are wrapped into a function `BSMethEM`. See `help(BSMethEM)` for more details. We can use the following code to run the analysis with both covariates `T_cell` and `RA`.
+The smooth covariate estimation and the region-wise test steps are wrapped into a function `binomRegMethModel`. See `help(binomRegMethModel)` for more details. We can use the following code to run the analysis with both covariates `T_cell` and `RA`.
 
 ```{r}
-out <- BSMethEM(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, Quasi = FALSE, RanEff = FALSE)
+out <- binomRegMethModel(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, Quasi = FALSE, RanEff = FALSE)
 ```
 
 Or, we can use the argument `covs` to specify that we only want the covariate `T_cell` in the model.
 
 ```{r, eval=FALSE}
-out.ctype <- BSMethEM(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, covs = "T_cell")
+out.ctype <- binomRegMethModel(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, covs = "T_cell")
 ```
 
 ## Error rates $p_0$ and $p_1$
@@ -128,7 +128,7 @@ For experiments with samples from a tissue containing a mixture of cell types, t
 
 ##  Basis dimensions: `n.k`:
 
-Argument `n.k` in the `BSMethEM` is the dimension of the basis expansion for smooth covariate effects.
+Argument `n.k` in the `binomRegMethModel` is the dimension of the basis expansion for smooth covariate effects.
 The exact number `n.k` used for each functional parameter is not crucial, because it only sets an upper bound. We recommend choosing a basis dimension approximately equal to the number of unique CpGs in the region divided by 20.
 
 
@@ -145,19 +145,19 @@ out$reg.out
 
 
 ```{r , fig.cap="The estimates (solid red lines) and 95% pointwise confidence intervals (dashed red lines) of the intercept, the smooth effect of cell type and RA on methylation levels. ", fig.height= 4, fig.width=9}
-plot_BSMethEM(out)
+binomRegMethModelPlot(out)
 ```
 
 
 We can also force the covariate effect plots to have the same vertical range, for all covariates, by specifying `same.range= T`.
 
 ```{r , fig.cap="The estimates (solid red lines) and 95% pointwise confidence intervals (dashed red lines) of the intercept, the smooth effect of cell type and RA on methylation levels. (Same ranges of Y axis.)", fig.height= 4, fig.width=9}
-plot_BSMethEM(out, same.range = TRUE)
+binomRegMethModelPlot(out, same.range = TRUE)
 ```
 
 ## Predicted methylation levels
 
-First, construct a new data set for prediction. Make sure that the Position in the new data set is the same as the original input `data` in `BSMethEM`.
+First, construct a new data set for prediction. Make sure that the Position in the new data set is the same as the original input `data` in `binomRegMethModel`.
 
 ```{r}
 pos <- out$uni.pos
@@ -166,10 +166,10 @@ newdata <- expand.grid(pos, c(0, 1), c(0, 1))
 colnames(newdata) <- c("Position", "T_cell", "RA")
 ```
 
-The predicted methylation levels can be calculated from function `pred_BSMethEM`
+The predicted methylation levels can be calculated from function `binomRegMethModelPred`
 
 ```{r}
-my.pred <- pred_BSMethEM(out, newdata, type = "link.scale")
+my.pred <- binomRegMethModelPred(out, newdata, type = "link.scale")
 ```
 
 ```{r,  fig.height= 6, fig.width=6, fig.cap="The predicted methylation levels in the logit scale for the 4 groups of samples with different disease and cell type status."}
@@ -196,7 +196,7 @@ legend("top", c("RA MONO", "RA TCELL", "CTRL MONO", "CTRL TCELL"),
 ```
 
 ```{r, fig.height= 6, fig.width=6 , fig.cap="The predicted methylation levels  proportion scale (right) for the 4 groups of samples with different disease and cell type status."}
-my.pred <- pred_BSMethEM(out, newdata, type = "proportion")
+my.pred <- binomRegMethModelPred(out, newdata, type = "proportion")
 plot(pos[order(pos)], (my.pred[(newdata$RA == 0 & newdata$T_cell == 0)])[order(pos)],
   type = "l", xlab = "Position",
   ylab = "Predicted methylation levels (in logit scale)", col = "blue", main = "Proportion scale", ylim = c(min(my.pred), max(my.pred)), lwd = 2
@@ -230,7 +230,7 @@ RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 
 ```{r}
 time0 <- Sys.time()
-out_quasi <- BSMethEM(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, Quasi = TRUE, RanEff = FALSE)
+out_quasi <- binomRegMethModel(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, Quasi = TRUE, RanEff = FALSE)
 print(Sys.time() - time0)
 out_quasi$reg.out
 ```
@@ -248,7 +248,7 @@ head(RAdat2)
 ```{r}
 nCpG <- length(unique(RAdat2$Position))
 time0 <- Sys.time()
-out_RA2 <- BSMethEM(data = RAdat2, n.k = c(5, rep(max(3, round(nCpG / 20)), 9)), p0 = 0.003, p1 = 0.9, Quasi = TRUE, RanEff = FALSE)
+out_RA2 <- binomRegMethModel(data = RAdat2, n.k = c(5, rep(max(3, round(nCpG / 20)), 9)), p0 = 0.003, p1 = 0.9, Quasi = TRUE, RanEff = FALSE)
 print(Sys.time() - time0)
 ```
 ```{r}
@@ -257,7 +257,7 @@ out_RA2$reg.out
 
 
 ```{r}
-plot_BSMethEM(out_RA2, mfrow = c(2, 5))
+binomRegMethModelPlot(out_RA2, mfrow = c(2, 5))
 ```
 
 ## No error
@@ -266,7 +266,7 @@ We can also specify no error
 
 ```{r}
 time0 <- Sys.time()
-out_RA2_noError <- BSMethEM(data = RAdat2, n.k = c(5, rep(max(3, round(nCpG / 20)), 9)), p0 = 0, p1 = 1, Quasi = TRUE, RanEff = FALSE)
+out_RA2_noError <- binomRegMethModel(data = RAdat2, n.k = c(5, rep(max(3, round(nCpG / 20)), 9)), p0 = 0, p1 = 1, Quasi = TRUE, RanEff = FALSE)
 print(Sys.time() - time0)
 ```
 
