@@ -336,9 +336,9 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## pinv.  1. Round down to k if k<= rank < k+0.05, otherwise up.  res.df
     ## is residual dof used to estimate scale. <=0 implies fixed scale.
 
-    s.table <- binomRegMethModel_summary(GamObj, var.cov.alpha, new.par, edf.out,
+    s.table <- binomRegMethModelSummary(GamObj, var.cov.alpha, new.par, edf.out,
         edf1.out, X_d, resi_df, Quasi, scale, RanEff, re.test, Z)
-    s.table.REML.scale <- binomRegMethModel_summary(GamObj, var.cov.alpha/phi_fletcher *
+    s.table.REML.scale <- binomRegMethModelSummary(GamObj, var.cov.alpha/phi_fletcher *
         phi_reml, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale,
         RanEff, re.test, Z)
     ## var_out=list(cov1=var.cov.alpha, reg.out=reg.out, SE.out=SE.out,
@@ -423,7 +423,7 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
 
     return(Q1_with_lambda + Q2)
 }
-#' @title binomRegMethModel_summary Lorem ipsum dolor sit amet
+#' @title binomRegMethModelSummary Lorem ipsum dolor sit amet
 #'
 #' @description Lorem ipsum dolor sit amet
 #' @description Lorem ipsum dolor sit amet
@@ -442,7 +442,7 @@ Hessian <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
 #' @return Lorem ipsum dolor sit amet
 #' @author  Kaiqiong Zhao
 #' @import mgcv
-binomRegMethModel_summary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out,
+binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out,
     X_d, resi_df, Quasi, scale, RanEff, re.test, Z) {
     ii <- 0
     m <- length(GamObj$smooth)

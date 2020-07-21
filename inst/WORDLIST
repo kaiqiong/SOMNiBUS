@@ -34,6 +34,7 @@ bibentry
 bibtype
 binom
 binomRegMethModel
+binomRegMethModelSummary
 binomRegMethModelUpdate
 binutils
 bioc
