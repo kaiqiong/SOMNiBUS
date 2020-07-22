@@ -1,5 +1,5 @@
 image:
-  name: happyregistry.azurecr.io/methods/wes/somnibus:v1
+  name: happyregistry.azurecr.io/methods/wes/somnibus:4.0.2
   username: $USERNAME
   password: $PASSWORD
   email: $EMAIL
