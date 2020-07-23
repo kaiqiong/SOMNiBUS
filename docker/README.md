@@ -3,12 +3,25 @@
 https://hub.docker.com/r/rocker/verse
 
 # to make docker
+to build docker image with all necessary dependencies
+'''
+$ bash make_docker.sh
+'''
 
-bash make_docker.sh
+to build docker image and push it on happyregistry
+'''
+$ bash make_docker.sh admin
+'''
+
+# Using the rstudio from rocker/verse container
+
+https://hub.docker.com/r/rocker/rstudio/
+bash run_docker.sh
+
 
 # to run Rstudio
 
-bash run_docker.sh
+
 
 # to use Rstudio within your web browser
 
