@@ -54,72 +54,19 @@
 binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
     epsilon.lambda=10^(-3), maxStep=200, detail=FALSE, binom.link="logit",
     method="REML", covs=NULL, RanEff=TRUE, reml.scale=FALSE, scale=-2) {
-    ## an error of 'n.k is not found' would appear if without this golable
+    ## an error of 'n.k is not found' would appear if without this globale
     ## environment assignment; so I save n.k in a parent scope
     n.k <<- n.k
-    data <- data.frame(data)
 
-    if (is.factor(data$Position)) {
-        ## message('The Position in the data set should be numeric other than a
-        ## factor')
-        data$Position <- as.numeric(as.character(data$Position))
-    }
+    initOut<-binomRegMethModelInit(data, covs)
+    data<-initOut$data
+    Z<-initOut$Z
 
-    if (any(!c("Meth_Counts", "Total_Counts", "Position") %in% colnames(data))) {
-        stop("Please make sure object \"data\" have columns named as \"Meth_Counts\", \"Total_Counts\" and \"Position\" ")
-    }
+    fitGamOut<-fitGam(data, Quasi, binom.link,method, RanEff, scale, Z)
+    data<-fitGamOut$data
+    gam.int<-fitGamOut$gam.int
+    my.covar.fm<-fitGamOut$my.covar.fm
 
-
-    colnames(data)[match(c("Meth_Counts", "Total_Counts", "Position"),
-        colnames(data))] <- c("Y", "X", "Posit")
-
-    if (is.null(covs)) {
-        Z <- as.matrix(data[, -seq_len(4)], ncol=ncol(data) - 4)
-        colnames(Z) <- colnames(data)[-seq_len(4)]
-    } else {
-        id <- match(covs, colnames(data))
-        if (any(is.na(id))) {
-            stop(paste(covs[is.na(id)], " is not found in the input data frame"))
-        } else {
-            Z <- as.matrix(data[, id], ncol=length(id))
-            colnames(Z) <- covs
-        }
-    }
-
-    if (length(n.k) != (ncol(Z) + 1)) {
-        stop("The length of n.k should equal to the number of covariates plus 1 (for the intercept)")
-    }
-    if (any(data$X == 0)) {
-        stop("The rows with Total_Counts equal to 0 should be deleted beforehand")
-    }
-    if (any(is.na(Z))) {
-        stop("The covariate information should not have missing values")
-    }
-    if (any(!is.numeric(Z))) {
-        stop("Please transform the covariate information into numeric values, eg. use dummy variables for the categorical covariates")
-    }
-
-    ## The smoothing formula corresponding to the Z
-    formula.z.part <- vapply(seq_len(ncol(Z)), function(i) {
-        paste0("s(Posit, k=n.k[", i + 1, "], fx=FALSE, bs=\"cr\", by=Z[,",
-            i, "])")
-    }, "")
-    my.covar.fm <- paste(c("s(Posit, k=n.k[1], fx=FALSE, bs=\"cr\")", formula.z.part),
-        collapse="+")
-    if (RanEff) {
-        my.covar.fm <- paste0(my.covar.fm, "+ s(ID, bs=\"re\")")
-        data$ID <- as.factor(data$ID)
-    }
-    ## Fit gam for the initial value
-    if (Quasi) {
-        gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)),
-            family=quasibinomial(link=binom.link), weights=X, data=data,
-            method=method, scale=scale)
-    } else {
-        gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)),
-            family=binomial(link=binom.link), weights=X, data=data,
-            method=method, scale=scale)
-    }
     ## Estimates
     old.pi.ij <- gam.int$fitted.values
     old.par <- gam.int$coefficients
@@ -130,36 +77,38 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     edf.out <- gam.int$edf
     edf1.out <- gam.int$edf1
 
+    phi_fletcher<-phiFletcher(data, Quasi, reml.scale, scale, gam.int)
+
     ## Note: this phi_fletcher can be also self-calculated calculate the
     ## estimate of phi if Quasi=TRUE and scale is unknown
-    if (Quasi & scale <= 0) {
-        ## * sqrt(data$X)
-        my_s <- (1 - 2 * old.pi.ij)/(data$X * old.pi.ij * (1 - old.pi.ij)) *
-            (data$Y - data$X * old.pi.ij)
+    # if (Quasi & scale <= 0) {
+    #     ## * sqrt(data$X)
+    #     my_s <- (1 - 2 * old.pi.ij)/(data$X * old.pi.ij * (1 - old.pi.ij)) *
+    #         (data$Y - data$X * old.pi.ij)
 
-        ## Note: the estimator implemented in the mgcv calculated my_s with an
-        ## additional multiplier sqrt(data$X) But from the paper there shouldn't
-        ## be this one phi_p=sum( p_res^2)/(length(data$Y) - sum(edf.out))
+    #     ## Note: the estimator implemented in the mgcv calculated my_s with an
+    #     ## additional multiplier sqrt(data$X) But from the paper there shouldn't
+    #     ## be this one phi_p=sum( p_res^2)/(length(data$Y) - sum(edf.out))
 
-        ## Feb 21, 2020 use edf1 to calculate the pearson's dispersion estimate
-        ## not the edf; because I will use the asympototic chi-square dist. of
-        ## phi.est March 3, 2020, the dispersion parameter estimated in gam use
-        ## the edf.out instead of edf1.out
-        phi_p <- sum(p_res^2)/(length(data$Y) - sum(edf.out))
+    #     ## Feb 21, 2020 use edf1 to calculate the pearson's dispersion estimate
+    #     ## not the edf; because I will use the asympototic chi-square dist. of
+    #     ## phi.est March 3, 2020, the dispersion parameter estimated in gam use
+    #     ## the edf.out instead of edf1.out
+    #     phi_p <- sum(p_res^2)/(length(data$Y) - sum(edf.out))
 
-        phi_fletcher <- phi_p/(1 + mean(my_s))
-        if (reml.scale) {
-            phi_fletcher <- gam.int$reml.scale
-        }
-    }
+    #     phi_fletcher <- phi_p/(1 + mean(my_s))
+    #     if (reml.scale) {
+    #         phi_fletcher <- gam.int$reml.scale
+    #     }
+    # }
 
-    if (!Quasi) {
-        phi_fletcher <- 1
-    }
+    # if (!Quasi) {
+    #     phi_fletcher <- 1
+    # }
 
-    if (scale > 0) {
-        phi_fletcher <- scale
-    }
+    # if (scale > 0) {
+    #     phi_fletcher <- scale
+    # }
 
     if (p0 == 0 & p1 == 1) {
         out <- list(pi.ij=gam.int$fitted.values, par=gam.int$coefficients,
@@ -240,8 +189,6 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## and the FinalGamObj is the same. the difference is only on the
     ## outcomes
     my.design.matrix <- mgcv::model.matrix.gam(GamObj)
-    Y <- data$Y
-    X <- data$X
     pred.pi <- new.pi.ij
     N <- length(unique(data$ID))
     phi_reml <- GamObj$reml.scale
@@ -277,7 +224,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ##---------------------------------------------------------------
 
     H <- hessianComp(w_ij=pred.pi * (1 - pred.pi)/phi_fletcher, new.par,
-        new.lambda, X, Y, my.design.matrix, GamObj, Z, pred.pi, p0, p1,
+        new.lambda,  data$X, data$Y, my.design.matrix, GamObj, Z, pred.pi, p0, p1,
         disp_est=phi_fletcher, RanEff=RanEff, N=N)
 
     var.cov.alpha <- solve(-H)
@@ -363,66 +310,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
         uni.pos=SE.pos, ncovs=ncol(Z) + 1, ite.points=Est.points,
         sigma00=sigma00))
 }
-#' @title hessianComp Lorem ipsum dolor sit amet
-#'
-#' @description Lorem ipsum dolor sit amet
-#' @description Lorem ipsum dolor sit amet
-#' @param w_ij Lorem ipsum dolor sit amet
-#' @param new.par Lorem ipsum dolor sit amet
-#' @param new.lambda Lorem ipsum dolor sit amet
-#' @param X Lorem ipsum dolor sit amet
-#' @param Y Lorem ipsum dolor sit amet
-#' @param my.design.matrix Lorem ipsum dolor sit amet
-#' @param gam.int Lorem ipsum dolor sit amet
-#' @param Z Lorem ipsum dolor sit amet
-#' @param pred.pi Lorem ipsum dolor sit amet
-#' @param p0 Lorem ipsum dolor sit amet
-#' @param p1 Lorem ipsum dolor sit amet
-#' @param disp_est Lorem ipsum dolor sit amet
-#' @param RanEff Lorem ipsum dolor sit amet
-#' @param N Lorem ipsum dolor sit amet
-#' @return Lorem ipsum dolor sit amet
-#' @author  Kaiqiong Zhao
-#' @importFrom Matrix bdiag
-hessianComp <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
-    gam.int, Z, pred.pi, p0, p1, disp_est, RanEff, N) {
 
-    ## Q1: the second partial derivative w.r.t alpha^2 Q2: the second
-    ## derivative w.r.t alpha & alpha_star
-    res <- outer(seq_len(length(new.par)), seq_len(length(new.par)), Vectorize(function(l,
-        m) {
-        sum(-X * w_ij * my.design.matrix[, m] * my.design.matrix[, l])
-    }))
-    smoth.mat <- lapply(as.list(seq_len(ncol(Z) + 1)), function(i) {
-        gam.int$smooth[[i]]$S[[1]] * new.lambda[i]
-    })  ## extract the penalty matrix
-    ## assume the lambda for the constant of the intercept is 0 -- no
-    ## penalization
-    smoth.mat[[length(smoth.mat) + 1]] <- 0
-    if (RanEff) {
-        ## !!!! Otherwise, we get very wide CI
-        smoth.mat[[length(smoth.mat) + 1]] <- diag(N) * new.lambda[ncol(Z) +
-            2]
-        span.penal.matrix <- as.matrix(Matrix::bdiag(smoth.mat[c(length(smoth.mat) -
-            1, (seq_len((length(smoth.mat) - 2))), length(smoth.mat))]))
-    } else {
-        span.penal.matrix <- as.matrix(Matrix::bdiag(smoth.mat[c(length(smoth.mat),
-            (seq_len((length(smoth.mat) - 1))))]))
-    }
-
-    Q1_with_lambda <- res - span.penal.matrix/disp_est
-    Q1_no_lambda <- res
-
-    Q2 <- outer(seq_len(length(new.par)), seq_len(length(new.par)), Vectorize(function(l,
-        m) {
-        term1 <- Y * p1 * p0/(p1 * pred.pi + p0 * (1 - pred.pi))^2 + (X -
-            Y) * (1 - p1) * (1 - p0)/((1 - p1) * pred.pi + (1 - p0) * (1 -
-            pred.pi))^2
-        sum(term1 * w_ij * my.design.matrix[, m] * my.design.matrix[, l])
-    }))
-
-    return(Q1_with_lambda + Q2)
-}
 #' @title binomRegMethModelSummary Lorem ipsum dolor sit amet
 #'
 #' @description Lorem ipsum dolor sit amet
@@ -442,6 +330,7 @@ hessianComp <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
 #' @return Lorem ipsum dolor sit amet
 #' @author  Kaiqiong Zhao
 #' @import mgcv
+#' @noRd
 binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out,
     X_d, resi_df, Quasi, scale, RanEff, re.test, Z) {
     ii <- 0
@@ -520,4 +409,148 @@ binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out, ed
     }
     colnames(s.table)[1] <- "EDF"
     return(s.table)
+}
+
+#' @title Some checks for binomRegMethModelChecks
+#'
+#' @description Check if inputs fit one anoter according to there shapes
+#' @param data a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.
+#' @param Z Lorem ipsum dolor sit amet
+#' @author SLL
+#' @noRd
+binomRegMethModelChecks <- function(data, Z){
+    if (length(n.k) != (ncol(Z) + 1)) {
+        stop("The length of n.k should equal to the number of covariates plus 1 (for the intercept)")
+    }
+    if (any(data$X == 0)) {
+        stop("The rows with Total_Counts equal to 0 should be deleted beforehand")
+    }
+    if (any(is.na(Z))) {
+        stop("The covariate information should not have missing values")
+    }
+    if (any(!is.numeric(Z))) {
+        stop("Please transform the covariate information into numeric values, eg. use dummy variables for the categorical covariates")
+    }
+}
+
+#' @title Init for binomRegMethModel
+#'
+#' @description Initialize data
+#' @param data a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.
+#' @return This function return a \code{list} including objects:
+#' \itemize{
+#' \item \code{data}:
+#' \item \code{Z}:
+#' }
+#' @author SLL
+#' @noRd
+binomRegMethModelInit <- function(data, covs) {
+    data <- data.frame(data)
+    if (is.factor(data$Position)) {
+        ## message('The Position in the data set should be numeric other than a
+        ## factor')
+        data$Position <- as.numeric(as.character(data$Position))
+    }
+
+    if (any(!c("Meth_Counts", "Total_Counts", "Position") %in% colnames(data))) {
+        stop("Please make sure object \"data\" have columns named as \"Meth_Counts\", \"Total_Counts\" and \"Position\" ")
+    }
+
+    colnames(data)[match(c("Meth_Counts", "Total_Counts", "Position"),
+        colnames(data))] <- c("Y", "X", "Posit")
+    if (is.null(covs)) {
+        Z <- as.matrix(data[, -seq_len(4)], ncol=ncol(data) - 4)
+        colnames(Z) <- colnames(data)[-seq_len(4)]
+        binomRegMethModelChecks(data, Z)
+        return(out<-list(data=data, Z=Z))
+    } else {
+        id <- match(covs, colnames(data))
+        if (any(is.na(id))) {
+            stop(paste(covs[is.na(id)], " is not found in the input data frame"))
+        } else {
+            Z <- as.matrix(data[, id], ncol=length(id))
+            colnames(Z) <- covs
+            binomRegMethModelChecks(data, Z)
+            return(out<-list(data=data, Z=Z))
+        }
+    }
+}
+
+#' @title Fit gam for the initial value
+#'
+#' @description Fit gam for the initial value
+
+#' @param data a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.
+#' @param Quasi whether a Quasi-likelihood estimation approach will be used
+#' @param binom.link the link function used in the binomial regression model; the default is the logit link
+#' @param method the method used to estimate the smoothing parameters. The default is the 'REML' method which is generally better than prediction based criterion \code{GCV.cp}
+#' @param RanEff whether sample-level random effects are added or not
+#' @param scale nagative values mean scale paramter should be estimated; if a positive value is provided, a fixed scale will be used.
+#' @return This function return a \code{list} including objects:
+#' \itemize{
+#' \item \code{data}: a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.
+#' \item \code{gam.int}: Lorem ipsum dolor sit amet
+#' \item \code{my.covar.fm}: Lorem ipsum dolor sit amet
+#' }
+#' @author SLL
+#' @noRd
+fitGam<-function(data, Quasi, binom.link, method, RanEff, scale, Z){
+    ## The smoothing formula corresponding to the Z
+    formula.z.part <- vapply(seq_len(ncol(Z)), function(i) {
+        paste0("s(Posit, k=n.k[", i + 1, "], fx=FALSE, bs=\"cr\", by=Z[,",
+            i, "])")
+    }, "")
+    my.covar.fm <- paste(c("s(Posit, k=n.k[1], fx=FALSE, bs=\"cr\")", formula.z.part),
+        collapse="+")
+
+    if (RanEff) {
+        my.covar.fm <- paste0(my.covar.fm, "+ s(ID, bs=\"re\")")
+        data$ID <- as.factor(data$ID)
+    }
+    ## Fit gam for the initial value
+    if (Quasi) {
+        gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)),
+            family=quasibinomial(link=binom.link), weights=X, data=data,
+            method=method, scale=scale)
+        return(out<-list(data=data, gam.int=gam.int, my.covar.fm=my.covar.fm))
+    } else {
+        gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)),
+            family=binomial(link=binom.link), weights=X, data=data,
+            method=method, scale=scale)
+        return(out<-list(data=data, gam.int=gam.int, my.covar.fm=my.covar.fm))
+    }
+}
+phiFletcher<-function(data, Quasi, reml.scale, scale, gam.int){
+    old.pi.ij<-gam.int$fitted.values
+    old.par<-gam.int$coefficients
+    lambda<-gam.int$sp
+    edf.out<-gam.int$edf
+    edf1.out<-gam.int$edf1
+    pearsonResiduals<-residuals(gam.int, type="pearson")
+    devianceResiduals<-residuals(gam.int, type="deviance")
+    if (Quasi & scale <= 0) {
+        if (reml.scale) {
+            return(phi_fletcher <- gam.int$reml.scale)
+        }
+        ## * sqrt(data$X)
+        my_s <- (1 - 2 * old.pi.ij)/(data$X * old.pi.ij * (1 - old.pi.ij)) *
+            (data$Y - data$X * old.pi.ij)
+
+        ## Note: the estimator implemented in the mgcv calculated my_s with an
+        ## additional multiplier sqrt(data$X) But from the paper there shouldn't
+        ## be this one phi_p=sum( pearsonResiduals^2)/(length(data$Y) - sum(edf.out))
+
+        ## Feb 21, 2020 use edf1 to calculate the pearson's dispersion estimate
+        ## not the edf; because I will use the asympototic chi-square dist. of
+        ## phi.est March 3, 2020, the dispersion parameter estimated in gam use
+        ## the edf.out instead of edf1.out
+        phi_p <- sum(pearsonResiduals^2)/(length(data$Y) - sum(edf.out))
+        return(phi_fletcher <- phi_p/(1 + mean(my_s)))
+    }
+    if (!Quasi) {
+        return(phi_fletcher<-1)
+    }
+    if (scale > 0) {
+        return(phi_fletcher<-scale)
+    }
 }
