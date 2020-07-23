@@ -1,10 +1,6 @@
 FROM rocker/verse:4.0.2
-#FROM rocker/verse:latest
 #Author: simon@mims.ai
 #Date created: June 22th, 2020
-
-COPY scripts/ scripts/
-RUN Rscript scripts/add_tex_packages.R
 
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
@@ -16,9 +12,12 @@ RUN apt-get update \
 	libavfilter-dev \
 	libwebp-dev \
 	libgdal-dev \
-	cargo
-
-RUN install2.r --error \
+	cargo \
+	&& tlmgr install \
+	ec \
+	graphics \
+	symbol \
+	&& install2.r --error \
 	--deps TRUE \
 	mgcv \
 	testthat \
