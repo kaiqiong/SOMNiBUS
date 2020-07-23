@@ -79,37 +79,6 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 
     phi_fletcher<-phiFletcher(data, Quasi, reml.scale, scale, gam.int)
 
-    ## Note: this phi_fletcher can be also self-calculated calculate the
-    ## estimate of phi if Quasi=TRUE and scale is unknown
-    # if (Quasi & scale <= 0) {
-    #     ## * sqrt(data$X)
-    #     my_s <- (1 - 2 * old.pi.ij)/(data$X * old.pi.ij * (1 - old.pi.ij)) *
-    #         (data$Y - data$X * old.pi.ij)
-
-    #     ## Note: the estimator implemented in the mgcv calculated my_s with an
-    #     ## additional multiplier sqrt(data$X) But from the paper there shouldn't
-    #     ## be this one phi_p=sum( p_res^2)/(length(data$Y) - sum(edf.out))
-
-    #     ## Feb 21, 2020 use edf1 to calculate the pearson's dispersion estimate
-    #     ## not the edf; because I will use the asympototic chi-square dist. of
-    #     ## phi.est March 3, 2020, the dispersion parameter estimated in gam use
-    #     ## the edf.out instead of edf1.out
-    #     phi_p <- sum(p_res^2)/(length(data$Y) - sum(edf.out))
-
-    #     phi_fletcher <- phi_p/(1 + mean(my_s))
-    #     if (reml.scale) {
-    #         phi_fletcher <- gam.int$reml.scale
-    #     }
-    # }
-
-    # if (!Quasi) {
-    #     phi_fletcher <- 1
-    # }
-
-    # if (scale > 0) {
-    #     phi_fletcher <- scale
-    # }
-
     if (p0 == 0 & p1 == 1) {
         out <- list(pi.ij=gam.int$fitted.values, par=gam.int$coefficients,
             lambda=gam.int$sp, edf1=gam.int$edf1, pearson_res=p_res,
@@ -243,9 +212,6 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     rownames(SE.out) <- uni.pos
     colnames(SE.out) <- c("Intercept", colnames(Z))
     SE.pos <- uni.pos
-
-
-
     SE.out.REML.scael <- SE.out/sqrt(phi_fletcher) * sqrt(phi_reml)
 
     ##---------------------------------------------------------------
@@ -255,11 +221,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 
     ## A more efficient way to extract design matrix. use a random sample of
     ## rows of the data to reduce the computational cost
-    if (RanEff) {
-        re.test <- TRUE
-    } else {
-        re.test <- FALSE
-    }
+
 
     if (!is.null(GamObj$R)) {
         X_d <- GamObj$R
@@ -284,10 +246,10 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## is residual dof used to estimate scale. <=0 implies fixed scale.
 
     s.table <- binomRegMethModelSummary(GamObj, var.cov.alpha, new.par, edf.out,
-        edf1.out, X_d, resi_df, Quasi, scale, RanEff, re.test, Z)
+        edf1.out, X_d, resi_df, Quasi, scale, RanEff, Z)
     s.table.REML.scale <- binomRegMethModelSummary(GamObj, var.cov.alpha/phi_fletcher *
         phi_reml, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale,
-        RanEff, re.test, Z)
+        RanEff, Z)
     ## var_out=list(cov1=var.cov.alpha, reg.out=reg.out, SE.out=SE.out,
     ## uni.pos=SE.pos, pvalue=pvalue , ncovs=ncol(Z)+1) Est_out=list(est =
     ## new.par, lambda=new.lambda, est.pi=new.pi.ij, ite.points=Est.points,
@@ -325,14 +287,13 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 #' @param Quasi Lorem ipsum dolor sit amet
 #' @param scale Lorem ipsum dolor sit amet
 #' @param RanEff Lorem ipsum dolor sit amet
-#' @param re.test Lorem ipsum dolor sit amet
 #' @param Z Lorem ipsum dolor sit amet
 #' @return Lorem ipsum dolor sit amet
 #' @author  Kaiqiong Zhao
 #' @import mgcv
 #' @noRd
 binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out,
-    X_d, resi_df, Quasi, scale, RanEff, re.test, Z) {
+    X_d, resi_df, Quasi, scale, RanEff, Z) {
     ii <- 0
     m <- length(GamObj$smooth)
     df <- edf1 <- edf <- s.pv <- chi.sq <- array(0, m)
@@ -354,7 +315,7 @@ binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out, ed
         }
         if (!fx && GamObj$smooth[[i]]$null.space.dim == 0 && !is.null(GamObj$R)) {
             ## random effect or fully penalized term
-            res <- if (re.test) {
+            res <- if (RanEff) {
                 mgcv:::reTest(GamObj, i)
             } else {
                 NULL
