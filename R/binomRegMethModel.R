@@ -66,31 +66,18 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     data<-fitGamOut$data
     gam.int<-fitGamOut$gam.int
     my.covar.fm<-fitGamOut$my.covar.fm
-
-    ## Estimates
     old.pi.ij <- gam.int$fitted.values
-    old.par <- gam.int$coefficients
-    lambda <- gam.int$sp
-    ## phi_fletcher=summary(gam.int)$dispersion
     p_res <- residuals(gam.int, type="pearson")
     d_res <- residuals(gam.int, type="deviance")
     edf.out <- gam.int$edf
     edf1.out <- gam.int$edf1
-
+    ## Estimates
     phi_fletcher<-phiFletcher(data, Quasi, reml.scale, scale, gam.int)
-
-    if (p0 == 0 & p1 == 1) {
-        out <- list(pi.ij=gam.int$fitted.values, par=gam.int$coefficients,
-            lambda=gam.int$sp, edf1=gam.int$edf1, pearson_res=p_res,
-            deviance_res=d_res, edf=gam.int$edf, phi_fletcher=phi_fletcher,
-            GamObj=gam.int)
-        new.par <- out$par
-        new.lambda <- out$lambda
-        new.pi.ij <- out$pi.ij
-
-        Est.points <- c(new.par, new.lambda, phi_fletcher)
-    } else {
-
+    out <- binomRegMethModelUpdate(data, old.pi.ij, p0=p0, p1=p1, n.k=n.k,
+            binom.link=binom.link, method=method, Z=Z, my.covar.fm=my.covar.fm,
+            Quasi=Quasi, scale=phi_fletcher)
+    Est.points<-c(gam.int$coefficients, gam.int$sp, phi_fletcher)
+    if (p0 > 0 | p1 < 1) {
         ## code used to generate
         ## /tests/testthat/data/ref_input_binomRegMethModelUpdate.RDS input =
         ## list(data=data, old.pi.ij=old.pi.ij, p0=p0, p1=p1, n.k=n.k,
@@ -103,38 +90,25 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
         out <- binomRegMethModelUpdate(data, old.pi.ij, p0=p0, p1=p1, n.k=n.k,
             binom.link=binom.link, method=method, Z=Z, my.covar.fm=my.covar.fm,
             Quasi=Quasi, scale=phi_fletcher)
-        new.par <- out$par
-        new.lambda <- out$lambda
-        new.pi.ij <- out$pi.ij
-        new.phi <- out$phi_fletcher
-        i <- 1
-        Est.points <- rbind(c(old.par, lambda, phi_fletcher), c(new.par,
-            new.lambda, new.phi))
+        Est.points <- rbind(c(gam.int$coefficients, gam.int$sp, phi_fletcher), c(out$par, out$lambda, out$phi_fletcher))
         ## Do the iteration The stopping criterion is that estimator a and b are
         ## close enough I exclude the criterio that lambda-a and lambda-b are
         ## close
 
-        while (sqrt(sum((new.pi.ij - old.pi.ij)^2)) > epsilon & i < maxStep) {
-            i <- i + 1
-            old.par <- new.par
-            old.pi.ij <- new.pi.ij
-
+        iter <- 1
+        while (sqrt(sum((out$pi.ij - old.pi.ij)^2)) > epsilon & iter < maxStep) {
+            if (detail) {
+                message(paste0("iteration", iter))
+            }
+            iter <- iter + 1
+            old.pi.ij <- out$pi.ij
             out <- binomRegMethModelUpdate(data, old.pi.ij, p0=p0, p1=p1, binom.link=binom.link,
                 method=method, Z=Z, my.covar.fm=my.covar.fm, Quasi=Quasi,
                 scale=phi_fletcher)
-            new.par <- out$par
-            new.lambda <- out$lambda
-            new.pi.ij <- out$pi.ij
-            new.phi <- out$phi_fletcher
-
-            Est.points <- rbind(Est.points, c(new.par, new.lambda, new.phi))
-            if (detail) {
-                print(paste0("iteration", i))
-            }
+            Est.points <- rbind(Est.points, c(out$par,out$lambda, out$phi_fletcher))
         }
-        ## Update
-        phi_fletcher <- out$phi_fletcher
     }
+
     ## Effective degrees of freedom: edf1 -- good for chisquare test and p
     ## value calculation tr(2A - A^2)
     edf1.out <- out$edf1
@@ -149,8 +123,6 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 
     GamObj <- out$GamObj
 
-
-
     ##-------------------------------------------
     ## Calculate SE of alpha
     ##------------------------------------------
@@ -158,8 +130,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## and the FinalGamObj is the same. the difference is only on the
     ## outcomes
     my.design.matrix <- mgcv::model.matrix.gam(GamObj)
-    pred.pi <- new.pi.ij
-    N <- length(unique(data$ID))
+    lengthUniqueDataID <- length(unique(data$ID))
     phi_reml <- GamObj$reml.scale
     ##------------------------------------------------------------------------
     ## from the variance-covariance of alpha, to report 1. var(beta_p(t)) 2.
@@ -178,9 +149,9 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 
     cum_s <- cumsum(n.k)
     alpha.sep <- lapply(seq_len(ncol(Z)), function(i) {
-        new.par[(cum_s[i] + 1):cum_s[i + 1]]
+        out$par[(cum_s[i] + 1):cum_s[i + 1]]
     })
-    alpha.0 <- new.par[seq_len(n.k[1])]
+    alpha.0 <- out$par[seq_len(n.k[1])]
 
     Beta.out <- cbind(BZ %*% alpha.0, sapply(seq_len(ncol(Z)), function(i) {
         BZ.beta[[i]] %*% alpha.sep[[i]]
@@ -191,10 +162,10 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ##---------------------------------------------------------------
     ## calculate var_cov (for alpha & beta) from the hessianComp matrix
     ##---------------------------------------------------------------
-
-    H <- hessianComp(w_ij=pred.pi * (1 - pred.pi)/phi_fletcher, new.par,
-        new.lambda,  data$X, data$Y, my.design.matrix, GamObj, Z, pred.pi, p0, p1,
-        disp_est=phi_fletcher, RanEff=RanEff, N=N)
+    w_ij<-out$pi.ij * (1 - out$pi.ij)/phi_fletcher
+    H <- hessianComp(w_ij=w_ij, out$par,
+        out$lambda,  data$X, data$Y, my.design.matrix, GamObj, Z, out$pi.ij, p0, p1,
+        disp_est=phi_fletcher, RanEff=RanEff, N=lengthUniqueDataID)
 
     var.cov.alpha <- solve(-H)
     var.alpha.0 <- var.cov.alpha[seq_len(n.k[1]), seq_len(n.k[1])]
@@ -245,10 +216,10 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## pinv.  1. Round down to k if k<= rank < k+0.05, otherwise up.  res.df
     ## is residual dof used to estimate scale. <=0 implies fixed scale.
 
-    s.table <- binomRegMethModelSummary(GamObj, var.cov.alpha, new.par, edf.out,
+    s.table <- binomRegMethModelSummary(GamObj, var.cov.alpha, out$par, edf.out,
         edf1.out, X_d, resi_df, Quasi, scale, RanEff, Z)
     s.table.REML.scale <- binomRegMethModelSummary(GamObj, var.cov.alpha/phi_fletcher *
-        phi_reml, new.par, edf.out, edf1.out, X_d, resi_df, Quasi, scale,
+        phi_reml, out$par, edf.out, edf1.out, X_d, resi_df, Quasi, scale,
         RanEff, Z)
     ## var_out=list(cov1=var.cov.alpha, reg.out=reg.out, SE.out=SE.out,
     ## uni.pos=SE.pos, pvalue=pvalue , ncovs=ncol(Z)+1) Est_out=list(est =
@@ -265,7 +236,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     reg.out.gam <- summary(GamObj)$s.table
 
 
-    return(out<-list(est=new.par, lambda=new.lambda, est.pi=new.pi.ij,
+    return(out<-list(est=out$par, lambda=out$lambda, est.pi=out$pi.ij,
         Beta.out=Beta.out, phi_fletcher=phi_fletcher, phi_reml=phi_reml,
         reg.out=s.table, reg.out.reml.scale=s.table.REML.scale, cov1=var.cov.alpha,
         reg.out.gam=reg.out.gam, SE.out=SE.out, SE.out.REML.scale=SE.out.REML.scael,
