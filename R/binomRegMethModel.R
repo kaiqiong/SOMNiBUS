@@ -407,12 +407,12 @@ fitGam<-function(data, Quasi, binom.link, method, RanEff, scale, Z){
     ## Fit gam for the initial value
     if (Quasi) {
         gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)),
-            family=quasibinomial(link=binom.link), weights=X, data=data,
+            family=quasibinomial(link=binom.link), weights=data$X, data=data,
             method=method, scale=scale)
         return(out<-list(data=data, gam.int=gam.int, my.covar.fm=my.covar.fm))
     } else {
         gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)),
-            family=binomial(link=binom.link), weights=X, data=data,
+            family=binomial(link=binom.link), weights=data$X, data=data,
             method=method, scale=scale)
         return(out<-list(data=data, gam.int=gam.int, my.covar.fm=my.covar.fm))
     }
