@@ -58,7 +58,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## environment assignment; so I save n.k in a parent scope
     n.k <<- n.k
 
-    initOut<-binomRegMethModelInit(data=data, covs=covs)
+    initOut<-binomRegMethModelInit(data=data, covs=covs, n.k=n.k)
     Z<-initOut$Z
     fitGamOut<-fitGam(data=initOut$data, Quasi=Quasi, binom.link=binom.link, method=method, RanEff=RanEff, scale=scale, Z=Z)
 
@@ -378,6 +378,8 @@ binomRegMethModelChecks <- function(data, Z, n.k){
 #'
 #' @description Initialize data
 #' @param data a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.
+#' @param covs
+#' @param n.k a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the degrees of each functional parameters.
 #' @return This function return a \code{list} including objects:
 #' \itemize{
 #' \item \code{data}:
@@ -385,7 +387,7 @@ binomRegMethModelChecks <- function(data, Z, n.k){
 #' }
 #' @author XYZ
 #' @noRd
-binomRegMethModelInit <- function(data, covs) {
+binomRegMethModelInit <- function(data, covs, n.k) {
     data <- data.frame(data)
     if (is.factor(data$Position)) {
         ## message('The Position in the data set should be numeric other than a
