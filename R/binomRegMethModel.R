@@ -121,7 +121,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## p-value for each covariate
     ##------------------------------------------------------------------------
 
-    estimateBZOut <- estimateBZ(fitGamOut=fitGamOut, my.design.matrix=my.design.matrix, Z=Z)
+    estimateBZOut <- estimateBZ(fitGamOut=fitGamOut, my.design.matrix=my.design.matrix, Z=Z, n.k=n.k)
     Beta.out <- estimateBeta(fitGamOut=fitGamOut, BZ=estimateBZOut$BZ, BZ.beta=estimateBZOut$BZ.beta, n.k=n.k, Z=Z, out=out)
     cum_s <- cumsum(n.k)
 
@@ -205,6 +205,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 #' @param fitGamOut fitGam output
 #' @param my.design.matrix Lorem ipsum dolor sit amet
 #' @param Z Lorem ipsum dolor sit amet
+
 #' @return This function return a \code{list} including objects:
 #' \itemize{
 #' \item \code{uni.pos} Lorem ipsum dolor sit amet
@@ -214,7 +215,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 #' @author  XYZ
 #' @import mgcv
 #' @noRd
-estimateBZ <- function(fitGamOut, my.design.matrix, Z){
+estimateBZ <- function(fitGamOut, my.design.matrix, Z, n.k){
     uni.pos <- unique(fitGamOut$data$Posit,  my.design.matrix)
     uni.id <- match(uni.pos, fitGamOut$data$Posit)
     BZ <- my.design.matrix[uni.id, seq_len(n.k[1])]
@@ -355,9 +356,10 @@ binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out, ed
 #' @description Check if inputs fit one anoter according to there shapes
 #' @param data a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.
 #' @param Z Lorem ipsum dolor sit amet
+#' @param n.k a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the degrees of each functional parameters.
 #' @author XYZ
 #' @noRd
-binomRegMethModelChecks <- function(data, Z){
+binomRegMethModelChecks <- function(data, Z, n.k){
     if (length(n.k) != (ncol(Z) + 1)) {
         stop("The length of n.k should equal to the number of covariates plus 1 (for the intercept)")
     }
@@ -398,7 +400,7 @@ binomRegMethModelInit <- function(data, covs) {
     if (is.null(covs)) {
         Z <- as.matrix(data[, -seq_len(4)], ncol=ncol(data) - 4)
         colnames(Z) <- colnames(data)[-seq_len(4)]
-        binomRegMethModelChecks(data=data, Z=Z)
+        binomRegMethModelChecks(data=data, Z=Z, n.k=n.k)
         return(out<-list(data=data, Z=Z))
     } else {
         id <- match(covs, colnames(data))
@@ -407,7 +409,7 @@ binomRegMethModelInit <- function(data, covs) {
         } else {
             Z <- as.matrix(data[, id], ncol=length(id))
             colnames(Z) <- covs
-            binomRegMethModelChecks(data=data, Z=Z)
+            binomRegMethModelChecks(data=data, Z=Z, n.k=n.k)
             return(out<-list(data=data, Z=Z))
         }
     }
