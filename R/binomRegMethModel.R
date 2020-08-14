@@ -121,31 +121,14 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## p-value for each covariate
     ##------------------------------------------------------------------------
 
-    ## ------ 3: estimate of beta(t) --- #
-    uni.pos <- unique(fitGamOut$data$Posit)
-    uni.id <- match(uni.pos, fitGamOut$data$Posit)
-    BZ <- my.design.matrix[uni.id, seq_len(n.k[1])]
-    BZ.beta <- lapply(seq_len(ncol(Z)), function(i) {
-        mgcv::smooth.construct(mgcv::s(Posit, k=n.k[i + 1], fx=FALSE,
-            bs="cr"), data=fitGamOut$data[uni.id, ], knots=NULL)$X
-    })
-
+    estimateBZOut <- estimateBZ(fitGamOut=fitGamOut, my.design.matrix=my.design.matrix, Z=Z)
+    Beta.out <- estimateBeta(fitGamOut=fitGamOut, BZ=estimateBZOut$BZ, BZ.beta=estimateBZOut$BZ.beta, n.k=n.k, Z=Z, out=out)
     cum_s <- cumsum(n.k)
-    alpha.sep <- lapply(seq_len(ncol(Z)), function(i) {
-        out$par[(cum_s[i] + 1):cum_s[i + 1]]
-    })
-    alpha.0 <- out$par[seq_len(n.k[1])]
-
-    Beta.out <- cbind(BZ %*% alpha.0, sapply(seq_len(ncol(Z)), function(i) {
-        BZ.beta[[i]] %*% alpha.sep[[i]]
-    }))
-
-    colnames(Beta.out) <- c("Intercept", colnames(Z))
 
     ##---------------------------------------------------------------
     ## calculate var_cov (for alpha & beta) from the hessianComp matrix
     ##---------------------------------------------------------------
-    w_ij<-out$pi.ij * (1 - out$pi.ij)/phi_fletcher
+    w_ij <- out$pi.ij * (1 - out$pi.ij)/phi_fletcher
     H <- hessianComp(w_ij=w_ij, out$par,
         out$lambda,  fitGamOut$data$X, fitGamOut$data$Y, my.design.matrix, out$GamObj, Z, out$pi.ij, p0, p1,
         disp_est=phi_fletcher, RanEff=RanEff, N=lengthUniqueDataID)
@@ -157,15 +140,15 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
             1]]
     })
 
-    SE.out <- cbind(sqrt(pmax(0, rowSums((BZ %*% var.alpha.0) * BZ))),
+    SE.out <- cbind(sqrt(pmax(0, rowSums((estimateBZOut$BZ %*% var.alpha.0) * estimateBZOut$BZ))),
         sapply(seq_len(ncol(Z)), function(i) {
-            sqrt(pmax(0, rowSums((BZ.beta[[i]] %*% var.alpha.sep[[i]]) *
-                BZ.beta[[i]])))
+            sqrt(pmax(0, rowSums((estimateBZOut$BZ.beta[[i]] %*% var.alpha.sep[[i]]) *
+                estimateBZOut$BZ.beta[[i]])))
         }))
 
-    rownames(SE.out) <- uni.pos
+    rownames(SE.out) <- estimateBZOut$uni.pos
     colnames(SE.out) <- c("Intercept", colnames(Z))
-    SE.pos <- uni.pos
+    SE.pos <- estimateBZOut$uni.pos
     SE.out.REML.scael <- SE.out/sqrt(phi_fletcher) * sqrt(phi_reml)
 
     ##---------------------------------------------------------------
@@ -214,6 +197,61 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
         uni.pos=SE.pos, ncovs=ncol(Z) + 1, ite.points=Est.points,
         sigma00=sigma00))
 }
+#' @title estimate of BZ and BZ.beta
+#'
+#' @description Lorem ipsum dolor sit amet
+#' @description Lorem ipsum dolor sit amet
+#' @param fitGamOut fitGam output
+#' @param my.design.matrix Lorem ipsum dolor sit amet
+#' @param Z Lorem ipsum dolor sit amet
+#' @return This function return a \code{list} including objects:
+#' \itemize{
+#' \item \code{uni.pos} Lorem ipsum dolor sit amet
+#' \item \code{BZ} Lorem ipsum dolor sit amet
+#' \item \code{BZ.beta} Lorem ipsum dolor sit amet
+#' }
+#' @author  XYZ
+#' @import mgcv
+#' @noRd
+estimateBZ <- function(fitGamOut, my.design.matrix, Z){
+    uni.pos <- unique(fitGamOut$data$Posit,  my.design.matrix)
+    uni.id <- match(uni.pos, fitGamOut$data$Posit)
+    BZ <- my.design.matrix[uni.id, seq_len(n.k[1])]
+    BZ.beta <- lapply(seq_len(ncol(Z)), function(i) {
+        mgcv::smooth.construct(mgcv::s(Posit, k=n.k[i + 1], fx=FALSE,
+            bs="cr"), data=fitGamOut$data[uni.id, ], knots=NULL)$X
+    })
+    return(out<-list(uni.pos=uni.pos, BZ=BZ, BZ.beta=BZ.beta))
+}
+
+#' @title estimate of beta(t)
+#'
+#' @description Lorem ipsum dolor sit amet
+#' @description Lorem ipsum dolor sit amet
+#' @param fitGamOut output
+#' @param BZ.beta Lorem ipsum dolor sit amet
+#' @param n.k a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the degrees of each functional parameters.
+#' @param Z Lorem ipsum dolor sit amet
+#' @param out Lorem ipsum dolor sit amet
+#' @return \code{Beta.out}: a matrix of the estimated covariate effects beta(t), here t denots the genomic positions.
+#' @author XYZ
+#' @noRd
+estimateBeta <- function(fitGamOut, BZ, BZ.beta, n.k, Z, out){
+    ## ------ 3: estimate of beta(t) --- #
+    cum_s <- cumsum(n.k)
+    alpha.sep <- lapply(seq_len(ncol(Z)), function(i) {
+        out$par[(cum_s[i] + 1):cum_s[i + 1]]
+    })
+    alpha.0 <- out$par[seq_len(n.k[1])]
+
+    Beta.out <- cbind(BZ %*% alpha.0, sapply(seq_len(ncol(Z)), function(i) {
+        BZ.beta[[i]] %*% alpha.sep[[i]]
+    }))
+
+    colnames(Beta.out) <- c("Intercept", colnames(Z))
+    return (Beta.out)
+}
+
 #' @title binomRegMethModelSummary Lorem ipsum dolor sit amet
 #'
 #' @description Lorem ipsum dolor sit amet
@@ -316,7 +354,7 @@ binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out, ed
 #' @description Check if inputs fit one anoter according to there shapes
 #' @param data a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.
 #' @param Z Lorem ipsum dolor sit amet
-#' @author SLL
+#' @author XYZ
 #' @noRd
 binomRegMethModelChecks <- function(data, Z){
     if (length(n.k) != (ncol(Z) + 1)) {
@@ -342,7 +380,7 @@ binomRegMethModelChecks <- function(data, Z){
 #' \item \code{data}:
 #' \item \code{Z}:
 #' }
-#' @author SLL
+#' @author XYZ
 #' @noRd
 binomRegMethModelInit <- function(data, covs) {
     data <- data.frame(data)
@@ -389,7 +427,7 @@ binomRegMethModelInit <- function(data, covs) {
 #' \item \code{gam.int}: Lorem ipsum dolor sit amet
 #' \item \code{my.covar.fm}: Lorem ipsum dolor sit amet
 #' }
-#' @author SLL
+#' @author XYZ
 #' @noRd
 fitGam<-function(data, Quasi, binom.link, method, RanEff, scale, Z){
     ## The smoothing formula corresponding to the Z
@@ -427,7 +465,7 @@ fitGam<-function(data, Quasi, binom.link, method, RanEff, scale, Z){
 #' @param scale nagative values mean scale paramter should be estimated; if a positive value is provided, a fixed scale will be used.
 #' @param gam.int Lorem ipsum dolor sit amet
 #' @return This function return a \code{phi_fletcher} object:
-#' @author SLL
+#' @author XYZ
 #' @noRd
 phiFletcher<-function(data, Quasi, reml.scale, scale, gam.int){
     old.pi.ij<-gam.int$fitted.values
@@ -469,7 +507,7 @@ phiFletcher<-function(data, Quasi, reml.scale, scale, gam.int){
 #' @description extract design matrix
 #' @param GamObj
 #' @return This function return a design matrix \code{X_d}:
-#' @author SLL
+#' @author XYZ
 #' @noRd
 extractDesignMatrix<-function(GamObj){
     ## A more efficient way to extract design matrix. use a random sample of
