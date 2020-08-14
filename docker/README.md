@@ -79,7 +79,9 @@ run all package's tests
 ## testing
 from R console
 testing specific file like tests/testhat/test_groundzero.R ensuring we get same results over and over
+re-run the two next lines each time you want to test your code
 '''
+> devtools::load_all(".")
 > testthat::test_file("tests/testthat/test_groundzero.R")
 '''
 for computing coverage

@@ -25,7 +25,7 @@
 #' @noRd
 binomRegMethModelUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method,
     Z, my.covar.fm, Quasi=TRUE, scale) {
-    binomRegMethModelUpdateChecks(data, pi.ij)
+    binomRegMethModelUpdateChecks(data=data, pi.ij=pi.ij)
 
     ## The E-step Calculate the 'posterior' probability posterior
     ## probability given an observed methylated rates, what is the

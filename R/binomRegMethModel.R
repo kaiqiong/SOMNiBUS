@@ -58,19 +58,19 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## environment assignment; so I save n.k in a parent scope
     n.k <<- n.k
 
-    initOut<-binomRegMethModelInit(data, covs)
+    initOut<-binomRegMethModelInit(data=data, covs=covs)
     Z<-initOut$Z
-    fitGamOut<-fitGam(initOut$data, Quasi, binom.link,method, RanEff, scale, Z)
+    fitGamOut<-fitGam(data=initOut$data, Quasi=Quasi, binom.link=binom.link, method=method, RanEff=RanEff, scale=scale, Z=Z)
 
 
     ## Estimates
-    phi_fletcher<-phiFletcher(fitGamOut$data, Quasi, reml.scale, scale, fitGamOut$gam.int)
+    phi_fletcher <- phiFletcher(data=fitGamOut$data, Quasi=Quasi, reml.scale=reml.scale, scale=scale, gam.int=fitGamOut$gam.int)
     out <- list(pi.ij=fitGamOut$gam.int$fitted.values, par=fitGamOut$gam.int$coefficients,
                  lambda=fitGamOut$gam.int$sp, edf1=fitGamOut$gam.int$edf1,
                  pearson_res=residuals(fitGamOut$gam.int, type="pearson"),
                  deviance_res=residuals(fitGamOut$gam.int, type ="deviance"),
                  edf=fitGamOut$gam.int$edf, phi_fletcher=phi_fletcher, GamObj=fitGamOut$gam.int)
-    Est.points<-c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp, phi_fletcher)
+    Est.points <- c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp, phi_fletcher)
     if (p0 > 0 | p1 < 1) {
         ## code used to generate
         ## /tests/testthat/data/ref_input_binomRegMethModelUpdate.RDS input =
@@ -96,7 +96,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
             }
             iter <- iter + 1
             old.pi.ij <- out$pi.ij
-            out <- binomRegMethModelUpdate(fitGamOut$data, old.pi.ij, p0=p0, p1=p1, binom.link=binom.link,
+            out <- binomRegMethModelUpdate(data=fitGamOut$data, pi.ij=old.pi.ij, p0=p0, p1=p1, n.k=n.k, binom.link=binom.link,
                 method=method, Z=Z, my.covar.fm=fitGamOut$my.covar.fm, Quasi=Quasi,
                 scale=phi_fletcher)
             Est.points <- rbind(Est.points, c(out$par,out$lambda, out$phi_fletcher))
@@ -129,8 +129,8 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## calculate var_cov (for alpha & beta) from the hessianComp matrix
     ##---------------------------------------------------------------
     w_ij <- out$pi.ij * (1 - out$pi.ij)/phi_fletcher
-    H <- hessianComp(w_ij=w_ij, out$par,
-        out$lambda,  fitGamOut$data$X, fitGamOut$data$Y, my.design.matrix, out$GamObj, Z, out$pi.ij, p0, p1,
+    H <- hessianComp(w_ij=w_ij, new.par=out$par,
+        new.lambda=out$lambda,  X=fitGamOut$data$X, Y=fitGamOut$data$Y, my.design.matrix=my.design.matrix, gam.int=out$GamObj, Z=Z, pred.pi=out$pi.ij, p0=p0, p1=p1,
         disp_est=phi_fletcher, RanEff=RanEff, N=lengthUniqueDataID)
 
     var.cov.alpha <- solve(-H)
@@ -162,7 +162,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## pinv.  1. Round down to k if k<= rank < k+0.05, otherwise up.  res.df
     ## is residual dof used to estimate scale. <=0 implies fixed scale.
 
-    X_d<-extractDesignMatrix(out$GamObj)
+    X_d<-extractDesignMatrix(GamObj=out$GamObj)
 
     ## Effective degrees of freedom: edf1 -- good for chisquare test and p
     ## value calculation tr(2A - A^2)
@@ -176,6 +176,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     s.table.REML.scale <- binomRegMethModelSummary(out$GamObj, var.cov.alpha/phi_fletcher *
         phi_reml, out$par, edf.out, edf1.out, X_d, resi_df, Quasi, scale,
         RanEff, Z)
+
     ## var_out=list(cov1=var.cov.alpha, reg.out=reg.out, SE.out=SE.out,
     ## uni.pos=SE.pos, pvalue=pvalue , ncovs=ncol(Z)+1) Est_out=list(est =
     ## new.par, lambda=new.lambda, est.pi=new.pi.ij, ite.points=Est.points,
@@ -397,7 +398,7 @@ binomRegMethModelInit <- function(data, covs) {
     if (is.null(covs)) {
         Z <- as.matrix(data[, -seq_len(4)], ncol=ncol(data) - 4)
         colnames(Z) <- colnames(data)[-seq_len(4)]
-        binomRegMethModelChecks(data, Z)
+        binomRegMethModelChecks(data=data, Z=Z)
         return(out<-list(data=data, Z=Z))
     } else {
         id <- match(covs, colnames(data))
@@ -406,7 +407,7 @@ binomRegMethModelInit <- function(data, covs) {
         } else {
             Z <- as.matrix(data[, id], ncol=length(id))
             colnames(Z) <- covs
-            binomRegMethModelChecks(data, Z)
+            binomRegMethModelChecks(data=data, Z=Z)
             return(out<-list(data=data, Z=Z))
         }
     }

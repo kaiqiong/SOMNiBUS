@@ -21,7 +21,7 @@ binomRegMethModelPred <- function(BEM.obj, newdata=NULL, type="proportion") {
     uni.pos <- BEM.obj$uni.pos
     covs <- colnames(BEM.obj$Beta.out)
 
-    binomRegMethModelPredChecks(type)
+    binomRegMethModelPredChecks(type=type)
 
     if (is.null(newdata)) {
         if (type == "proportion") {

@@ -26,7 +26,7 @@ binomRegMethModelSim <- function(n, posit, theta.0, beta, random.eff=FALSE, mu.e
     sigma.ee=1, p0=0.003, p1=0.9, X, Z, binom.link="logit") {
     ## some checks on inputs
 
-    binomRegMethModelSimChecks(n, posit, Z, X, theta.0, beta)
+    binomRegMethModelSimChecks(n=n, posit=posit, Z=Z, X=X, theta.0=theta.0, beta=beta)
 
     ## the random effect term
     if (random.eff == TRUE) {
