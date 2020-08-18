@@ -121,7 +121,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## p-value for each covariate
     ##------------------------------------------------------------------------
 
-    estimateBZOut <- estimateBZ(fitGamOut=fitGamOut, my.design.matrix=my.design.matrix, Z=Z, n.k=n.k)
+    estimateBZOut <- estimateBZ(data=fitGamOut$data, my.design.matrix=my.design.matrix, Z=Z, n.k=n.k)
     Beta.out <- estimateBeta(BZ=estimateBZOut$BZ, BZ.beta=estimateBZOut$BZ.beta, n.k=n.k, Z=Z, out=out)
     cum_s <- cumsum(n.k)
 
@@ -215,13 +215,13 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 #' @author  XYZ
 #' @import mgcv
 #' @noRd
-estimateBZ <- function(fitGamOut, my.design.matrix, Z, n.k){
-    uni.pos <- unique(fitGamOut$data$Posit)
-    uni.id <- match(uni.pos, fitGamOut$data$Posit)
+estimateBZ <- function(data, my.design.matrix, Z, n.k){
+    uni.pos <- unique(data$Posit)
+    uni.id <- match(uni.pos, data$Posit)
     BZ <- my.design.matrix[uni.id, seq_len(n.k[1])]
     BZ.beta <- lapply(seq_len(ncol(Z)), function(i) {
         mgcv::smooth.construct(mgcv::s(Posit, k=n.k[i + 1], fx=FALSE,
-            bs="cr"), data=fitGamOut$data[uni.id, ], knots=NULL)$X
+            bs="cr"), data=data[uni.id, ], knots=NULL)$X
     })
     return(out<-list(uni.pos=uni.pos, BZ=BZ, BZ.beta=BZ.beta))
 }
