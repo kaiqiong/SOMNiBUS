@@ -22,11 +22,11 @@
 #' @author  Kaiqiong Zhao
 #' @importFrom mgcv gam
 #' @importFrom stats quasibinomial residuals binomial
+#' @noRd
 binomRegMethModelUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method,
     Z, my.covar.fm, Quasi=TRUE, scale) {
-    if (!(nrow(data) == length(pi.ij))) {
-        message("The row of data should be compatible with the length of initial value pi.ij")
-    }
+    binomRegMethModelUpdateChecks(data=data, pi.ij=pi.ij)
+
     ## The E-step Calculate the 'posterior' probability posterior
     ## probability given an observed methylated rates, what is the
     ## probability that the reads are truely methylated
@@ -51,9 +51,21 @@ binomRegMethModelUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method
     d_res <- residuals(gam.int.see, type="deviance")
     ## this is actually the fixed scale paramters in the input
     phi_fletcher <- summary(gam.int.see)$dispersion
-    out <- list(pi.ij=gam.int.see$fitted.values, par=gam.int.see$coefficients,
+    return(out <- list(pi.ij=gam.int.see$fitted.values, par=gam.int.see$coefficients,
         lambda=gam.int.see$sp, edf1=gam.int.see$edf1, pearson_res=p_res,
         deviance_res=d_res, edf=gam.int.see$edf, phi_fletcher=phi_fletcher,
-        GamObj=gam.int.see, E.S=E.S)
-    return(out)
+        GamObj=gam.int.see, E.S=E.S))
+}
+
+#' @title Some checks for binomRegMethModelUpdate
+#'
+#' @description Check if inputs fit one anoter according to there shapes
+#' @param data a matrix with  \code{n*p} rows and the columns should include Y, X, Posit, Ctype and ID
+#' @param pi.ij  an initial value (or value from last step) for the fitted probability \code{pi_ij} for each CpG site of each individual
+#' @author SLL
+#' @noRd
+binomRegMethModelUpdateChecks <- function(data, pi.ij) {
+    if (!(nrow(data) == length(pi.ij))) {
+        stop("The row of data should be compatible with the length of initial value pi.ij")
+    }
 }

@@ -24,20 +24,9 @@
 #' @author  Kaiqiong Zhao
 binomRegMethModelSim <- function(n, posit, theta.0, beta, random.eff=FALSE, mu.e=0,
     sigma.ee=1, p0=0.003, p1=0.9, X, Z, binom.link="logit") {
-    if (!is.matrix((Z))) {
-        message("covariate Z is not a matrix")
-    }
+    ## some checks on inputs
 
-    if (!(nrow(X) == nrow(Z) & nrow(X) == n)) {
-        message("Both X and Z should have n rows")
-    }
-    if (!(ncol(X) == nrow(theta.0) & ncol(X) == nrow(beta) & ncol(X) ==
-        length(posit))) {
-        message("The columns of X should be the same as length of beta theta.0 and posit; They all equals to the number of CpGs")
-    }
-    if (ncol(beta) != ncol(Z)) {
-        message("beta and Z should have the same dimentions")
-    }
+    binomRegMethModelSimChecks(n=n, posit=posit, Z=Z, X=X, theta.0=theta.0, beta=beta)
 
     ## the random effect term
     if (random.eff == TRUE) {
@@ -45,14 +34,11 @@ binomRegMethModelSim <- function(n, posit, theta.0, beta, random.eff=FALSE, mu.e
     } else {
         my.e <- rep(mu.e, n)
     }
-
     my.theta <- t(sapply(seq_len(n), function(i) {
         theta.0 + rowSums(sapply(seq_len(ncol(Z)), function(j) {
             Z[i, j] * beta[, j]
         })) + my.e[i]
     }))
-
-
     ## Transform my.theta to my.pi for each (i, j)
     my.pi <- t(sapply(seq_len(nrow(my.theta)), function(i) {
         ## exp(my.theta[i,])/(1+exp(my.theta[i,]))
@@ -74,4 +60,31 @@ binomRegMethModelSim <- function(n, posit, theta.0, beta, random.eff=FALSE, mu.e
         }
     }
     out <- list(S=my.S, Y=my.Y, theta=my.theta, pi=my.pi)
+}
+
+#' @title Some checks for binomRegMethModelSim
+#'
+#' @description Check if inputs fit one anoter according to there shapes
+#' @param n sample size
+#' @param posit  genomic position; a numeric vector of size \code{p} (the number of CpG sites in the considered region).
+#' @param Z numeric vector of length p for the covariate; currently, the covariate is the percentage of Cell type A (considering that the samples are composed of two cell types A and B); (Added on Feb 2018), Z can be a matrix; we allow for more than one covariates
+#' @param X the matrix of the read coverage for each CpG in each sample; a matrix of n rows and \code{p} columns
+#' @param theta.0 a functional parameter for the intercept of the GAMM model; a numeric vector of size \code{p}.
+#' @param beta a functional parameter for the slope of cell type composition. a numeric vector of size \code{p}
+#' @author  SLL
+#' @noRd
+binomRegMethModelSimChecks <- function(n, posit, Z, X, theta.0, beta){
+    if (!is.matrix((Z))) {
+        stop("covariate Z is not a matrix")
+    }
+    if (!(nrow(X) == nrow(Z) & nrow(X) == n)) {
+        stop("Both X and Z should have n rows")
+    }
+    if (!(ncol(X) == nrow(theta.0) & ncol(X) == nrow(beta) & ncol(X) ==
+        length(posit))) {
+        stop("The columns of X should be the same as length of beta theta.0 and posit; They all equals to the number of CpGs")
+    }
+    if (ncol(beta) != ncol(Z)) {
+        stop("beta and Z should have the same dimentions")
+    }
 }

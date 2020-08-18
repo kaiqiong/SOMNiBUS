@@ -10,9 +10,11 @@ aiqiong
 al
 AllClasses
 AllGenerics
+allways
 alphs
 amet
 Analyse
+anoter
 appdirs
 appyl
 AroundBinaryOperator
@@ -36,7 +38,9 @@ binom
 binomRegMethModel
 binomRegMethModelPlot
 binomRegMethModelPred
+binomRegMethModelPredChecks
 binomRegMethModelSim
+binomRegMethModelSimChecks
 binomRegMethModelSummary
 binomRegMethModelUpdate
 binutils
@@ -428,6 +432,7 @@ sep
 sessioninfo
 setuptools
 simon
+SLL
 SmOoth
 SMSC
 somefunc
