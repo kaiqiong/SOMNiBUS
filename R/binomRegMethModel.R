@@ -216,7 +216,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 #' @import mgcv
 #' @noRd
 estimateBZ <- function(fitGamOut, my.design.matrix, Z, n.k){
-    uni.pos <- unique(fitGamOut$data$Posit,  my.design.matrix)
+    uni.pos <- unique(fitGamOut$data$Posit)
     uni.id <- match(uni.pos, fitGamOut$data$Posit)
     BZ <- my.design.matrix[uni.id, seq_len(n.k[1])]
     BZ.beta <- lapply(seq_len(ncol(Z)), function(i) {
