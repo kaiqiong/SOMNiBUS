@@ -122,7 +122,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ##------------------------------------------------------------------------
 
     estimateBZOut <- estimateBZ(fitGamOut=fitGamOut, my.design.matrix=my.design.matrix, Z=Z, n.k=n.k)
-    Beta.out <- estimateBeta(fitGamOut=fitGamOut, BZ=estimateBZOut$BZ, BZ.beta=estimateBZOut$BZ.beta, n.k=n.k, Z=Z, out=out)
+    Beta.out <- estimateBeta(BZ=estimateBZOut$BZ, BZ.beta=estimateBZOut$BZ.beta, n.k=n.k, Z=Z, out=out)
     cum_s <- cumsum(n.k)
 
     ##---------------------------------------------------------------
@@ -238,7 +238,7 @@ estimateBZ <- function(fitGamOut, my.design.matrix, Z, n.k){
 #' @return \code{Beta.out}: a matrix of the estimated covariate effects beta(t), here t denots the genomic positions.
 #' @author XYZ
 #' @noRd
-estimateBeta <- function(fitGamOut, BZ, BZ.beta, n.k, Z, out){
+estimateBeta <- function(BZ, BZ.beta, n.k, Z, out){
     ## ------ 3: estimate of beta(t) --- #
     cum_s <- cumsum(n.k)
     alpha.sep <- lapply(seq_len(ncol(Z)), function(i) {
