@@ -65,12 +65,6 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 
     ## Estimates
     phi_fletcher <- phiFletcher(data=fitGamOut$data, Quasi=Quasi, reml.scale=reml.scale, scale=scale, gam.int=fitGamOut$gam.int)
-    out <- list(pi.ij=fitGamOut$gam.int$fitted.values, par=fitGamOut$gam.int$coefficients,
-                 lambda=fitGamOut$gam.int$sp, edf1=fitGamOut$gam.int$edf1,
-                 pearson_res=residuals(fitGamOut$gam.int, type="pearson"),
-                 deviance_res=residuals(fitGamOut$gam.int, type ="deviance"),
-                 edf=fitGamOut$gam.int$edf, phi_fletcher=phi_fletcher, GamObj=fitGamOut$gam.int)
-    Est.points <- c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp, phi_fletcher)
     if (p0 > 0 | p1 < 1) {
         ## code used to generate
         ## /tests/testthat/data/ref_input_binomRegMethModelUpdate.RDS input =
@@ -101,6 +95,13 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
                 scale=phi_fletcher)
             Est.points <- rbind(Est.points, c(out$par,out$lambda, out$phi_fletcher))
         }
+    } else {
+        out <- list(pi.ij=fitGamOut$gam.int$fitted.values, par=fitGamOut$gam.int$coefficients,
+                    lambda=fitGamOut$gam.int$sp, edf1=fitGamOut$gam.int$edf1,
+                    pearson_res=residuals(fitGamOut$gam.int, type="pearson"),
+                    deviance_res=residuals(fitGamOut$gam.int, type ="deviance"),
+                    edf=fitGamOut$gam.int$edf, phi_fletcher=phi_fletcher, GamObj=fitGamOut$gam.int)
+        Est.points <- c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp, phi_fletcher)
     }
 
     ## Estimated dispersion paramters (Fletcher adjusted)
