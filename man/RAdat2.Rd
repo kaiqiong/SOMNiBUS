@@ -3,7 +3,7 @@
 \docType{data}
 \name{RAdat2}
 \alias{RAdat2}
-\title{Lorem ipsum dolor sit amet}
+\title{A simulated methylation dataset based on a real data.}
 \format{
 A data frame of 6064 rows and 13 columns. Each row represents a CpG site for a sample. Columns include in order
 \describe{
@@ -11,19 +11,19 @@ A data frame of 6064 rows and 13 columns. Each row represents a CpG site for a s
 \item{Total_Counts}{Total number of reads; read-depth}
 \item{Position}{Genomic position (in bp) for the CpG site}
 \item{ID}{indicates which sample the CpG site belongs to}
-\item{ACPA4}{Lorem ipsum dolor sit amet}
-\item{Age}{Lorem ipsum dolor sit amet}
-\item{Sex}{Lorem ipsum dolor sit amet}
+\item{ACPA4}{binary indicator for a biomarker anti-citrullinated protein antibody}
+\item{Age}{Age}
+\item{Sex}{2-female; 1-male}
 \item{Smoking}{Lorem ipsum dolor sit amet}
 \item{Smoking_NA}{Lorem ipsum dolor sit amet}
-\item{PC1}{Lorem ipsum dolor sit amet}
-\item{PC2}{Lorem ipsum dolor sit amet}
-\item{PC3}{Lorem ipsum dolor sit amet}
-\item{PC4}{Lorem ipsum dolor sit amet}
+\item{PC1}{PC1 for the cell type proportions}
+\item{PC2}{PC2 for the cell type proportions}
+\item{PC3}{PC3 for the cell type proportions}
+\item{PC4}{PC4 for the cell type proportions}
 }
 }
 \source{
-Lorem ipsum dolor sit amet
+simulation is based a real data set provided by PI Dr. Sasha Bernatsky (McGill University)
 }
 \usage{
 RAdat2

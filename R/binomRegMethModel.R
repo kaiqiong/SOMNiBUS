@@ -80,7 +80,7 @@
 binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
     epsilon.lambda=10^(-3), maxStep=200, detail=FALSE, binom.link="logit",
     method="REML", covs=NULL, RanEff=TRUE, reml.scale=FALSE, scale=-2) {
-    ## an error of 'n.k is not found' would appear if without this globale
+    ## an error of 'n.k is not found' would appear if without this global
     ## environment assignment; so I save n.k in a parent scope
     n.k <<- n.k
 
@@ -168,10 +168,10 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     })
 
     SE.out <- cbind(sqrt(pmax(0, rowSums((estimateBZOut$BZ %*% var.alpha.0) * estimateBZOut$BZ))),
-        sapply(seq_len(ncol(Z)), function(i) {
+        vapply(seq_len(ncol(Z)), function(i) {
             sqrt(pmax(0, rowSums((estimateBZOut$BZ.beta[[i]] %*% var.alpha.sep[[i]]) *
                 estimateBZOut$BZ.beta[[i]])))
-        }))
+        }, FUN.VALUE = rep(1.0, length(estimateBZOut$uni.pos))))
 
     rownames(SE.out) <- estimateBZOut$uni.pos
     colnames(SE.out) <- c("Intercept", colnames(Z))
@@ -256,7 +256,7 @@ estimateBZ <- function(data, my.design.matrix, ncolsZ, n.k){
 #' @title estimate of beta(t)
 #'
 #' @description Given a final GAM output, extract the estimates of beta(t) = BZ * alpha, where t is the unique genomic positions
-#' present in the input data
+#' present in the input data; only extract the fixed effect estimates
 #' @param BZ basis matrix for the intercept beta0(t); a matrix with \code{length(uni.pos)} rows and \code{length(alpha0)} columns
 #' @param BZ.beta a list of length \code{ncolsZ}; each corresponds to the basis matrix for beta_p(t)
 #' @param n.k a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the degrees of each functional parameters.
@@ -274,9 +274,9 @@ estimateBeta <- function(BZ, BZ.beta, n.k, Z, out){
     })
     alpha.0 <- out$par[seq_len(n.k[1])]
 
-    Beta.out <- cbind(BZ %*% alpha.0, sapply(seq_len(ncol(Z)), function(i) {
+    Beta.out <- cbind(BZ %*% alpha.0, vapply(seq_len(ncol(Z)), function(i) {
         BZ.beta[[i]] %*% alpha.sep[[i]]
-    }))
+    },FUN.VALUE = rep(1.0, length(estimateBZOut$uni.pos))))
 
     colnames(Beta.out) <- c("Intercept", colnames(Z))
     return (Beta.out)
