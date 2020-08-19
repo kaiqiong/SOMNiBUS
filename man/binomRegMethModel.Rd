@@ -4,21 +4,34 @@
 \alias{binomRegMethModel}
 \title{A smoothed-EM algorithm to estimate covariate effects and test regional association in Bisulfite Sequencing-derived methylation data}
 \usage{
-binomRegMethModel(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
-  epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200,
-  detail = FALSE, binom.link = "logit", method = "REML",
-  covs = NULL, RanEff = TRUE, reml.scale = FALSE, scale = -2)
+binomRegMethModel(
+  data,
+  n.k,
+  p0 = 0.003,
+  p1 = 0.9,
+  Quasi = TRUE,
+  epsilon = 10^(-6),
+  epsilon.lambda = 10^(-3),
+  maxStep = 200,
+  detail = FALSE,
+  binom.link = "logit",
+  method = "REML",
+  covs = NULL,
+  RanEff = TRUE,
+  reml.scale = FALSE,
+  scale = -2
+)
 }
 \arguments{
-\item{data}{a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of \code{Meth_Counts} (methylated counts), \code{Total_Counts} (read depths), \code{Position} (Genomic position for the CpG site) and \code{ID} (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.}
+\item{data}{a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of \code{Meth_Counts} (methylated counts), \code{Total_Counts} (read depths), \code{Position} (Genomic position for the CpG site) and \code{ID} (sample ID). The covariate information, such as disease status or cell type composition, are listed in column 5 and onwards.}
 
 \item{n.k}{a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the degrees of each functional parameters.}
 
-\item{p0}{the probability of observing a methylated read when the underlying true status is unmethylated.}
+\item{p0}{the probability of observing a methylated read when the underlying true status is unmethylated. \code{p0} is the rate of false methylation calls, i.e. false positive rate.}
 
-\item{p1}{the probability of observing a methylated read when the underlying true status is methylated.}
+\item{p1}{the probability of observing a methylated read when the underlying true status is methylated. \code{1-p1} is the rate of false non-methylation calls, i.e. false negative rate.}
 
-\item{Quasi}{whether a Quasi-likelihood estimation approach will be used}
+\item{Quasi}{whether a Quasi-likelihood estimation approach will be used; in other words, whether a multiplicative dispersion is added in the model or not.}
 
 \item{epsilon}{numeric; stopping criterion for the closeness of estimates of spline coefficients from two consecutive iterations.}
 
@@ -32,7 +45,7 @@ binomRegMethModel(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
 
 \item{method}{the method used to estimate the smoothing parameters. The default is the 'REML' method which is generally better than prediction based criterion \code{GCV.cp}}
 
-\item{covs}{a vector of covariate names. The covariates with names in \code{covs} will be included in the model and their covariate effects will be estimated.}
+\item{covs}{a vector of covariate names. The covariates with names in \code{covs} will be included in the model and their covariate effects will be estimated. The default is to fit all covariates in \code{data}}
 
 \item{RanEff}{whether sample-level random effects are added or not}
 
@@ -43,25 +56,32 @@ binomRegMethModel(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
 \value{
 This function return a \code{list} including objects:
 \itemize{
-\item \code{est}: estimates of the spline basis coefficients alphas
+\item \code{est}: estimates of the spline basis coefficients \code{alpha}
 \item \code{lambda}: estimates of the smoothing parameters for each functional paramters
 \item \code{est.pi}: predicted methylation lelves for each row in the input \code{data}
 \item \code{ite.points}: estimates of \code{est}, \code{lambda} at each EM iteration
 \item \code{cov1}: estimated variance-covariance matrix of the basis coefficients alphs
-\item \code{reg.out}: output from the reginal zero effect test
-\item \code{chi.sq}: chi-square statistics for each covariates (including intercept) w.r.t the zero regional effect tests
-\item \code{pvalue}: the p value from the regional tests for each covariate
-\item \code{pvalue.log}: the log of \code{pvalue}
+\item \code{reg.out}: regional testing output obtained using Fletcher-based dispersion estimate; an additional "ID" row would appear if RanEff is TRUE
+\item \code{reg.out.reml.scale}:regional testing output obtained using REML-based dispersion estimate;
+\item \code{reg.out.gam}:regional testing output obtained using dispersion estimate from mgcv package;
+\item \code{phi_fletcher}: Fletcher-based estimate of the (multiplicative) dispersion parameter
+\item \code{phi_reml}: REML-based estimate of the (multiplicative) dispersion parameter
 \item \code{SE.out}: a matrix of the estimated pointwise Standard Errors (SE); number of rows are the number of unique CpG sites in the input data and the number of columns equal to the total number of covariates fitted in the model (the first one is the intercept)
-\item \code{SE.pos}: the genomic postions for each row of CpG sites in the matrix \code{SE.out}
+\item \code{SE.out.REML.scale}:
+\item \code{uni.pos}: the genomic postions for each row of CpG sites in the matrix \code{SE.out}
 \item \code{Beta.out}: a matrix of the estimated covariate effects beta(t), here t denots the genomic positions.
 \item \code{ncovs}: number of functional paramters in the model (including the intercept)
+\item \code{sigma00}: estimated variance for the random effect if RanEff is TRUE; NA if RanEff is FALSE
 }
 }
 \description{
-This function fits a binomial regression model where the outcome - methylated reads- are contaminated by known error rates \code{p0} and \code{p1} and the covariate effects are smoothly varying across genomic positions. The functional parameters of the smooth covariate effects are first represented by a linear combination of a bunch of restricted cubic splines (with dimention \code{n.k}), and a smoothness penalization term which depends on the smoothing parameters \code{lambdas} is also added to control smoothness.
+This function fits a (dispersion-adjusted) binomial regression model to regional methylation data,
+and reports the estimated smooth covariate effects and regional p-values for the test of DMRs
+(differentially methylation regions). Over or under dispersion across loci is accounted for in the model by the combination of a multiplicative dispersion parameter (or scale parameter) and a sample-specific random effect.
 
-The estimation is performed by an iterated EM algorithm. Each M step constitutes an outer Newton's iteration to estimate smoothing parameters \code{lambdas} and an inner P-IRLS iteration to estimate spline coefficients \code{alpha} for the covariate effects. Currently, the computation in the M step depends the implementation of \code{gam()} in package \code{mgcv}.
+This method can handle the case where outcomes -- the number of methylated reads in a region -- are contaminated by known false methylation calling rate (\code{p0}) and false non-methylation calling rate (\code{1-p1}).
+
+The covariate effects are assumed to smoothly vary across genomic regions. In order to estimate them, the algorithm first represents the functional paramters by a linear combination of a set of restricted cubic splines (with dimention \code{n.k}), and a smoothness penalization term which depends on the smoothing parameters \code{lambdas} is also added to control smoothness. The estimation is performed by an iterated EM algorithm. Each M step constitutes an outer Newton's iteration to estimate smoothing parameters \code{lambdas} and an inner P-IRLS iteration to estimate spline coefficients \code{alpha} for the covariate effects. Currently, the computation in the M step depends the implementation of \code{gam()} in package \code{mgcv}.
 }
 \examples{
 #------------------------------------------------------------#

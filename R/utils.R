@@ -1,22 +1,24 @@
-#' @title hessianComp Lorem ipsum dolor sit amet
+#' @title hessianComp compute the Hessian matrix
 #'
-#' @description Lorem ipsum dolor sit amet
-#' @description Lorem ipsum dolor sit amet
-#' @param w_ij Lorem ipsum dolor sit amet
-#' @param new.par Lorem ipsum dolor sit amet
-#' @param new.lambda Lorem ipsum dolor sit amet
-#' @param X Lorem ipsum dolor sit amet
-#' @param Y Lorem ipsum dolor sit amet
-#' @param my.design.matrix Lorem ipsum dolor sit amet
-#' @param gam.int Lorem ipsum dolor sit amet
-#' @param Z Lorem ipsum dolor sit amet
-#' @param pred.pi Lorem ipsum dolor sit amet
-#' @param p0 Lorem ipsum dolor sit amet
-#' @param p1 Lorem ipsum dolor sit amet
-#' @param disp_est Lorem ipsum dolor sit amet
-#' @param RanEff Lorem ipsum dolor sit amet
-#' @param N Lorem ipsum dolor sit amet
-#' @return Lorem ipsum dolor sit amet
+#' @description compute the Hessian matrix for an EM estimate
+#' @param w_ij the diagnal values of the weight matrix
+#' @param new.par estimate of alpha
+#' @param new.lambda estimate of lambda
+#' @param X a vector of read depths
+#' @param Y a vector of methylated counts
+#' @param my.design.matrix design matrix from the final fit
+#' @param gam.int the final gam fit
+#' @param Z covariate matrix
+#' @param pred.pi predicted methylation probability from the final fit
+#' @param p0 the probability of observing a methylated read when the underlying true status is unmethylated. \code{p0} is the rate
+#' of false methylation calls, i.e. false positive rate.
+#' @param p1 the probability of observing a methylated read when the underlying true status is methylated. \code{1-p1} is the rate
+#' of false non-methylation calls, i.e. false negative rate.
+#' @param disp_est estimated dispersion parameter
+#' @param RanEff whether a subject-level Random effect is added or not
+#' @param N number of unique samples in the provided dataset
+#' @return a Hessian matrix for all alphas (including the alphas for RE)
+#' @references Zhao, Kaiqiong, et al. "A novel statistical method for modeling covariate effects in bisulfite sequencing derived measures of DNA methylation." Biometrics (2020).
 #' @author  Kaiqiong Zhao
 #' @importFrom Matrix bdiag
 #' @noRd
