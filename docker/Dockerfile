@@ -20,7 +20,6 @@ RUN apt-get update \
 	&& install2.r --error \
 	--deps TRUE \
 	mgcv \
-	VGAM \
 	testthat \
 	magick \
 	rhub \
