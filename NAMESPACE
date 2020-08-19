@@ -3,6 +3,7 @@
 export(binomRegMethModel)
 export(binomRegMethModelPlot)
 export(binomRegMethModelPred)
+export(binomRegMethModelSim)
 import(mgcv)
 importFrom(Matrix,bdiag)
 importFrom(VGAM,rbetabinom)

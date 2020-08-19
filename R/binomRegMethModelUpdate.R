@@ -24,7 +24,7 @@
 #' @importFrom stats quasibinomial residuals binomial
 #' @noRd
 binomRegMethModelUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method,
-    Z, my.covar.fm, Quasi=TRUE, scale) {
+    Z, my.covar.fm, Quasi=TRUE, scale,reml.scale) {
     binomRegMethModelUpdateChecks(data=data, pi.ij=pi.ij)
 
     ## The E-step Calculate the 'posterior' probability posterior
@@ -50,7 +50,8 @@ binomRegMethModelUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link, method
     p_res <- residuals(gam.int.see, type="pearson")
     d_res <- residuals(gam.int.see, type="deviance")
     ## this is actually the fixed scale paramters in the input
-    phi_fletcher <- summary(gam.int.see)$dispersion
+    data$Y <- E.S
+    phi_fletcher <- phiFletcher(data, Quasi, reml.scale=reml.scale, scale=scale, gam.int=gam.int.see)
     return(out <- list(pi.ij=gam.int.see$fitted.values, par=gam.int.see$coefficients,
         lambda=gam.int.see$sp, edf1=gam.int.see$edf1, pearson_res=p_res,
         deviance_res=d_res, edf=gam.int.see$edf, phi_fletcher=phi_fletcher,
