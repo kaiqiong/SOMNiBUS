@@ -82,11 +82,11 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     method="REML", covs=NULL, RanEff=TRUE, reml.scale=FALSE, scale=-2) {
     ## an error of 'n.k is not found' would appear if without this global
     ## environment assignment; so I save n.k in a parent scope
-    n.k <<- n.k
+   # n.k <<- n.k
 
     initOut<-binomRegMethModelInit(data=data, covs=covs, n.k=n.k)
     Z<-initOut$Z
-    fitGamOut<-fitGam(data=initOut$data, Quasi=Quasi, binom.link=binom.link, method=method, RanEff=RanEff, scale=scale, Z=Z)
+    fitGamOut<-fitGam(data=initOut$data, Quasi=Quasi, binom.link=binom.link, method=method, RanEff=RanEff, scale=scale, Z=Z, n.k = n.k)
 
 
     ## Estimates
@@ -382,9 +382,9 @@ binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out, ed
 #'
 #' @description Check if inputs fit one anoter according to there shapes
 #' @param data a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.
-#' @param Z Lorem ipsum dolor sit amet
+#' @param Z matrix for the covariate information
 #' @param n.k a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the degrees of each functional parameters.
-#' @author Kaiqiong Zhao, Simon Laurin-Lemay
+#' @author Simon Laurin-Lemay, Kaiqiong Zhao
 #' @noRd
 binomRegMethModelChecks <- function(data, Z, n.k){
     if (length(n.k) != (ncol(Z) + 1)) {
@@ -454,6 +454,9 @@ binomRegMethModelInit <- function(data, covs, n.k) {
 #' @param method the method used to estimate the smoothing parameters. The default is the 'REML' method which is generally better than prediction based criterion \code{GCV.cp}
 #' @param RanEff whether sample-level random effects are added or not
 #' @param scale nagative values mean scale paramter should be estimated; if a positive value is provided, a fixed scale will be used.
+#' @param Z covariate matrix
+#' @param n.k  a vector of basis dimensions for the intercept and individual covariates. \code{n.k} specifies an upper limit of the
+#' degrees of each functional parameters
 #' @return This function return a \code{list} including objects:
 #' \itemize{
 #' \item \code{data}: a data frame with rows as individual CpGs appeared in all the samples. The first 4 columns should contain the information of `Meth_Counts` (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID` (sample ID). The covariate information, such as disease status or cell type composition are listed in column 5 and onwards.
@@ -462,7 +465,7 @@ binomRegMethModelInit <- function(data, covs, n.k) {
 #' }
 #' @author Kaiqiong Zhao, Simon Laurin-Lemay
 #' @noRd
-fitGam<-function(data, Quasi, binom.link, method, RanEff, scale, Z){
+fitGam<-function(data, Quasi, binom.link, method, RanEff, scale, Z, n.k){
     ## The smoothing formula corresponding to the Z
     formula.z.part <- vapply(seq_len(ncol(Z)), function(i) {
         paste0("s(Posit, k=n.k[", i + 1, "], fx=FALSE, bs=\"cr\", by=Z[,",
