@@ -63,9 +63,9 @@ binomRegMethModelPred <- function(BEM.obj, newdata=NULL, type="proportion") {
 
 #' @title Some checks for binomRegMethModelPred
 #'
-#' @description The estimation is performed by an iterated EM algorithm. Each M step constitutes an outer Newton's iteration to estimate smoothing parameters \code{lambdas} and an inner P-IRLS iteration to estimate spline coefficients \code{alpha} for the covariate effects. Currently, the computation in the M step depends the implementation of \code{gam()} in package \code{mgcv}.
+#' @description check whether an appropriate prediction type is given or not
 #' @param type return the predicted methylation proportion or the predicted response (in logit or other binom.link scale)
-#' @author  SLL
+#' @author  Simon Laurin-Lemay
 #' @noRd
 binomRegMethModelPredChecks <- function(type) {
     if (!type %in% c("proportion", "link.scale")) {

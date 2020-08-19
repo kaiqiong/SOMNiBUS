@@ -71,7 +71,7 @@ binomRegMethModelSim <- function(n, posit, theta.0, beta, random.eff=FALSE, mu.e
 #' @param X the matrix of the read coverage for each CpG in each sample; a matrix of n rows and \code{p} columns
 #' @param theta.0 a functional parameter for the intercept of the GAMM model; a numeric vector of size \code{p}.
 #' @param beta a functional parameter for the slope of cell type composition. a numeric vector of size \code{p}
-#' @author  SLL
+#' @author  Simon Laurin-Lemay
 #' @noRd
 binomRegMethModelSimChecks <- function(n, posit, Z, X, theta.0, beta){
     if (!is.matrix((Z))) {
