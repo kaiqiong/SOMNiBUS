@@ -148,7 +148,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## p-value for each covariate
     ##------------------------------------------------------------------------
 
-    estimateBZOut <- estimateBZ(data=fitGamOut$data, my.design.matrix=my.design.matrix, ncolsZ = ncol(Z), n.k=n.k)
+    estimateBZOut <- estimateBZ(Posit=fitGamOut$data$Posit, my.design.matrix=my.design.matrix, ncolsZ = ncol(Z), n.k=n.k)
     Beta.out <- estimateBeta(BZ=estimateBZOut$BZ, BZ.beta=estimateBZOut$BZ.beta, n.k=n.k, Z=Z, out=out)
     cum_s <- cumsum(n.k)
 
@@ -229,7 +229,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 #'
 #' @description This function aims to extract the basis matrix BZ, and BZ.beta from the expansion beta0(t) = BZ * alpha0
 #' and beta(t) = BZ.beta * alpha.
-#' @param data a data frame with one column named "Posit"
+#' @param Posit  the column "Posit" from the input data frame \code{data}
 #' @param my.design.matrix the design matrix for a \code{fitGamOut} with data as input and Z as covariates.
 #' @param ncolsZ number of columns of covariate matrix Z
 
@@ -242,13 +242,13 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 #' @author  Kaiqiong Zhao, Simon Laurin-Lemay
 #' @import mgcv
 #' @noRd
-estimateBZ <- function(data, my.design.matrix, ncolsZ, n.k){
-    uni.pos <- unique(data$Posit)
-    uni.id <- match(uni.pos, data$Posit)
+estimateBZ <- function(Posit, my.design.matrix, ncolsZ, n.k){
+    uni.pos <- unique(Posit)
+    uni.id <- match(uni.pos, Posit)
     BZ <- my.design.matrix[uni.id, seq_len(n.k[1])]
     BZ.beta <- lapply(seq_len(ncolsZ), function(i) {
         mgcv::smooth.construct(mgcv::s(Posit, k=n.k[i + 1], fx=FALSE,
-            bs="cr"), data=data[uni.id, ], knots=NULL)$X
+            bs="cr"), data=data.frame(Posit = Posit[uni.id]), knots=NULL)$X
     })
     return(out<-list(uni.pos=uni.pos, BZ=BZ, BZ.beta=BZ.beta))
 }
