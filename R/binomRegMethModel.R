@@ -50,6 +50,7 @@
 #' \item \code{reg.out.gam}:regional testing output obtained using (Fletcher-based) dispersion estimate from mgcv package;
 #' \item \code{phi_fletcher}: Fletcher-based estimate of the (multiplicative) dispersion parameter
 #' \item \code{phi_reml}: REML-based estimate of the (multiplicative) dispersion parameter
+#' \item \code{phi_gam}: Estimated dispersion parameter reported by mgcv
 #' \item \code{SE.out}: a matrix of the estimated pointwise Standard Errors (SE); number of rows are the number of unique CpG
 #' sites in the input data and the number of columns equal to the total number of covariates fitted in the model
 #' (the first one is the intercept)
@@ -76,6 +77,7 @@
 #' @importFrom mgcv s
 #' @importFrom Matrix bdiag
 #' @importFrom stats as.formula binomial pchisq rbinom rnorm quasibinomial residuals predict model.matrix runif
+#'
 #' @export
 binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
     epsilon.lambda=10^(-3), maxStep=200, detail=FALSE, binom.link="logit",
@@ -103,7 +105,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
 
         out <- binomRegMethModelUpdate(data=fitGamOut$data, pi.ij=fitGamOut$gam.int$fitted.values, p0=p0, p1=p1, n.k=n.k,
             binom.link=binom.link, method=method, Z=Z, my.covar.fm=fitGamOut$my.covar.fm,
-            Quasi=Quasi, scale=phi_fletcher)
+            Quasi=Quasi, scale=scale, reml.scale=reml.scale)
         Est.points <- rbind(c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp, phi_fletcher), c(out$par, out$lambda, out$phi_fletcher))
         ## Do the iteration The stopping criterion is that estimator a and b are
         ## close enough I exclude the criterio that lambda-a and lambda-b are
@@ -219,7 +221,7 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     reg.out.gam <- summary(out$GamObj)$s.table
 
     return(out<-list(est=out$par, lambda=out$lambda, est.pi=out$pi.ij,
-        Beta.out=Beta.out, phi_fletcher=phi_fletcher, phi_reml=phi_reml,
+        Beta.out=Beta.out, phi_fletcher=phi_fletcher, phi_reml=phi_reml,phi_gam=out$GamObj$scale,
         reg.out=s.table, reg.out.reml.scale=s.table.REML.scale, cov1=var.cov.alpha,
         reg.out.gam=reg.out.gam, SE.out=SE.out, SE.out.REML.scale=SE.out.REML.scael,
         uni.pos=SE.pos, ncovs=ncol(Z) + 1, ite.points=Est.points,
@@ -505,12 +507,8 @@ fitGam<-function(data, Quasi, binom.link, method, RanEff, scale, Z, n.k){
 #' @noRd
 phiFletcher<-function(data, Quasi, reml.scale, scale, gam.int){
     old.pi.ij<-gam.int$fitted.values
-    old.par<-gam.int$coefficients
-    lambda<-gam.int$sp
     edf.out<-gam.int$edf
-    edf1.out<-gam.int$edf1
     pearsonResiduals<-residuals(gam.int, type="pearson")
-    devianceResiduals<-residuals(gam.int, type="deviance")
     if (Quasi & scale <= 0) {
         if (reml.scale) {
             return(phi_fletcher <- gam.int$reml.scale)

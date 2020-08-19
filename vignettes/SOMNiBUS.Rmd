@@ -52,6 +52,7 @@ devtools::load_all(ROOT_PACKAGE_PATH)
 
 ```{r dependencies, warning=FALSE, message=FALSE}
 library(SOMNiBUS)
+
 ```
 
 ## System Requirements
