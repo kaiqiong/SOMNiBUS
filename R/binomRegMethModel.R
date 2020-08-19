@@ -41,7 +41,7 @@
 #' \itemize{
 #' \item \code{est}: estimates of the spline basis coefficients \code{alpha}
 #' \item \code{lambda}: estimates of the smoothing parameters for each functional paramters
-#' \item \code{est.pi}: predicted methylation lelves for each row in the input \code{data}
+#' \item \code{est.pi}: predicted methylation levels for each row in the input \code{data}
 #' \item \code{ite.points}: estimates of \code{est}, \code{lambda} at each EM iteration
 #' \item \code{cov1}: estimated variance-covariance matrix of the basis coefficients alphs
 #' \item \code{reg.out}: regional testing output obtained using Fletcher-based dispersion estimate;
