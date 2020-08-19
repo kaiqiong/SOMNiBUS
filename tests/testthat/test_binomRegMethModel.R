@@ -13,7 +13,7 @@ out_binomRegMethModel <- binomRegMethModel(
 test_that("number of outputs corresponds to the description of binomRegMethModel", {
   # 13 objects are listed for output, the list length should be 13 this is wrong,
   # there are 16 objects in the actual output
-  expect_false(length(out_binomRegMethModel) == 13)
+  expect_true(length(out_binomRegMethModel) == 16)
 })
 
 
