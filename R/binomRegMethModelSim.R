@@ -34,7 +34,6 @@
 #'    data=RAdat.f, n.k=rep(5, 3), p0=0, p1=1,
 #'    epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE, RanEff = FALSE
 #')
-
 #'Z = as.matrix(RAdat.f[match(unique(RAdat.f$ID), RAdat.f$ID),c("T_cell", "RA")])
 #'set.seed(123)
 #'X = matrix(sample(80, nrow(Z)*length(out$uni.pos), replace = TRUE), nrow = nrow(Z), ncol = length(out$uni.pos))+10
@@ -42,6 +41,7 @@
 #'                              sigma.ee=1, p0=0.003, p1=0.9,X=X , Z=Z, binom.link="logit", phi = rep(1, length(out$uni.pos)))
 #'
 #' @author  Kaiqiong Zhao
+#' @export
 binomRegMethModelSim <- function(n, posit, theta.0, beta, phi, random.eff=FALSE, mu.e=0,
     sigma.ee=1, p0=0.003, p1=0.9, X, Z, binom.link="logit") {
     ## some checks on inputs
