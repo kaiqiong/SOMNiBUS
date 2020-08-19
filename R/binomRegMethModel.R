@@ -276,7 +276,7 @@ estimateBeta <- function(BZ, BZ.beta, n.k, Z, out){
 
     Beta.out <- cbind(BZ %*% alpha.0, vapply(seq_len(ncol(Z)), function(i) {
         BZ.beta[[i]] %*% alpha.sep[[i]]
-    },FUN.VALUE = rep(1.0, length(estimateBZOut$uni.pos))))
+    },FUN.VALUE = rep(1.0, nrow(BZ))))
 
     colnames(Beta.out) <- c("Intercept", colnames(Z))
     return (Beta.out)
