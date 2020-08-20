@@ -2,7 +2,7 @@
 % Please edit documentation in R/binomRegMethModelPlot.R
 \name{binomRegMethModelPlot}
 \alias{binomRegMethModelPlot}
-\title{A smoothed-EM algorithm to estimate covariate effects and test regional association in Bisulfite Sequencing-derived methylation data}
+\title{Plot the smooth covariate effect}
 \usage{
 binomRegMethModelPlot(BEM.obj, mfrow = NULL, same.range = FALSE)
 }
@@ -14,12 +14,13 @@ binomRegMethModelPlot(BEM.obj, mfrow = NULL, same.range = FALSE)
 \item{same.range}{specify whether the plots should be in the same vertical scale}
 }
 \value{
-This function return a plot of smooth covariate effects and its pointwise confidence intervals
+This function prints out a plot of smooth covariate effects and
+its pointwise confidence intervals
 }
 \description{
-This function fits a binomial regression model where the outcome - methylated reads- are contaminated by known error rates \code{p0} and \code{p1} and the covariate effects are smoothly varying across genomic positions. The functional parameters of the smooth covariate effects are first represented by a linear combination of a bunch of restricted cubic splines (with dimention \code{n.k}), and a smoothness penalization term which depends on the smoothing parameters \code{lambdas} is also added to control smoothness.
-
-The estimation is performed by an iterated EM algorithm. Each M step constitutes an outer Newton's iteration to estimate smoothing parameters \code{lambdas} and an inner P-IRLS iteration to estimate spline coefficients \code{alpha} for the covariate effects. Currently, the computation in the M step depends the implementation of \code{gam()} in package \code{mgcv}.
+This function accepts an output object from function
+\code{binomRegMethModel} and print out a plot of the estimated covariate effect
+across the region for each test covariate.
 }
 \examples{
 #------------------------------------------------------------#

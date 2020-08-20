@@ -39,7 +39,7 @@ binomRegMethModelPlot <- function(BEM.obj, mfrow = NULL, same.range = FALSE) {
         yylim <- t(vapply(seq_len(ncovs), function(i) {
             yylim[i, ] <- c(ifelse(min(ll[, i]) > 0, 0, min(ll[, i])),
                 max(hh[, i]))
-        }, rep(1, 2)))
+        }, rep(1.0, 2)))
     }
 
     for (ii in seq_len(ncovs)) {

@@ -1,6 +1,5 @@
 #' @title A smoothed-EM algorithm to estimate covariate effects and test
 #' regional association in Bisulfite Sequencing-derived methylation data
-#'
 #' @description This function fits a (dispersion-adjusted) binomial
 #' regression model to regional methylation data, and reports the
 #' estimated smooth covariate effects and regional p-values for the

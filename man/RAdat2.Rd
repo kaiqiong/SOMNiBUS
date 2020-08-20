@@ -5,7 +5,8 @@
 \alias{RAdat2}
 \title{A simulated methylation dataset based on a real data.}
 \format{
-A data frame of 6064 rows and 13 columns. Each row represents a CpG site for a sample. Columns include in order
+A data frame of 6064 rows and 13 columns. Each row represents a CpG site
+for a sample. Columns include in order
 \describe{
 \item{Meth_Counts}{Number of methylated reads}
 \item{Total_Counts}{Total number of reads; read-depth}
@@ -23,12 +24,14 @@ A data frame of 6064 rows and 13 columns. Each row represents a CpG site for a s
 }
 }
 \source{
-simulation is based a real data set provided by PI Dr. Sasha Bernatsky (McGill University)
+simulation is based a real data set provided by PI Dr. Sasha Bernatsky
+(McGill University)
 }
 \usage{
 RAdat2
 }
 \description{
-This example data include methylation levels on a region with 208 CpGs for 116 blood samples.
+This example data include methylation levels on a region with 208 CpGs for 116
+blood samples.
 }
 \keyword{datasets}

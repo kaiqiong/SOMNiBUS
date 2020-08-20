@@ -1,8 +1,10 @@
 #' A simulated methylation dataset based on a real data.
 #'
-#' This example data include methylation levels on a region with 208 CpGs for 116 blood samples.
+#' This example data include methylation levels on a region with 208 CpGs for 116
+#' blood samples.
 #'
-#' @format A data frame of 6064 rows and 13 columns. Each row represents a CpG site for a sample. Columns include in order
+#' @format A data frame of 6064 rows and 13 columns. Each row represents a CpG site
+#' for a sample. Columns include in order
 #' \describe{
 #'  \item{Meth_Counts}{Number of methylated reads}
 #'  \item{Total_Counts}{Total number of reads; read-depth}
@@ -18,5 +20,6 @@
 #'  \item{PC3}{PC3 for the cell type proportions}
 #'  \item{PC4}{PC4 for the cell type proportions}
 #' }
-#' @source simulation is based a real data set provided by PI Dr. Sasha Bernatsky (McGill University)
+#' @source simulation is based a real data set provided by PI Dr. Sasha Bernatsky
+#' (McGill University)
 "RAdat2"

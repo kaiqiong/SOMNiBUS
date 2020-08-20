@@ -2,24 +2,25 @@
 % Please edit documentation in R/binomRegMethModelPred.R
 \name{binomRegMethModelPred}
 \alias{binomRegMethModelPred}
-\title{A smoothed-EM algorithm to estimate covariate effects and test regional association in Bisulfite Sequencing-derived methylation data}
+\title{A smoothed-EM algorithm to estimate covariate effects and test
+regional association in Bisulfite Sequencing-derived methylation data}
 \usage{
 binomRegMethModelPred(BEM.obj, newdata = NULL, type = "proportion")
 }
 \arguments{
 \item{BEM.obj}{an output from the function \code{binomRegMethModel}}
 
-\item{newdata}{the data set whose predictions are calculated; with columns 'Position', and covariate names that can be matched to the BEM.obj}
+\item{newdata}{the data set whose predictions are calculated; with columns
+'Position', and covariate names that can be matched to the BEM.obj}
 
-\item{type}{return the predicted methylation proportion or the predicted response (in logit or other binom.link scale)}
+\item{type}{return the predicted methylation proportion or the predicted
+response (in logit or other binom.link scale)}
 }
 \value{
 This function returns the predicted methylation levels
 }
 \description{
-This function fits a binomial regression model where the outcome - methylated reads- are contaminated by known error rates \code{p0} and \code{p1} and the covariate effects are smoothly varying across genomic positions. The functional parameters of the smooth covariate effects are first represented by a linear combination of a bunch of restricted cubic splines (with dimention \code{n.k}), and a smoothness penalization term which depends on the smoothing parameters \code{lambdas} is also added to control smoothness.
-
-The estimation is performed by an iterated EM algorithm. Each M step constitutes an outer Newton's iteration to estimate smoothing parameters \code{lambdas} and an inner P-IRLS iteration to estimate spline coefficients \code{alpha} for the covariate effects. Currently, the computation in the M step depends the implementation of \code{gam()} in package \code{mgcv}.
+This function returns the predicted methylation levels
 }
 \examples{
 #------------------------------------------------------------#
