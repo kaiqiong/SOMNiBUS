@@ -3,7 +3,7 @@
 #' @description This function fits a binomial regression model where the outcome - methylated reads- are contaminated by known error rates \code{p0} and \code{p1} and the covariate effects are smoothly varying across genomic positions. The functional parameters of the smooth covariate effects are first represented by a linear combination of a bunch of restricted cubic splines (with dimention \code{n.k}), and a smoothness penalization term which depends on the smoothing parameters \code{lambdas} is also added to control smoothness.
 #' @description The estimation is performed by an iterated EM algorithm. Each M step constitutes an outer Newton's iteration to estimate smoothing parameters \code{lambdas} and an inner P-IRLS iteration to estimate spline coefficients \code{alpha} for the covariate effects. Currently, the computation in the M step depends the implementation of \code{gam()} in package \code{mgcv}.
 #' @param BEM.obj an output from the function \code{binomRegMethModel}
-#' @param newdata the data set whose predictions are calculated; with columns "Position", and covariate names that can be matched to the BEM.obj
+#' @param newdata the data set whose predictions are calculated; with columns 'Position', and covariate names that can be matched to the BEM.obj
 #' @param type return the predicted methylation proportion or the predicted response (in logit or other binom.link scale)
 #' @return This function returns the predicted methylation levels
 #' @author  Kaiqiong Zhao
@@ -17,12 +17,12 @@
 #' )
 #' binomRegMethModelPred(out)
 #' @export
-binomRegMethModelPred <- function(BEM.obj, newdata=NULL, type="proportion") {
+binomRegMethModelPred <- function(BEM.obj, newdata = NULL, type = "proportion") {
     uni.pos <- BEM.obj$uni.pos
     covs <- colnames(BEM.obj$Beta.out)
-
-    binomRegMethModelPredChecks(type=type)
-
+    
+    binomRegMethModelPredChecks(type = type)
+    
     if (is.null(newdata)) {
         if (type == "proportion") {
             return(BEM.obj$est.pi)
@@ -31,23 +31,23 @@ binomRegMethModelPred <- function(BEM.obj, newdata=NULL, type="proportion") {
             return(log(BEM.obj$est.pi/(1 - BEM.obj$est.pi)))
         }
     } else {
-        newdata <- data.frame(newdata, Intercept=1)
-        if (all(colnames(BEM.obj$Beta.out) %in% colnames(newdata) )) {
+        newdata <- data.frame(newdata, Intercept = 1)
+        if (all(colnames(BEM.obj$Beta.out) %in% colnames(newdata))) {
             id <- match(newdata$Position, uni.pos)
-
+            
             if (any(is.na(id))) {
                 stop("The positions in the newdata should be the exactly the same as the positions fited in object BEM.obj")
             }
             ## estimated beta(t) for each t in the role of newdata
             beta.s <- BEM.obj$Beta.out[id, ]
-
+            
             newdata <- newdata[, -which(colnames(newdata) == "Position")]
             newdata <- newdata[, match(covs, colnames(newdata))]
-
+            
             pred.link <- vapply(seq_len(nrow(newdata)), function(i) {
                 sum(beta.s[i, ] * newdata[i, ])
             }, 1)
-
+            
             if (type == "link.scale") {
                 return(pred.link)
             }
@@ -69,6 +69,6 @@ binomRegMethModelPred <- function(BEM.obj, newdata=NULL, type="proportion") {
 #' @noRd
 binomRegMethModelPredChecks <- function(type) {
     if (!type %in% c("proportion", "link.scale")) {
-            stop("type should be either proportion or link.scale")
+        stop("type should be either proportion or link.scale")
     }
 }

@@ -71,7 +71,7 @@ This function return a \code{list} including objects:
 \item \code{ite.points}: estimates of \code{est}, \code{lambda} at each EM iteration
 \item \code{cov1}: estimated variance-covariance matrix of the basis coefficients alphs
 \item \code{reg.out}: regional testing output obtained using Fletcher-based dispersion estimate;
-an additional "ID" row would appear if RanEff is TRUE
+an additional 'ID' row would appear if RanEff is TRUE
 \item \code{reg.out.reml.scale}:regional testing output obtained using REML-based dispersion estimate;
 \item \code{reg.out.gam}:regional testing output obtained using (Fletcher-based) dispersion estimate from mgcv package;
 \item \code{phi_fletcher}: Fletcher-based estimate of the (multiplicative) dispersion parameter
