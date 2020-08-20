@@ -84,13 +84,13 @@
 #' mu.e=0,sigma.ee=1, p0=0.003, p1=0.9,X=X , Z=Z, binom.link='logit',
 #' phi = rep(1, length(out$uni.pos)))
 #' @export
-binomRegMethModelSim <- function(n, posit, theta.0, beta, phi, random.eff = FALSE,
+binomRegMethModelSim <- function(n, posit, theta.0, beta, phi, random.eff = FALSE, 
     mu.e = 0, sigma.ee = 1, p0 = 0.003, p1 = 0.9, X, Z, binom.link = "logit") {
     ## some checks on inputs
-
-    binomRegMethModelSimChecks(n = n, posit = posit, Z = Z, X = X, theta.0 = theta.0,
-        beta = beta)
-
+    
+    binomRegMethModelSimChecks(n = n, posit = posit, Z = Z, X = X, 
+        theta.0 = theta.0, beta = beta)
+    
     ## the random effect term
     if (random.eff == TRUE) {
         my.e <- rnorm(n, mean = mu.e, sd = sqrt(sigma.ee))
@@ -112,7 +112,7 @@ binomRegMethModelSim <- function(n, posit, theta.0, beta, phi, random.eff = FALS
     for (i in seq_len(nrow(my.S))) {
         for (j in seq_len(ncol(my.S))) {
             # my.S[i, j] <- rbinom(1, size=X[i, j], prob=my.pi[i, j])
-            my.S[i, j] <- VGAM::rbetabinom(1, size = X[i, j], prob = my.pi[i,
+            my.S[i, j] <- VGAM::rbetabinom(1, size = X[i, j], prob = my.pi[i, 
                 j], rho = (phi[j] - 1)/(X[i, j] - 1))
         }
     }
@@ -120,7 +120,7 @@ binomRegMethModelSim <- function(n, posit, theta.0, beta, phi, random.eff = FALS
     my.Y <- my.S
     for (i in seq_len(nrow(my.Y))) {
         for (j in seq_len(ncol(my.Y))) {
-            my.Y[i, j] <- sum(rbinom(my.S[i, j], size = 1, prob = p1)) +
+            my.Y[i, j] <- sum(rbinom(my.S[i, j], size = 1, prob = p1)) + 
                 sum(rbinom(X[i, j] - my.S[i, j], size = 1, prob = p0))
         }
     }
@@ -155,7 +155,7 @@ binomRegMethModelSimChecks <- function(n, posit, Z, X, theta.0, beta) {
     if (!(nrow(X) == nrow(Z) & nrow(X) == n)) {
         stop("Both X and Z should have n rows")
     }
-    if (!(ncol(X) == length(theta.0) & ncol(X) == nrow(beta) & ncol(X) ==
+    if (!(ncol(X) == length(theta.0) & ncol(X) == nrow(beta) & ncol(X) == 
         length(posit))) {
         stop("The columns of X should be the same as length of beta theta.0 and posit;
              They all equals to the number of CpGs")

@@ -24,9 +24,9 @@
 binomRegMethModelPred <- function(BEM.obj, newdata = NULL, type = "proportion") {
     uni.pos <- BEM.obj$uni.pos
     covs <- colnames(BEM.obj$Beta.out)
-
+    
     binomRegMethModelPredChecks(type = type)
-
+    
     if (is.null(newdata)) {
         if (type == "proportion") {
             return(BEM.obj$est.pi)
@@ -38,21 +38,21 @@ binomRegMethModelPred <- function(BEM.obj, newdata = NULL, type = "proportion") 
         newdata <- data.frame(newdata, Intercept = 1)
         if (all(colnames(BEM.obj$Beta.out) %in% colnames(newdata))) {
             id <- match(newdata$Position, uni.pos)
-
+            
             if (any(is.na(id))) {
                 stop("The positions in the newdata should be the exactly
                      the same as the positions fited in object BEM.obj")
             }
             ## estimated beta(t) for each t in the role of newdata
             beta.s <- BEM.obj$Beta.out[id, ]
-
+            
             newdata <- newdata[, -which(colnames(newdata) == "Position")]
             newdata <- newdata[, match(covs, colnames(newdata))]
-
+            
             pred.link <- vapply(seq_len(nrow(newdata)), function(i) {
                 sum(beta.s[i, ] * newdata[i, ])
             }, 1)
-
+            
             if (type == "link.scale") {
                 return(pred.link)
             }

@@ -28,15 +28,16 @@
 #' @author  Kaiqiong Zhao
 #' @importFrom Matrix bdiag
 #' @noRd
-hessianComp <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
+hessianComp <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix, 
     gam_smoothMat, Z, pred.pi, p0, p1, disp_est, RanEff, N) {
-
+    
     ## Q1: the second partial derivative w.r.t alpha^2 Q2: the second
     ## derivative w.r.t alpha & alpha_star
-    res <- outer(seq_len(length(new.par)), seq_len(length(new.par)), Vectorize(function(l,
-        m) {
-        sum(-X * w_ij * my.design.matrix[, m] * my.design.matrix[, l])
-    }))
+    res <- outer(seq_len(length(new.par)), seq_len(length(new.par)), 
+        Vectorize(function(l, m) {
+            sum(-X * w_ij * my.design.matrix[, m] * my.design.matrix[, 
+                l])
+        }))
     smoth.mat <- lapply(as.list(seq_len(ncol(Z) + 1)), function(i) {
         gam_smoothMat[[i]]$S[[1]] * new.lambda[i]
     })  ## extract the penalty matrix
@@ -45,25 +46,26 @@ hessianComp <- function(w_ij, new.par, new.lambda, X, Y, my.design.matrix,
     smoth.mat[[length(smoth.mat) + 1]] <- 0
     if (RanEff) {
         ## !!!! Otherwise, we get very wide CI
-        smoth.mat[[length(smoth.mat) + 1]] <- diag(N) * new.lambda[ncol(Z) +
+        smoth.mat[[length(smoth.mat) + 1]] <- diag(N) * new.lambda[ncol(Z) + 
             2]
-        span.penal.matrix <- as.matrix(Matrix::bdiag(smoth.mat[c(length(smoth.mat) -
+        span.penal.matrix <- as.matrix(Matrix::bdiag(smoth.mat[c(length(smoth.mat) - 
             1, (seq_len((length(smoth.mat) - 2))), length(smoth.mat))]))
     } else {
-        span.penal.matrix <- as.matrix(Matrix::bdiag(smoth.mat[c(length(smoth.mat),
+        span.penal.matrix <- as.matrix(Matrix::bdiag(smoth.mat[c(length(smoth.mat), 
             (seq_len((length(smoth.mat) - 1))))]))
     }
-
+    
     Q1_with_lambda <- res - span.penal.matrix/disp_est
     Q1_no_lambda <- res
-
-    Q2 <- outer(seq_len(length(new.par)), seq_len(length(new.par)), Vectorize(function(l,
-        m) {
-        term1 <- Y * p1 * p0/(p1 * pred.pi + p0 * (1 - pred.pi))^2 + (X -
-            Y) * (1 - p1) * (1 - p0)/((1 - p1) * pred.pi + (1 - p0) * (1 -
-            pred.pi))^2
-        sum(term1 * w_ij * my.design.matrix[, m] * my.design.matrix[, l])
-    }))
-
+    
+    Q2 <- outer(seq_len(length(new.par)), seq_len(length(new.par)), 
+        Vectorize(function(l, m) {
+            term1 <- Y * p1 * p0/(p1 * pred.pi + p0 * (1 - pred.pi))^2 + 
+                (X - Y) * (1 - p1) * (1 - p0)/((1 - p1) * pred.pi + 
+                  (1 - p0) * (1 - pred.pi))^2
+            sum(term1 * w_ij * my.design.matrix[, m] * my.design.matrix[, 
+                l])
+        }))
+    
     return(Q1_with_lambda + Q2)
 }
