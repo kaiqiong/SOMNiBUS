@@ -1,4 +1,18 @@
 context("testing the effect of seed on toy example")
+
+# the only place that requires seed is in the function extractDesignMatrix
+
+#  sub.samp <- max(1000, 2 * length(GamObj$coefficients))
+#if (nrow(GamObj$model) > sub.samp) {
+    ## subsample to get X for p-values calc.  sample these rows from X
+#   ind <- sample(seq_len(nrow(GamObj$model)), sub.samp, replace=FALSE)
+#    X_d <- predict(GamObj, GamObj$model[ind, ], type="lpmatrix")
+#}
+
+# the sample line only got executed when the number of free parameters are greater than 1000,
+# which is not the case in the example of RAdat, where only 58 (sum(n.k) + n_samples)
+# parameters are present. So seed shouldn't influence the results for RAdat
+
 library(mgcv)
 
 seed_1 <- 1
