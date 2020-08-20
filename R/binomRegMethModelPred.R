@@ -65,7 +65,7 @@ binomRegMethModelPred <- function(BEM.obj, newdata=NULL, type="proportion") {
 #'
 #' @description check whether an appropriate prediction type is given or not
 #' @param type return the predicted methylation proportion or the predicted response (in logit or other binom.link scale)
-#' @author  Simon Laurin-Lemay
+#' @author Kaiqiong Zhao, Simon Laurin-Lemay
 #' @noRd
 binomRegMethModelPredChecks <- function(type) {
     if (!type %in% c("proportion", "link.scale")) {
