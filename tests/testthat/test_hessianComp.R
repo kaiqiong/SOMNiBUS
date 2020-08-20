@@ -10,9 +10,14 @@ path_ref_input_hessianComp <- paste(paste(getwd(), "/data/", sep = ""), "ref_inp
 )
 ref_input_hessianComp <- readRDS(path_ref_input_hessianComp)
 
-H <- hessianComp(w_ij=w_ij, new.par=out$par,
-                 new.lambda=out$lambda,  X=fitGamOut$data$X, Y=fitGamOut$data$Y, my.design.matrix=my.design.matrix, gam.int=out$GamObj, Z=Z, pred.pi=out$pi.ij, p0=p0, p1=p1,
-                 disp_est=phi_fletcher, RanEff=RanEff, N=lengthUniqueDataID)
+H <- hessianComp(w_ij = ref_input_hessianComp$w_ij, new.par=ref_input_hessianComp$new.par,
+                 new.lambda=ref_input_hessianComp$new.lambda,  X=ref_input_hessianComp$X,
+                 Y=ref_input_hessianComp$Y, my.design.matrix=ref_input_hessianComp$my.design.matrix,
+                 gam.int=ref_input_hessianComp$gam.int, Z=ref_input_hessianComp$Z,
+                 pred.pi=ref_input_hessianComp$pred.pi, p0=ref_input_hessianComp$p0,
+                 p1=ref_input_hessianComp$p1,
+                 disp_est=ref_input_hessianComp$disp_est, RanEff=ref_input_hessianComp$RanEff,
+                 N= ref_input_hessianComp$N)
 
 test_that("hessianComp calculates the correct Hessian matrix", {
     expect_equal(nrow(H), length(out$par))
