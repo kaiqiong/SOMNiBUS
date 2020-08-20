@@ -1,12 +1,16 @@
 #' @title Plot the smooth covariate effect
 #'
 #' @description This function accepts an output object from function
-#' \code{binomRegMethModel} and print out a plot of the estimated covariate effect
+#' \code{binomRegMethModel} and print out a plot of the estimated
+#' covariate effect
 #' across the region for each test covariate.
-#' @param BEM.obj an output object from function \code{binomRegMethModel}
+#' @param BEM.obj an output object from function
+#' \code{binomRegMethModel}
 #' @param mfrow the plot parameters to specify the layout of each plot
-#' @param same.range specify whether the plots should be in the same vertical scale
-#' @return This function prints out a plot of smooth covariate effects and
+#' @param same.range specify whether the plots should be in the same
+#' vertical scale
+#' @return This function prints out a plot of smooth covariate effects
+#' and
 #' its pointwise confidence intervals
 #' @author  Kaiqiong Zhao
 #' @importFrom graphics abline axis lines par plot
@@ -39,12 +43,11 @@ binomRegMethModelPlot <- function(BEM.obj, mfrow = NULL, same.range = FALSE) {
         yylim <- t(vapply(seq_len(ncovs), function(i) {
             yylim[i, ] <- c(ifelse(min(ll[, i]) > 0, 0, min(ll[, i])),
                 max(hh[, i]))
-        }, rep(1.0, 2)))
+        }, rep(1, 2)))
     }
 
     for (ii in seq_len(ncovs)) {
-        plot(BEM.obj$uni.pos[order(BEM.obj$uni.pos)],
-             BEM.obj$Beta.out[order(BEM.obj$uni.pos),
+        plot(BEM.obj$uni.pos[order(BEM.obj$uni.pos)], BEM.obj$Beta.out[order(BEM.obj$uni.pos),
             ii], col = "red", xaxt = "n", type = "l", xlab = "Genomic Position",
             ylab = " ", main = covs.names[ii], lwd = 2, ylim = yylim[ii,
                 ])

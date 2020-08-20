@@ -3,9 +3,11 @@
 #'
 #' @description This function returns the predicted methylation levels
 #' @param BEM.obj an output from the function \code{binomRegMethModel}
-#' @param newdata the data set whose predictions are calculated; with columns
+#' @param newdata the data set whose predictions are calculated; with
+#' columns
 #' 'Position', and covariate names that can be matched to the BEM.obj
-#' @param type return the predicted methylation proportion or the predicted
+#' @param type return the predicted methylation proportion or the
+#' predicted
 #' response (in logit or other binom.link scale)
 #' @return This function returns the predicted methylation levels
 #' @author  Kaiqiong Zhao
@@ -66,9 +68,10 @@ binomRegMethModelPred <- function(BEM.obj, newdata = NULL, type = "proportion") 
 
 #' @title Some checks for binomRegMethModelPred
 #'
-#' @description check whether an appropriate prediction type is given or not
-#' @param type return the predicted methylation proportion or the predicted
-#' response (in logit or other binom.link scale)
+#' @description check whether an appropriate prediction type
+#' is given or not
+#' @param type return the predicted methylation proportion or
+#' the predicted response (in logit or other binom.link scale)
 #' @author Kaiqiong Zhao, Simon Laurin-Lemay
 #' @noRd
 binomRegMethModelPredChecks <- function(type) {

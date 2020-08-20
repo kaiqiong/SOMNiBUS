@@ -7,19 +7,23 @@
 binomRegMethModelPlot(BEM.obj, mfrow = NULL, same.range = FALSE)
 }
 \arguments{
-\item{BEM.obj}{an output object from function \code{binomRegMethModel}}
+\item{BEM.obj}{an output object from function
+\code{binomRegMethModel}}
 
 \item{mfrow}{the plot parameters to specify the layout of each plot}
 
-\item{same.range}{specify whether the plots should be in the same vertical scale}
+\item{same.range}{specify whether the plots should be in the same
+vertical scale}
 }
 \value{
-This function prints out a plot of smooth covariate effects and
+This function prints out a plot of smooth covariate effects
+and
 its pointwise confidence intervals
 }
 \description{
 This function accepts an output object from function
-\code{binomRegMethModel} and print out a plot of the estimated covariate effect
+\code{binomRegMethModel} and print out a plot of the estimated
+covariate effect
 across the region for each test covariate.
 }
 \examples{

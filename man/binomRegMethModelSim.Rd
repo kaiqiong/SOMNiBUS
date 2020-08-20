@@ -2,7 +2,8 @@
 % Please edit documentation in R/binomRegMethModelSim.R
 \name{binomRegMethModelSim}
 \alias{binomRegMethModelSim}
-\title{Simulate Bisulfite sequencing data from specified smooth covariate effects}
+\title{Simulate Bisulfite sequencing data from specified smooth
+covariate effects}
 \usage{
 binomRegMethModelSim(
   n,
@@ -23,37 +24,48 @@ binomRegMethModelSim(
 \arguments{
 \item{n}{sample size}
 
-\item{posit}{genomic position; a numeric vector of size \code{p}
+\item{posit}{genomic position; a numeric vector of size
+\code{p}
 (the number of CpG sites in the considered region).}
 
-\item{theta.0}{a functional parameter for the intercept of the GAMM model;
+\item{theta.0}{a functional parameter for the intercept of
+the GAMM model;
 a numeric vector of size \code{p}.}
 
-\item{beta}{a functional parameter for the slope of cell type composition. a numeric
+\item{beta}{a functional parameter for the slope of cell
+type composition. a numeric
 vector of size \code{p}}
 
-\item{phi}{multiplicative dispersion parameter for each loci in a region. a vector of
+\item{phi}{multiplicative dispersion parameter for each
+loci in a region. a vector of
 length \code{p}. The dispersed-Binomial
-counts are simulated from beta-binomial distribution, so each element of phi has to be
+counts are simulated from beta-binomial distribution, so
+each element of phi has to be
 greater than 1.}
 
-\item{random.eff}{indicate whether adding the subject-specific random effect term
+\item{random.eff}{indicate whether adding the subject-specific
+random effect term
 \code{e}.}
 
 \item{mu.e}{the mean of the random effect; a single number.}
 
-\item{sigma.ee}{variance of the random effect; a single positive number.}
+\item{sigma.ee}{variance of the random effect; a single
+positive number.}
 
-\item{p0}{the probability of observing a methylated read when the underlying true
+\item{p0}{the probability of observing a methylated read
+when the underlying true
 status is unmethylated.}
 
-\item{p1}{the probability of observing a methylated read when the underlying true
+\item{p1}{the probability of observing a methylated read
+when the underlying true
 status is methylated.}
 
-\item{X}{the matrix of the read coverage for each CpG in each sample; a matrix of n
+\item{X}{the matrix of the read coverage for each CpG in
+each sample; a matrix of n
 rows and \code{p} columns}
 
-\item{Z}{numeric matrix with \code{p} columns and \code{n} rows storing the covariate
+\item{Z}{numeric matrix with \code{p} columns and \code{n}
+rows storing the covariate
 information}
 
 \item{binom.link}{the link  function used for simulation}
@@ -61,24 +73,32 @@ information}
 \value{
 The function returns a list of following objects
 \itemize{
-\item \code{S} the true methylation counts; a numeric matrix of \code{n} rows and
+\item \code{S} the true methylation counts; a numeric matrix
+of \code{n} rows and
 \code{p} columns
-\item \code{Y} the observed methylation counts; a numeric matrix of \code{n} rows and
+\item \code{Y} the observed methylation counts; a numeric
+matrix of \code{n} rows and
 \code{p} columns
-\item \code{theta} the methylation parameter (after the logit transformation); a
+\item \code{theta} the methylation parameter (after the logit
+transformation); a
 numeric matrix of \code{n} rows and \code{p} columns
-\item \code{pi} the true methylation proportions used to simulate the data; a numeric
+\item \code{pi} the true methylation proportions used to
+simulate the data; a numeric
 matrix of \code{n} rows and \code{p} columns
 }
 }
 \description{
-Simulate Bisulfite sequencing data from a Generalized Additive Model
+Simulate Bisulfite sequencing data from a
+Generalized Additive Model
 with functional parameters varying
-with the genomic position. Both the true methylated counts and observed methylated
+with the genomic position. Both the true methylated counts
+and observed methylated
 counts are generated,
-given the error/conversion rate parameters \code{p0} and \code{p1}. In addition,
+given the error/conversion rate parameters \code{p0} and
+\code{p1}. In addition,
 the true methylated counts can be simulated
-from a binomial or a dispersed binomial distribution (Beta-binomial distribution).
+from a binomial or a dispersed binomial distribution
+(Beta-binomial distribution).
 }
 \examples{
 #------------------------------------------------------------#
@@ -86,9 +106,11 @@ data(RAdat)
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 out <- binomRegMethModel(
    data=RAdat.f, n.k=rep(5, 3), p0=0, p1=1,
-   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE, RanEff = FALSE
+   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200,
+   detail=FALSE, RanEff = FALSE
 )
-Z = as.matrix(RAdat.f[match(unique(RAdat.f$ID), RAdat.f$ID),c('T_cell', 'RA')])
+Z = as.matrix(RAdat.f[match(unique(RAdat.f$ID), RAdat.f$ID),
+c('T_cell', 'RA')])
 set.seed(123)
 X = matrix(sample(80, nrow(Z)*length(out$uni.pos), replace = TRUE),
 nrow = nrow(Z), ncol = length(out$uni.pos))+10

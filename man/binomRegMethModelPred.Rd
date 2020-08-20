@@ -10,10 +10,12 @@ binomRegMethModelPred(BEM.obj, newdata = NULL, type = "proportion")
 \arguments{
 \item{BEM.obj}{an output from the function \code{binomRegMethModel}}
 
-\item{newdata}{the data set whose predictions are calculated; with columns
+\item{newdata}{the data set whose predictions are calculated; with
+columns
 'Position', and covariate names that can be matched to the BEM.obj}
 
-\item{type}{return the predicted methylation proportion or the predicted
+\item{type}{return the predicted methylation proportion or the
+predicted
 response (in logit or other binom.link scale)}
 }
 \value{

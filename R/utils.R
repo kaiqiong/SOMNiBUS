@@ -10,19 +10,21 @@
 #' @param gam_smoothMat the smooth matrix from the final gam fit
 #' @param Z covariate matrix
 #' @param pred.pi predicted methylation probability from the final fit
-#' @param p0 the probability of observing a methylated read when the underlying
+#' @param p0 the probability of observing a methylated read when the
+#' underlying
 #' true status is unmethylated. \code{p0} is the rate
 #' of false methylation calls, i.e. false positive rate.
-#' @param p1 the probability of observing a methylated read when the underlying
+#' @param p1 the probability of observing a methylated read when the
+#' underlying
 #' true status is methylated. \code{1-p1} is the rate
 #' of false non-methylation calls, i.e. false negative rate.
 #' @param disp_est estimated dispersion parameter
 #' @param RanEff whether a subject-level Random effect is added or not
 #' @param N number of unique samples in the provided dataset
 #' @return a Hessian matrix for all alphas (including the alphas for RE)
-#' @references Zhao, Kaiqiong, et al. 'A novel statistical method for modeling
-#' covariate effects in bisulfite sequencing derived measures of DNA methylation.
-#' 'Biometrics (2020).
+#' @references Zhao, Kaiqiong, et al. 'A novel statistical method for
+#' modeling  covariate effects in bisulfite sequencing derived measures
+#' of DNA methylation.'Biometrics (2020).
 #' @author  Kaiqiong Zhao
 #' @importFrom Matrix bdiag
 #' @noRd

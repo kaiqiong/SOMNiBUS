@@ -7,80 +7,128 @@
 #' dispersion across loci is accounted for in the model by the combination
 #' of a multiplicative dispersion parameter (or scale parameter) and a
 #' sample-specific random effect.
-#' @description This method can deal with outcomes, i.e. the number of methylated
-#' reads in a region, that are contaminated by known false methylation calling rate
-#' (\code{p0}) and false non-methylation calling rate (\code{1-p1}).
-#' @description The covariate effects are assumed to smoothly vary across genomic
-#' regions. In order to estimate them, the algorithm first represents the functional
-#' paramters by a linear combination of a set of restricted cubic splines
-#' (with dimention \code{n.k}), and a smoothness penalization term which depends on
-#' the smoothing parameters \code{lambdas} is also added to control smoothness.
-#' The estimation is performed by an iterated EM algorithm. Each M step constitutes
-#' an outer Newton's iteration to estimate smoothing parameters \code{lambdas} and an
-#' inner P-IRLS iteration to estimate spline coefficients \code{alpha} for the covariate
-#' effects. Currently, the computation in the M step depends the implementation of
+#' @description This method can deal with outcomes, i.e. the number of
+#' methylated reads in a region, that are contaminated by known
+#' false methylation calling rate (\code{p0}) and false non-methylation
+#' calling rate (\code{1-p1}).
+#' @description The covariate effects are assumed to smoothly vary across
+#' genomic regions. In order to estimate them, the algorithm first
+#' represents the functionalparamters by a linear combination
+#' of a set of restricted cubic splines (with dimention
+#' \code{n.k}), and a smoothness penalization term
+#' which depends on the smoothing parameters \code{lambdas} is also
+#' added to control smoothness.
+#' The estimation is performed by an iterated EM algorithm. Each
+#' M step constitutes
+#' an outer Newton's iteration to estimate smoothing parameters
+#' \code{lambdas} and an
+#' inner P-IRLS iteration to estimate spline coefficients
+#' \code{alpha} for the covariate
+#' effects. Currently, the computation in the M step depends the
+#' implementation of
 #' \code{gam()} in package \code{mgcv}.
-#' @param data a data frame with rows as individual CpGs appeared in all the samples. The
-#' first 4 columns should contain the information of `Meth_Counts` (methylated counts),
-#' `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID`
-#' (sample ID). The covariate information, such as disease status or cell type composition,
+#' @param data a data frame with rows as individual CpGs appeared
+#' in all the samples. The
+#' first 4 columns should contain the information of `Meth_Counts`
+#' (methylated counts),
+#' `Total_Counts` (read depths), `Position` (Genomic position for
+#' the CpG site) and `ID`
+#' (sample ID). The covariate information, such as disease status
+#' or cell type composition,
 #' are listed in column 5 and onwards.
-#' @param n.k a vector of basis dimensions for the intercept and individual covariates.
-#' \code{n.k} specifies an upper limit of the degrees of each functional parameters.
-#' @param p0 the probability of observing a methylated read when the underlying true
-#' status is unmethylated. \code{p0} is the rate of false methylation calls, i.e.
+#' @param n.k a vector of basis dimensions for the intercept and
+#' individual covariates.
+#' \code{n.k} specifies an upper limit of the degrees of each
+#' functional parameters.
+#' @param p0 the probability of observing a methylated read when
+#' the underlying true
+#' status is unmethylated. \code{p0} is the rate of false
+#' methylation calls, i.e.
 #' false positive rate.
-#' @param p1 the probability of observing a methylated read when the underlying true
-#' status is methylated. \code{1-p1} is the rate of false non-methylation calls, i.e.
+#' @param p1 the probability of observing a methylated read when
+#' the underlying true
+#' status is methylated. \code{1-p1} is the rate of false
+#' non-methylation calls, i.e.
 #' false negative rate.
-#' @param covs a vector of covariate names. The covariates with names in \code{covs} will
-#' be included in the model and their covariate effects will be estimated. The default
+#' @param covs a vector of covariate names. The covariates with
+#' names in \code{covs} will
+#' be included in the model and their covariate effects will be
+#' estimated. The default
 #' is to fit all covariates in \code{data}
-#' @param Quasi whether a Quasi-likelihood estimation approach will be used; in other
-#' words, whether a multiplicative dispersion is added in the model or not.
-#' @param epsilon numeric; stopping criterion for the closeness of estimates of spline
+#' @param Quasi whether a Quasi-likelihood estimation approach
+#' will be used; in other
+#' words, whether a multiplicative dispersion is added in the
+#' model or not.
+#' @param epsilon numeric; stopping criterion for the closeness of
+#' estimates of spline
 #' coefficients from two consecutive iterations.
-#' @param epsilon.lambda numeric; stopping criterion for the closeness of estimates of
-#' smoothing parameter \code{lambda} from two consecutive iterations.
-#' @param maxStep the algorithm will step if the iteration steps exceed \code{maxStep}
+#' @param epsilon.lambda numeric; stopping criterion for the
+#' closeness of estimates of smoothing parameter \code{lambda}
+#' from two consecutive iterations.
+#' @param maxStep the algorithm will step if the iteration steps
+#' exceed \code{maxStep}
 #' @param detail indicate whether print the number of iterations
-#' @param binom.link the link function used in the binomial regression model; the default
+#' @param binom.link the link function used in the binomial
+#' regression model; the default
 #' is the logit link
-#' @param method the method used to estimate the smoothing parameters. The default is the
-#' 'REML' method which is generally better than prediction based criterion \code{GCV.cp}
+#' @param method the method used to estimate the smoothing
+#' parameters. The default is the
+#' 'REML' method which is generally better than prediction based
+#' criterion \code{GCV.cp}
 #' @param RanEff whether sample-level random effects are added or not
-#' @param reml.scale whether a REML-based scale (dispersion) estimator is used. The
+#' @param reml.scale whether a REML-based scale (dispersion)
+#' estimator is used. The
 #' default is Fletcher-based estimator
-#' @param scale nagative values mean scale paramter should be estimated; if a positive
+#' @param scale nagative values mean scale paramter should be
+#' estimated; if a positive
 #' value is provided, a fixed scale will be used.
 #' @return This function return a \code{list} including objects:
 #' \itemize{
-#' \item \code{est}: estimates of the spline basis coefficients \code{alpha}
-#' \item \code{lambda}: estimates of the smoothing parameters for each functional paramters
-#' \item \code{est.pi}: predicted methylation levels for each row in the input \code{data}
-#' \item \code{ite.points}: estimates of \code{est}, \code{lambda} at each EM iteration
-#' \item \code{cov1}: estimated variance-covariance matrix of the basis coefficients \code{alphas}
-#' \item \code{reg.out}: regional testing output obtained using Fletcher-based dispersion
+#' \item \code{est}: estimates of the spline basis coefficients
+#' \code{alpha}
+#' \item \code{lambda}: estimates of the smoothing parameters
+#' for each functional paramters
+#' \item \code{est.pi}: predicted methylation levels for each
+#' row in the input \code{data}
+#' \item \code{ite.points}: estimates of \code{est}, \code{lambda}
+#' at each EM iteration
+#' \item \code{cov1}: estimated variance-covariance matrix of the
+#' basis coefficients \code{alphas}
+#' \item \code{reg.out}: regional testing output obtained using
+#' Fletcher-based dispersion
 #' estimate; an additional 'ID' row would appear if RanEff is TRUE
-#' \item \code{reg.out.reml.scale}:regional testing output obtained using REML-based
+#' \item \code{reg.out.reml.scale}:regional testing output obtained
+#' sing REML-based
 #' dispersion estimate;
-#' \item \code{reg.out.gam}:regional testing output obtained using (Fletcher-based)
+#' \item \code{reg.out.gam}:regional testing output obtained using
+#' (Fletcher-based)
 #' dispersion estimate from mgcv package;
-#' \item \code{phi_fletcher}: Fletcher-based estimate of the (multiplicative) dispersion
+#' \item \code{phi_fletcher}: Fletcher-based estimate of the
+#' (multiplicative) dispersion
 #' parameter
-#' \item \code{phi_reml}: REML-based estimate of the (multiplicative) dispersion parameter
-#' \item \code{phi_gam}: Estimated dispersion parameter reported by mgcv
-#' \item \code{SE.out}: a matrix of the estimated pointwise Standard Errors (SE); number
-#' of rows are the number of unique CpG sites in the input data and the number of columns
-#' equal to the total number of covariates fitted in the model (the first one is the intercept)
-#' \item \code{SE.out.REML.scale}: a matrix of the estimated pointwise Standard Errors (SE);
+#' \item \code{phi_reml}: REML-based estimate of the (multiplicative)
+#' dispersion parameter
+#' \item \code{phi_gam}: Estimated dispersion parameter reported by
+#' mgcv
+#' \item \code{SE.out}: a matrix of the estimated pointwise Standard
+#' Errors (SE); number
+#' of rows are the number of unique CpG sites in the input data and
+#' the number of columns
+#' equal to the total number of covariates fitted in the model
+#' (the first one is the intercept)
+#' \item \code{SE.out.REML.scale}: a matrix of the estimated
+#' pointwise Standard Errors (SE);
 #' the SE calculated from the REML-based dispersion estimates
-#' \item \code{uni.pos}: the genomic postions for each row of CpG sites in the matrix \code{SE.out}
-#' \item \code{Beta.out}: a matrix of the estimated covariate effects beta(t), here t
+#' \item \code{uni.pos}: the genomic postions for each row of
+#' CpG sites in the matrix \code{SE.out}
+#' \item \code{Beta.out}: a matrix of the estimated covariate
+#' effects beta(t), here t
 #' denots the genomic positions.
-#' \item \code{ncovs}: number of functional paramters in the model (including the
+#' \item \code{ncovs}: number of functional paramters in the model
+#' (including the
 #' intercept)
-#' \item \code{sigma00}: estimated variance for the random effect if RanEff is TRUE;
+#' \item \code{sigma00}: estimated variance for the random effect
+#' if RanEff is TRUE;
 #' NA if RanEff is FALSE
 #' }
 #' @author  Kaiqiong Zhao
@@ -92,15 +140,16 @@
 #' RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 #' out <- binomRegMethModel(
 #'   data=RAdat.f, n.k=rep(5, 3), p0=0.003307034, p1=0.9,
-#'   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE
+#'   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200,
+#'   detail=FALSE
 #' )
 #' @importFrom mgcv gam
 #' @importFrom mgcv predict.gam
 #' @importFrom mgcv model.matrix.gam
 #' @importFrom mgcv s
 #' @importFrom Matrix bdiag
-#' @importFrom stats as.formula binomial pchisq rbinom rnorm quasibinomial
-#' residuals predict model.matrix runif
+#' @importFrom stats as.formula binomial pchisq rbinom rnorm
+#' quasibinomial residuals predict model.matrix runif
 #'
 #' @export
 binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
@@ -220,20 +269,25 @@ binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
 }
 #' @title Get the basis matrix for beta0(t) and beta(t)
 #'
-#' @description This function aims to extract the basis matrix BZ, and BZ.beta from the
-#' expansion beta0(t) = BZ * alpha0
+#' @description This function aims to extract the basis matrix BZ,
+#' and BZ.beta from the expansion beta0(t) = BZ * alpha0
 #' and beta(t) = BZ.beta * alpha.
-#' @param Posit  the column 'Posit' from the input data frame \code{data}
-#' @param my.design.matrix the design matrix for a \code{fitGamOut} with data as input
+#' @param Posit  the column 'Posit' from the input data frame
+#' \code{data}
+#' @param my.design.matrix the design matrix for a \code{fitGamOut}
+#' with data as input
 #' and Z as covariates.
 #' @param ncolsZ number of columns of covariate matrix Z
 
 #' @return This function return a \code{list} including objects:
 #' \itemize{
-#' \item \code{uni.pos} the unique genomic positions present in the data
-#' \item \code{BZ} basis matrix for the intercept beta0(t); a matrix with
+#' \item \code{uni.pos} the unique genomic positions present in
+#' the data
+#' \item \code{BZ} basis matrix for the intercept beta0(t); a
+#' matrix with
 #' \code{length(uni.pos)} rows and \code{length(alpha0)} columns
-#' \item \code{BZ.beta} a list of length \code{ncolsZ}; each corresponds to the basis
+#' \item \code{BZ.beta} a list of length \code{ncolsZ}; each
+#' corresponds to the basis
 #' matrix for beta_p(t), p = 1, 2, .. \code{ncolsZ}
 #' }
 #' @author  Kaiqiong Zhao, Simon Laurin-Lemay
@@ -257,16 +311,21 @@ estimateBZ <- function(Posit, my.design.matrix, ncolsZ, n.k) {
 #' present in the input data; only extract the fixed effect estimates
 #' @param BZ basis matrix for the intercept beta0(t); a matrix with
 #' \code{length(uni.pos)} rows and \code{length(alpha0)} columns
-#' @param BZ.beta a list of length \code{ncolsZ}; each corresponds to the basis matrix
+#' @param BZ.beta a list of length \code{ncolsZ}; each corresponds
+#' to the basis matrix
 #' for beta_p(t)
-#' @param n.k a vector of basis dimensions for the intercept and individual
-#' covariates. \code{n.k} specifies an upper limit of the degrees of each functional
+#' @param n.k a vector of basis dimensions for the intercept and
+#' individual
+#' covariates. \code{n.k} specifies an upper limit of the degrees
+#' of each functional
 #' parameters.
 #' @param Z a covariate matrix
 #' @param out an object from \code{binomRegMethModelUpdate}
-#' @return \code{Beta.out}: a matrix of the estimated covariate effects beta(t),
+#' @return \code{Beta.out}: a matrix of the estimated covariate
+#' effects beta(t),
 #' here t denots the unique genomic positions for intercept
-#' and all covariates. Beta.out = cbind(beta.0(t), beta.1(t), ... beta.P(t));
+#' and all covariates. Beta.out = cbind(beta.0(t), beta.1(t), ...
+#' beta.P(t));
 #' \code{length(uni.pos)} rows and \code{ncol(Z)+1} columns
 #' @author Kaiqiong Zhao, Simon Laurin-Lemay
 #' @noRd
@@ -286,21 +345,29 @@ estimateBeta <- function(BZ, BZ.beta, n.k, Z, out) {
     return(Beta.out)
 }
 
-#' @title binomRegMethModelSummary Extract the regional testing results from a GamObj
+#' @title binomRegMethModelSummary Extract the regional testing
+#' results from a GamObj
 #'
-#' @description Extract the regional testing results from a GamObj
+#' @description Extract the regional testing results from a
+#' GamObj
 #' @param GamObj an fit from mgcv::gam
-#' @param var.cov.alpha Estimated variance-covariance matrix for coefficients alpha
+#' @param var.cov.alpha Estimated variance-covariance matrix
+#' for coefficients alpha
 #' @param new.par Estimated coefficients alpha
-#' @param edf.out Effective degrees of freedom for each alpha, calculated from the
+#' @param edf.out Effective degrees of freedom for each alpha,
+#' calculated from the
 #' trace of the hat matrix
-#' @param edf1.out Effective degrees of freedom 2, calculated from tr(2A - A^2); good
+#' @param edf1.out Effective degrees of freedom 2, calculated
+#' from tr(2A - A^2); good
 #' for chisquare test
 #' @param X_d R from the QR decomposition for the design matrix
-#' @param resi_df Residual degrees of freedom; nrow(data) - sum(edf.out)
-#' @param Quasi Whether a multiplicative dispersion parameter is added or not;
+#' @param resi_df Residual degrees of freedom; nrow(data) -
+#' sum(edf.out)
+#' @param Quasi Whether a multiplicative dispersion parameter
+#' is added or not;
 #' quasibinomial or binomial
-#' @param scale nagative values mean scale paramter should be estimated;
+#' @param scale nagative values mean scale paramter should be
+#' estimated;
 #' if a positive value is provided, a fixed scale will be used.
 #' @param RanEff Whether a subject random effect is added or not
 #' @param Z covariate matrix; \code{Z = data[,-c(1:4)]}
@@ -322,8 +389,7 @@ binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out,
         ## extract alternative edf estimate for this smooth, if possible...
         edf1i <- sum(edf1.out[start:stop])
         Xt <- X_d[, start:stop, drop = FALSE]
-        fx <- if (inherits(GamObj$smooth[[i]], "tensor.smooth") &&
-                  !is.null(GamObj$smooth[[i]]$fx)) {
+        fx <- if (inherits(GamObj$smooth[[i]], "tensor.smooth") && !is.null(GamObj$smooth[[i]]$fx)) {
             all(GamObj$smooth[[i]]$fx)
         } else {
             GamObj$smooth[[i]]$fixed
@@ -387,15 +453,22 @@ binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out,
 
 #' @title Some checks for binomRegMethModelChecks
 #'
-#' @description Check if inputs fit one anoter according to there shapes
-#' @param data a data frame with rows as individual CpGs appeared in all the samples.
-#' The first 4 columns should contain the information of `Meth_Counts` (methylated counts),
-#' `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID`
-#' (sample ID). The covariate information, such as disease status or cell type composition
+#' @description Check if inputs fit one anoter according to
+#' there shapes
+#' @param data a data frame with rows as individual CpGs
+#' appeared in all the samples.
+#' The first 4 columns should contain the information of
+#' `Meth_Counts` (methylated counts),
+#' `Total_Counts` (read depths), `Position` (Genomic
+#' position for the CpG site) and `ID`
+#' (sample ID). The covariate information, such as
+#' disease status or cell type composition
 #' are listed in column 5 and onwards.
 #' @param Z matrix for the covariate information
-#' @param n.k a vector of basis dimensions for the intercept and individual covariates.
-#' \code{n.k} specifies an upper limit of the degrees of each functional parameters.
+#' @param n.k a vector of basis dimensions for the
+#' intercept and individual covariates.
+#' \code{n.k} specifies an upper limit of the degrees
+#' of each functional parameters.
 #' @author Simon Laurin-Lemay, Kaiqiong Zhao
 #' @noRd
 binomRegMethModelChecks <- function(data, Z, n.k) {
@@ -418,21 +491,31 @@ binomRegMethModelChecks <- function(data, Z, n.k) {
 #' @title Init for binomRegMethModel
 #'
 #' @description Initialize data
-#' @param data a data frame with rows as individual CpGs appeared in all the samples.
-#' The first 4 columns should contain the information of `Meth_Counts` (methylated counts),
-#' `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID`
-#' (sample ID). The covariate information, such as disease status or cell type composition
+#' @param data a data frame with rows as individual CpGs
+#' appeared in all the samples.
+#' The first 4 columns should contain the information of
+#' `Meth_Counts` (methylated counts),
+#' `Total_Counts` (read depths), `Position` (Genomic position
+#' for the CpG site) and `ID`
+#' (sample ID). The covariate information, such as disease
+#' status or cell type composition
 #' are listed in column 5 and onwards.
-#' @param covs  vector of covariate names. The covariates with names in \code{covs} will
+#' @param covs  vector of covariate names. The covariates
+#' with names in \code{covs} will
 #' be included in the model and their covariate
-#' effects will be estimated. The default is to fit all covariates in \code{data}
-#' @param n.k a vector of basis dimensions for the intercept and individual covariates.
-#' \code{n.k} specifies an upper limit of the degrees of each functional parameters.
+#' effects will be estimated. The default is to fit all
+#' covariates in \code{data}
+#' @param n.k a vector of basis dimensions for the intercept
+#' and individual covariates.
+#' \code{n.k} specifies an upper limit of the degrees of each
+#' functional parameters.
 #' @return This function return a \code{list} including objects:
 #' \itemize{
-#' \item \code{data}: the first four columns are 'Y', 'X', 'Posit' and 'ID'; and the rest
+#' \item \code{data}: the first four columns are 'Y', 'X',
+#' 'Posit' and 'ID'; and the rest
 #' are covariate values
-#' \item \code{Z}: the matrix obtained by removing the first 4 columns of data
+#' \item \code{Z}: the matrix obtained by removing the first
+#' 4 columns of data
 #' }
 #' @author Kaiqiong Zhao, Simon Laurin-Lemay
 #' @noRd
@@ -470,30 +553,47 @@ binomRegMethModelInit <- function(data, covs, n.k) {
 #' @title Fit gam for the initial value
 #'
 #' @description Fit gam for the initial value
-#' @param data a data frame with rows as individual CpGs appeared in all the samples.
-#' The first 4 columns should contain the information of `Meth_Counts` (methylated counts),
-#' `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and `ID`
-#' (sample ID). The covariate information, such as disease status or cell type composition
+#' @param data a data frame with rows as individual CpGs
+#' appeared in all the samples.
+#' The first 4 columns should contain the information of
+#' `Meth_Counts` (methylated counts),
+#' `Total_Counts` (read depths), `Position` (Genomic
+#' position for the CpG site) and `ID`
+#' (sample ID). The covariate information, such as
+#' disease status or cell type composition
 #' are listed in column 5 and onwards.
-#' @param Quasi whether a Quasi-likelihood estimation approach will be used
-#' @param binom.link the link function used in the binomial regression model; the
+#' @param Quasi whether a Quasi-likelihood estimation
+#' approach will be used
+#' @param binom.link the link function used in the
+#' binomial regression model; the
 #' default is the logit link
-#' @param method the method used to estimate the smoothing parameters. The default
-#' is the 'REML' method which is generally better than prediction based criterion
+#' @param method the method used to estimate the
+#' smoothing parameters. The default
+#' is the 'REML' method which is generally better than
+#' prediction based criterion
 #' \code{GCV.cp}
-#' @param RanEff whether sample-level random effects are added or not
-#' @param scale nagative values mean scale paramter should be estimated; if a positive
+#' @param RanEff whether sample-level random effects
+#' are added or not
+#' @param scale nagative values mean scale paramter
+#' should be estimated; if a positive
 #' value is provided, a fixed scale will be used.
 #' @param Z covariate matrix
-#' @param n.k  a vector of basis dimensions for the intercept and individual covariates.
+#' @param n.k  a vector of basis dimensions for the
+#' intercept and individual covariates.
 #' \code{n.k} specifies an upper limit of the
 #' degrees of each functional parameters
-#' @return This function return a \code{list} including objects:
+#' @return This function return a \code{list}
+#' including objects:
 #' \itemize{
-#' \item \code{data}: a data frame with rows as individual CpGs appeared in all the
-#' samples. The first 4 columns should contain the information of `Meth_Counts`
-#' (methylated counts), `Total_Counts` (read depths), `Position` (Genomic position
-#' for the CpG site) and `ID` (sample ID). The covariate information, such as disease
+#' \item \code{data}: a data frame with rows as individual
+#' CpGs appeared
+#' in all the
+#' samples. The first 4 columns should contain the information
+#' of `Meth_Counts`
+#' (methylated counts), `Total_Counts` (read depths), `Position
+#' (Genomic position
+#' for the CpG site) and `ID` (sample ID). The covariate information,
+#' such as disease
 #' status or cell type composition are listed in column 5 and onwards.
 #' \item \code{gam.int}: a gam object from mgcv::gam
 #' \item \code{my.covar.fm}: the formula used to fit the gam
@@ -527,20 +627,28 @@ fitGam <- function(data, Quasi, binom.link, method, RanEff, scale, Z, n.k) {
     }
 }
 
-#' @title phiFletcher calculate the Fletcher-based dispersion estimate from the final
-#' gam output
+#' @title phiFletcher calculate the Fletcher-based dispersion
+#' estimate from the final gam output
 #'
-#' @description phiFletcher calculate the Fletcher-based dispersion estimate from the
+#' @description phiFletcher calculate the Fletcher-based dispersion
+#' estimate from the
 #' final gam output
-#' @param data a data frame with rows as individual CpGs appeared in all the samples.
-#' The first 4 columns should contain the information of `Meth_Counts` (methylated counts),
-#' `Total_Counts` (read depths), `Position` (Genomic position for the CpG site) and
-#' `ID` (sample ID). The covariate information, such as disease status or cell type
+#' @param data a data frame with rows as individual CpGs appeared
+#' in all the samples.
+#' The first 4 columns should contain the information of `Meth_Counts`
+#' (methylated counts),
+#' `Total_Counts` (read depths), `Position` (Genomic position for the
+#' CpG site) and
+#' `ID` (sample ID). The covariate information, such as disease
+#' status or cell type
 #' composition are listed in column 5 and onwards.
-#' @param Quasi whether a Quasi-likelihood estimation approach will be used
-#' @param reml.scale whether a REML-based scale (dispersion) estimator is used. The default
+#' @param Quasi whether a Quasi-likelihood estimation approach
+#' will be used
+#' @param reml.scale whether a REML-based scale (dispersion)
+#' estimator is used. The default
 #' is Fletcher-based estimator
-#' @param scale nagative values mean scale paramter should be estimated; if a positive value
+#' @param scale nagative values mean scale paramter should be estimated;
+#' if a positive value
 #' is provided, a fixed scale will be used.
 #' @param gam.int a gam object from mgcv::gam
 #' @return This function return a \code{phi_fletcher} object:
@@ -582,8 +690,8 @@ phiFletcher <- function(data, Quasi, reml.scale, scale, gam.int) {
 #'
 #' @description extract design matrix
 #' @param GamObj a mgcv object
-#' @return This function return a design matrix \code{X_d}: R matrix from the QR
-#' decomposition
+#' @return This function return a design matrix \code{X_d}: R matrix
+#' from the QR decomposition
 #' @importFrom mgcv predict.gam
 #' @importFrom mgcv model.matrix.gam
 #' @author Kaiqiong Zhao Simon Laurin-Lemay

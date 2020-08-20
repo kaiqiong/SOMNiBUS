@@ -1,29 +1,47 @@
-#' @title One-step update inside the EM algorithm for fitting the functional parameter
+#' @title One-step update inside the EM algorithm for fitting the
+#' functional parameter
 #' theta.0 and beta.
 #'
-#' @description Since the presence of conversion errors, the true methylated counts at
-#' a CpG sites are unknown. The first step inside this function is the E-step, calculating
-#' the conditional expectation of methylated counts given the observed counts. Then the
-#' second step involves maximizing the penalized likelihood using the avaialbe function
-#' \code{gam} in Package \code{mgcv}. This function fits the model where there is no
-#' random effect for individuals. Thus, the log-likelihood are sum of two parts; one
-#' is the normal approximated log-likelihood for binomial outcomes and the second part
-#' quantifies the penalization of the wiggliness of two functional parameters theta.0
+#' @description Since the presence of conversion errors, the true
+#' methylated counts at
+#' a CpG sites are unknown. The first step inside this function is
+#' the E-step, calculating
+#' the conditional expectation of methylated counts given the
+#' observed counts. Then the
+#' second step involves maximizing the penalized likelihood using
+#' the avaialbe function
+#' \code{gam} in Package \code{mgcv}. This function fits the model
+#' where there is no
+#' random effect for individuals. Thus, the log-likelihood are sum
+#' of two parts; one
+#' is the normal approximated log-likelihood for binomial outcomes
+#' and the second part
+#' quantifies the penalization of the wiggliness of two functional
+#' parameters theta.0
 #' and beta.
-#' @param data a matrix with  \code{n*p} rows and the columns should include Y, X, Posit,
+#' @param data a matrix with  \code{n*p} rows and the columns should
+#' include Y, X, Posit,
 #' Ctype and ID
-#' @param pi.ij  an initial value (or value from last step) for the fitted probability
+#' @param pi.ij  an initial value (or value from last step) for the
+#' fitted probability
 #' \code{pi_ij} for each CpG site of each individual
-#' @param p0 the probability of observing a methylated read when the underlying true
+#' @param p0 the probability of observing a methylated read when the
+#' underlying true
 #' status is unmethylated.
-#' @param p1 the probability of observing a methylated read when the underlying true
+#' @param p1 the probability of observing a methylated read when the
+#' underlying true
 #' status is methylated.
-#' @param n.k a vector of basis dimensions for the intercept and individual covariates.
-#' \code{n.k} specifies an upper limit of the degrees of each functional parameters.
-#' @param binom.link the link function used in the binomial regression model; the default
+#' @param n.k a vector of basis dimensions for the intercept and
+#' individual covariates.
+#' \code{n.k} specifies an upper limit of the degrees of each
+#' functional parameters.
+#' @param binom.link the link function used in the binomial
+#' regression model; the default
 #' is the logit link
-#' @param method the method used to estimate the smoothing parameters. The default is the
-#' 'REML' method which is generally better than prediction based criterion \code{GCV.cp}
+#' @param method the method used to estimate the smoothing
+#' parameters. The default is the
+#' 'REML' method which is generally better than prediction
+#' based criterion \code{GCV.cp}
 #' @param Z the covariate matrix used in binomRegMethModel
 #' @param my.covar.fm the formula fitted in the GAM
 #' @param Quasi Lorem ipsum dolor sit amet
@@ -33,7 +51,8 @@
 #' \item \code{pi.ij} fitted methylation proportions
 #' \item \code{par} updated basis coefficients
 #' \item \code{lambda} updated smoothing parameters
-#' \item \code{edf1} Effective degree of freedoms for each smooth terms in the model
+#' \item \code{edf1} Effective degree of freedoms for each
+#' smooth terms in the model
 #' }
 #' @author  Kaiqiong Zhao
 #' @importFrom mgcv gam
@@ -77,10 +96,13 @@ binomRegMethModelUpdate <- function(data, pi.ij, p0, p1, n.k, binom.link,
 
 #' @title Some checks for binomRegMethModelUpdate
 #'
-#' @description Check if inputs fit one anoter according to there shapes
-#' @param data a matrix with  \code{n*p} rows and the columns should include Y,
+#' @description Check if inputs fit one anoter according
+#' to there shapes
+#' @param data a matrix with  \code{n*p} rows and the columns
+#' should include Y,
 #' X, Posit, Ctype and ID
-#' @param pi.ij  an initial value (or value from last step) for the fitted probability
+#' @param pi.ij  an initial value (or value from last step) for
+#' the fitted probability
 #' \code{pi_ij} for each CpG site of each individual
 #' @author SLL
 #' @noRd
