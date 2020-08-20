@@ -17,7 +17,7 @@
 #' @param p0 the probability of observing a methylated read when the underlying true status is unmethylated.
 #' @param p1 the probability of observing a methylated read when the underlying true status is methylated.
 #' @param X the matrix of the read coverage for each CpG in each sample; a matrix of n rows and \code{p} columns
-#' @param Z numeric vector of length p for the covariate; currently, the covariate is the percentage of Cell type A (considering that the samples are composed of two cell types A and B); Z can be a matrix; we allow for more than one covariates
+#' @param Z numeric matrix with \code{p} columns and \code{n} rows storing the covariate information
 #' @param binom.link the link  function used for simulation
 #' @return The function returns a list of following objects
 #' \itemize{

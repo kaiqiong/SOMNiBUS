@@ -14,8 +14,8 @@ A data frame of 6064 rows and 13 columns. Each row represents a CpG site for a s
 \item{ACPA4}{binary indicator for a biomarker anti-citrullinated protein antibody}
 \item{Age}{Age}
 \item{Sex}{2-female; 1-male}
-\item{Smoking}{Lorem ipsum dolor sit amet}
-\item{Smoking_NA}{Lorem ipsum dolor sit amet}
+\item{Smoking}{1-current or ex-smoker; 0-non-smoker}
+\item{Smoking_NA}{1-Smoking info is NA; 0-Smoking info is available}
 \item{PC1}{PC1 for the cell type proportions}
 \item{PC2}{PC2 for the cell type proportions}
 \item{PC3}{PC3 for the cell type proportions}
