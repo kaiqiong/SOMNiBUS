@@ -88,8 +88,8 @@ binomRegMethModelSim <- function(n, posit, theta.0, beta, phi, random.eff = FALS
     mu.e = 0, sigma.ee = 1, p0 = 0.003, p1 = 0.9, X, Z, binom.link = "logit") {
     ## some checks on inputs
     
-    binomRegMethModelSimChecks(n = n, posit = posit, Z = Z, X = X, 
-        theta.0 = theta.0, beta = beta)
+    binomRegMethModelSimChecks(n = n, posit = posit, Z = Z, X = X, theta.0 = theta.0, 
+        beta = beta)
     
     ## the random effect term
     if (random.eff == TRUE) {

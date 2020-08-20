@@ -160,13 +160,78 @@ binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
     Z <- initOut$Z
     fitGamOut <- fitGam(data = initOut$data, Quasi = Quasi, binom.link = binom.link, 
         method = method, RanEff = RanEff, scale = scale, Z = Z, n.k = n.k)
-    phi_fletcher <- phiFletcher(data = fitGamOut$data, Quasi = Quasi, 
-        reml.scale = reml.scale, scale = scale, gam.int = fitGamOut$gam.int)
+    phi_fletcher <- phiFletcher(data = fitGamOut$data, Quasi = Quasi, reml.scale = reml.scale, 
+        scale = scale, gam.int = fitGamOut$gam.int)
+    fitEMOut <- fitEM(p0, p1, fitGamOut, n.k, binom.link, method, Z, Quasi, 
+        scale, reml.scale, phi_fletcher, epsilon, maxStep, detail)
+    out <- fitEMOut$out
+    Est.points <- fitEMOut$Est.points
+    phi_fletcher <- out$phi_fletcher
+    my.design.matrix <- mgcv::model.matrix.gam(out$GamObj)
+    lengthUniqueDataID <- length(unique(fitGamOut$data$ID))
+    phi_reml <- out$GamObj$reml.scale
+    estimateBZOut <- estimateBZ(Posit = fitGamOut$data$Posit, my.design.matrix = my.design.matrix, 
+        ncolsZ = ncol(Z), n.k = n.k)
+    Beta.out <- estimateBeta(BZ = estimateBZOut$BZ, BZ.beta = estimateBZOut$BZ.beta, 
+        n.k = n.k, Z = Z, out = out)
+    estimateVarOut <- estimateVar(out, phi_fletcher, fitGamOut, my.design.matrix, 
+        Z, p0, p1, RanEff, lengthUniqueDataID, n.k)
+    estimateSEOut <- estimateSE(estimateBZOut, Z, estimateVarOut, phi_fletcher, 
+        phi_reml)
+    X_d <- extractDesignMatrix(GamObj = out$GamObj)
+    edf1.out <- out$edf1  ## and p value calculation tr(2A - A^2)
+    edf.out <- out$edf  ## Effective degree of freedom: edf --trace of the hat matrix
+    resi_df <- nrow(fitGamOut$data) - sum(edf.out)
+    s.table <- binomRegMethModelSummary(out$GamObj, estimateVarOut$var.cov.alpha, 
+        out$par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff, 
+        Z)
+    s.table.REML.scale <- binomRegMethModelSummary(out$GamObj, estimateVarOut$var.cov.alpha/phi_fletcher * 
+        phi_reml, out$par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, 
+        RanEff, Z)
+    if (RanEff) {
+        sigma00 <- out$GamObj$reml.scale/out$GamObj$sp["s(ID)"]
+    } else {
+        sigma00 <- NA
+    }
+    return(out <- list(est = out$par, lambda = out$lambda, est.pi = out$pi.ij, 
+        Beta.out = Beta.out, phi_fletcher = phi_fletcher, phi_reml = phi_reml, 
+        phi_gam = out$GamObj$scale, reg.out = s.table, reg.out.reml.scale = s.table.REML.scale, 
+        cov1 = estimateVarOut$var.cov.alpha, reg.out.gam = summary(out$GamObj)$s.table, 
+        SE.out = estimateSEOut$SE.out, SE.out.REML.scale = estimateSEOut$SE.out.REML.scale, 
+        uni.pos = estimateBZOut$uni.pos, ncovs = ncol(Z) + 1, ite.points = Est.points, 
+        sigma00 = sigma00))
+}
+#' @title Run EM algorithm to obtain the estimate of alpha
+#'
+#' @description Run EM algorithm to obtain the estimate of alpha
+#' @param p0 false positive error rates
+#' @param p1 1-p1: false negative error rates
+#' @param fitGamOut an output from fitGam
+#' @param n.k number of knots for all covariates (including intercept)
+#' @param binom.link link for binomial GLM
+#' @param method method to estimate lambda
+#' @param Z covariate matrix
+#' @param Quasi whether quasibinomial is used
+#' @param scale negative means unknown scale; positive means fixed scale
+#' @param reml.scale whether a REML-based scale estimate is used
+#' @param phi_fletcher Fletcher-based scale estimate
+#' @param epsilon stopping criteria
+#' @param maxStep maximum iteration steps
+#' @param detail whether to print out the iteration
+#' @return This function return a \code{list} including objects:
+#' \itemize{
+#' \item \code{out} a list
+#' \item \code{Est.points} a matrix storing the estimate in each step
+#' }
+#' @author Kaiqiong Zhao
+#' @noRd
+fitEM <- function(p0, p1, fitGamOut, n.k, binom.link, method, Z, Quasi, 
+    scale, reml.scale, phi_fletcher, epsilon, maxStep, detail) {
     if (p0 > 0 | p1 < 1) {
         out <- binomRegMethModelUpdate(data = fitGamOut$data, pi.ij = fitGamOut$gam.int$fitted.values, 
-            p0 = p0, p1 = p1, n.k = n.k, binom.link = binom.link, 
-            method = method, Z = Z, my.covar.fm = fitGamOut$my.covar.fm, 
-            Quasi = Quasi, scale = scale, reml.scale = reml.scale)
+            p0 = p0, p1 = p1, n.k = n.k, binom.link = binom.link, method = method, 
+            Z = Z, my.covar.fm = fitGamOut$my.covar.fm, Quasi = Quasi, 
+            scale = scale, reml.scale = reml.scale)
         Est.points <- rbind(c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp, 
             phi_fletcher), c(out$par, out$lambda, out$phi_fletcher))
         old.pi.ij <- fitGamOut$gam.int$fitted.values
@@ -178,99 +243,24 @@ binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
             }
             iter <- iter + 1
             old.pi.ij <- out$pi.ij
-            out <- binomRegMethModelUpdate(data = fitGamOut$data, 
-                pi.ij = old.pi.ij, p0 = p0, p1 = p1, n.k = n.k, binom.link = binom.link, 
-                method = method, Z = Z, my.covar.fm = fitGamOut$my.covar.fm, 
-                Quasi = Quasi, scale = phi_fletcher)
-            Est.points <- rbind(Est.points, c(out$par, out$lambda, 
-                out$phi_fletcher))
+            out <- binomRegMethModelUpdate(data = fitGamOut$data, pi.ij = old.pi.ij, 
+                p0 = p0, p1 = p1, n.k = n.k, binom.link = binom.link, method = method, 
+                Z = Z, my.covar.fm = fitGamOut$my.covar.fm, Quasi = Quasi, 
+                scale = phi_fletcher)
+            Est.points <- rbind(Est.points, c(out$par, out$lambda, out$phi_fletcher))
         }
     } else {
         out <- list(pi.ij = fitGamOut$gam.int$fitted.values, par = fitGamOut$gam.int$coefficients, 
             lambda = fitGamOut$gam.int$sp, edf1 = fitGamOut$gam.int$edf1, 
             pearson_res = residuals(fitGamOut$gam.int, type = "pearson"), 
             deviance_res = residuals(fitGamOut$gam.int, type = "deviance"), 
-            edf = fitGamOut$gam.int$edf, phi_fletcher = phi_fletcher, 
-            GamObj = fitGamOut$gam.int)
+            edf = fitGamOut$gam.int$edf, phi_fletcher = phi_fletcher, GamObj = fitGamOut$gam.int)
         Est.points <- c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp, 
             phi_fletcher)
     }
-    phi_fletcher <- out$phi_fletcher
-    ## Calculate SE of alpha
-    my.design.matrix <- mgcv::model.matrix.gam(out$GamObj)
-    lengthUniqueDataID <- length(unique(fitGamOut$data$ID))
-    phi_reml <- out$GamObj$reml.scale
-    ##------------------------------------------------------------------------
-    ## from the variance-covariance of alpha, to report 1.
-    ## var(beta_p(t)) 2.  Report the chi-square statistic for each
-    ## covariate 3. Report the p-value for each covariate
-    ##------------------------------------------------------------------------
-    estimateBZOut <- estimateBZ(Posit = fitGamOut$data$Posit, my.design.matrix = my.design.matrix, 
-        ncolsZ = ncol(Z), n.k = n.k)
-    Beta.out <- estimateBeta(BZ = estimateBZOut$BZ, BZ.beta = estimateBZOut$BZ.beta, 
-        n.k = n.k, Z = Z, out = out)
-    cum_s <- cumsum(n.k)
-    ## calculate var_cov (for alpha & beta) from the hessianComp matrix
-    w_ij <- out$pi.ij * (1 - out$pi.ij)/phi_fletcher
-    H <- hessianComp(w_ij = w_ij, new.par = out$par, new.lambda = out$lambda, 
-        X = fitGamOut$data$X, Y = fitGamOut$data$Y, my.design.matrix = my.design.matrix, 
-        gam_smoothMat = out$GamObj$smooth, Z = Z, pred.pi = out$pi.ij, 
-        p0 = p0, p1 = p1, disp_est = phi_fletcher, RanEff = RanEff, 
-        N = lengthUniqueDataID)
-    
-    var.cov.alpha <- solve(-H)
-    var.alpha.0 <- var.cov.alpha[seq_len(n.k[1]), seq_len(n.k[1])]
-    var.alpha.sep <- lapply(seq_len(ncol(Z)), function(i) {
-        var.cov.alpha[(cum_s[i] + 1):cum_s[i + 1], (cum_s[i] + 1):cum_s[i + 
-            1]]
-    })
-    
-    SE.out <- cbind(sqrt(pmax(0, rowSums((estimateBZOut$BZ %*% var.alpha.0) * 
-        estimateBZOut$BZ))), vapply(seq_len(ncol(Z)), function(i) {
-        sqrt(pmax(0, rowSums((estimateBZOut$BZ.beta[[i]] %*% var.alpha.sep[[i]]) * 
-            estimateBZOut$BZ.beta[[i]])))
-    }, FUN.VALUE = rep(1, length(estimateBZOut$uni.pos))))
-    
-    rownames(SE.out) <- estimateBZOut$uni.pos
-    colnames(SE.out) <- c("Intercept", colnames(Z))
-    SE.pos <- estimateBZOut$uni.pos
-    SE.out.REML.scael <- SE.out/sqrt(phi_fletcher) * sqrt(phi_reml)
-    
-    ##---------------------------------------------------------------
-    ## calculate the region-based statistic from the testStats function
-    ## in mgcv
-    ##---------------------------------------------------------------
-    
-    X_d <- extractDesignMatrix(GamObj = out$GamObj)
-    
-    ## Effective degrees of freedom: edf1 -- good for chisquare test
-    ## and p value calculation tr(2A - A^2)
-    edf1.out <- out$edf1
-    ## Effective degree of freedom: edf --trace of the hat matrix
-    edf.out <- out$edf
-    ## the residuals degrees of freedom
-    resi_df <- nrow(fitGamOut$data) - sum(edf.out)
-    s.table <- binomRegMethModelSummary(out$GamObj, var.cov.alpha, 
-        out$par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff, 
-        Z)
-    s.table.REML.scale <- binomRegMethModelSummary(out$GamObj, var.cov.alpha/phi_fletcher * 
-        phi_reml, out$par, edf.out, edf1.out, X_d, resi_df, Quasi, 
-        scale, RanEff, Z)
-    if (RanEff) {
-        sigma00 <- out$GamObj$reml.scale/out$GamObj$sp["s(ID)"]
-    } else {
-        sigma00 <- NA
-    }
-    
-    reg.out.gam <- summary(out$GamObj)$s.table
-    
-    return(out <- list(est = out$par, lambda = out$lambda, est.pi = out$pi.ij, 
-        Beta.out = Beta.out, phi_fletcher = phi_fletcher, phi_reml = phi_reml, 
-        phi_gam = out$GamObj$scale, reg.out = s.table, reg.out.reml.scale = s.table.REML.scale, 
-        cov1 = var.cov.alpha, reg.out.gam = reg.out.gam, SE.out = SE.out, 
-        SE.out.REML.scale = SE.out.REML.scael, uni.pos = SE.pos, ncovs = ncol(Z) + 
-            1, ite.points = Est.points, sigma00 = sigma00))
+    return(list(out = out, Est.points = Est.points))
 }
+
 #' @title Get the basis matrix for beta0(t) and beta(t)
 #'
 #' @description This function aims to extract the basis matrix BZ,
@@ -282,7 +272,6 @@ binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
 #' with data as input
 #' and Z as covariates.
 #' @param ncolsZ number of columns of covariate matrix Z
-
 #' @return This function return a \code{list} including objects:
 #' \itemize{
 #' \item \code{uni.pos} the unique genomic positions present in
@@ -303,8 +292,7 @@ estimateBZ <- function(Posit, my.design.matrix, ncolsZ, n.k) {
     BZ <- my.design.matrix[uni.id, seq_len(n.k[1])]
     BZ.beta <- lapply(seq_len(ncolsZ), function(i) {
         mgcv::smooth.construct(mgcv::s(Posit, k = n.k[i + 1], fx = FALSE, 
-            bs = "cr"), data = data.frame(Posit = Posit[uni.id]), 
-            knots = NULL)$X
+            bs = "cr"), data = data.frame(Posit = Posit[uni.id]), knots = NULL)$X
     })
     return(out <- list(uni.pos = uni.pos, BZ = BZ, BZ.beta = BZ.beta))
 }
@@ -349,7 +337,75 @@ estimateBeta <- function(BZ, BZ.beta, n.k, Z, out) {
     colnames(Beta.out) <- c("Intercept", colnames(Z))
     return(Beta.out)
 }
-
+#' @title Estimate the variance covariance matrix
+#'
+#' @description Estimate the variance covariance matrix
+#' @param out an output from the update function
+#' @param phi_fletcher Fletcher-based scale estimate
+#' @param fitGamOut an output from fitGam
+#' @param RanEff whether a RE is considered
+#' @param n.k number of knots for all covariates (including intercept)
+#' @param lengthUniqueDataID number of samples in the data
+#' @param p0 false positive error rates
+#' @param p1 1-p1: false negative error rates
+#' @param Z covariate matrix
+#' @param my.design.matrix design matrix for the all data
+#' @return This function return a \code{list} including objects:
+#' \itemize{
+#' \item \code{var.cov.alpha} var of alpha
+#' \item \code{var.alpha.0} var of alpha0
+#' \item \code{var.alpha.sep} var of alpha_p, p = 1, 2, P
+#' }
+#' @author Kaiqiong Zhao
+#' @noRd
+estimateVar <- function(out, phi_fletcher, fitGamOut, my.design.matrix, 
+    Z, p0, p1, RanEff, lengthUniqueDataID, n.k) {
+    cum_s <- cumsum(n.k)
+    w_ij <- out$pi.ij * (1 - out$pi.ij)/phi_fletcher
+    H <- hessianComp(w_ij = w_ij, new.par = out$par, new.lambda = out$lambda, 
+        X = fitGamOut$data$X, Y = fitGamOut$data$Y, my.design.matrix = my.design.matrix, 
+        gam_smoothMat = out$GamObj$smooth, Z = Z, pred.pi = out$pi.ij, 
+        p0 = p0, p1 = p1, disp_est = phi_fletcher, RanEff = RanEff, N = lengthUniqueDataID)
+    
+    var.cov.alpha <- solve(-H)
+    var.alpha.0 <- var.cov.alpha[seq_len(n.k[1]), seq_len(n.k[1])]
+    var.alpha.sep <- lapply(seq_len(ncol(Z)), function(i) {
+        var.cov.alpha[(cum_s[i] + 1):cum_s[i + 1], (cum_s[i] + 1):cum_s[i + 
+            1]]
+    })
+    return(list(var.alpha.0 = var.alpha.0, var.alpha.sep = var.alpha.sep, 
+        var.cov.alpha = var.cov.alpha))
+}
+#' @title estimate SE of beta(t) for each covariates
+#'
+#' @description estimate SE of beta(t) for each covariates
+#' @param estimateBZOut a final Gam Object
+#' @param Z the ith smooth/covariate to be evaluated
+#' @param estimateVarOut output from estimateVar
+#' @param phi_fletcher Fletcher-based dispersion estimate
+#' @param phi_reml REML-based dispersion estimate
+#' @return This function return a \code{list} including objects:
+#' \itemize{
+#' \item \code{SE.out} SE based on phi_fletcher
+#' \item \code{SE.out.REML.scale} SE based on phi_reml
+#' }
+#' @author Kaiqiong Zhao
+#' @noRd
+estimateSE <- function(estimateBZOut, Z, estimateVarOut, phi_fletcher, 
+    phi_reml) {
+    var.alpha.0 <- estimateVarOut$var.alpha.0
+    var.alpha.sep <- estimateVarOut$var.alpha.sep
+    SE.out <- cbind(sqrt(pmax(0, rowSums((estimateBZOut$BZ %*% var.alpha.0) * 
+        estimateBZOut$BZ))), vapply(seq_len(ncol(Z)), function(i) {
+        sqrt(pmax(0, rowSums((estimateBZOut$BZ.beta[[i]] %*% var.alpha.sep[[i]]) * 
+            estimateBZOut$BZ.beta[[i]])))
+    }, FUN.VALUE = rep(1, length(estimateBZOut$uni.pos))))
+    
+    rownames(SE.out) <- estimateBZOut$uni.pos
+    colnames(SE.out) <- c("Intercept", colnames(Z))
+    SE.out.REML.scale <- SE.out/sqrt(phi_fletcher) * sqrt(phi_reml)
+    return(list(SE.out = SE.out, SE.out.REML.scale = SE.out.REML.scale))
+}
 #' @title binomRegMethModelSummary Extract the regional testing
 #' results from a GamObj
 #'
@@ -380,14 +436,14 @@ estimateBeta <- function(BZ, BZ.beta, n.k, Z, out) {
 #' @seealso  \link[mgcv]{summary.gam}
 #' @import mgcv
 #' @noRd
-binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, 
-    edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff, Z) {
+binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out, 
+    edf1.out, X_d, resi_df, Quasi, scale, RanEff, Z) {
     ii <- 0
     m <- length(GamObj$smooth)
     df <- edf1 <- edf <- s.pv <- chi.sq <- array(0, m)
     for (i in seq_len(m)) {
-        outOneSmooth <- regResOneSmooth(GamObj, i, RanEff, Quasi, 
-            resi_df, var.cov.alpha, new.par, edf.out, edf1.out, X_d)
+        outOneSmooth <- regResOneSmooth(GamObj, i, RanEff, Quasi, resi_df, 
+            var.cov.alpha, new.par, edf.out, edf1.out, X_d)
         res <- outOneSmooth$res
         edf1i <- outOneSmooth$edf1i
         edfi <- outOneSmooth$edfi
@@ -473,9 +529,9 @@ regResOneSmooth <- function(GamObj, i, RanEff, Quasi, resi_df, var.cov.alpha,
         } else {
             NULL
         }
-        ## Test the mth smooth for equality to zero (m is not the RE term)
-        ## and accounting for all random effects in model Inverted Nychka
-        ## interval statistics
+        ## Test the mth smooth for equality to zero (m is not the RE term) and
+        ## accounting for all random effects in model Inverted Nychka interval
+        ## statistics
     } else {
         if (Quasi) {
             rdf <- resi_df
@@ -559,8 +615,8 @@ binomRegMethModelChecks <- function(data, Z, n.k) {
 binomRegMethModelInit <- function(data, covs, n.k) {
     data <- data.frame(data)
     if (is.factor(data$Position)) {
-        ## message('The Position in the data set should be numeric other
-        ## than a factor')
+        ## message('The Position in the data set should be numeric other than a
+        ## factor')
         data$Position <- as.numeric(as.character(data$Position))
     }
     if (any(!c("Meth_Counts", "Total_Counts", "Position") %in% colnames(data))) {
@@ -637,15 +693,14 @@ binomRegMethModelInit <- function(data, covs, n.k) {
 #' }
 #' @author Kaiqiong Zhao, Simon Laurin-Lemay
 #' @noRd
-fitGam <- function(data, Quasi, binom.link, method, RanEff, scale, 
-    Z, n.k) {
+fitGam <- function(data, Quasi, binom.link, method, RanEff, scale, Z, n.k) {
     ## The smoothing formula corresponding to the Z
     formula.z.part <- vapply(seq_len(ncol(Z)), function(i) {
         paste0("s(Posit, k=n.k[", i + 1, "], fx=FALSE, bs=\"cr\", by=Z[,", 
             i, "])")
     }, "")
-    my.covar.fm <- paste(c("s(Posit, k=n.k[1], fx=FALSE, bs=\"cr\")", 
-        formula.z.part), collapse = "+")
+    my.covar.fm <- paste(c("s(Posit, k=n.k[1], fx=FALSE, bs=\"cr\")", formula.z.part), 
+        collapse = "+")
     
     if (RanEff) {
         my.covar.fm <- paste0(my.covar.fm, "+ s(ID, bs=\"re\")")
@@ -659,8 +714,8 @@ fitGam <- function(data, Quasi, binom.link, method, RanEff, scale,
         return(out <- list(data = data, gam.int = gam.int, my.covar.fm = my.covar.fm))
     } else {
         gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)), 
-            family = binomial(link = binom.link), weights = data$X, 
-            data = data, method = method, scale = scale)
+            family = binomial(link = binom.link), weights = data$X, data = data, 
+            method = method, scale = scale)
         return(out <- list(data = data, gam.int = gam.int, my.covar.fm = my.covar.fm))
     }
 }
@@ -703,15 +758,15 @@ phiFletcher <- function(data, Quasi, reml.scale, scale, gam.int) {
         ## * sqrt(data$X)
         my_s <- (1 - 2 * old.pi.ij)/(data$X * old.pi.ij * (1 - old.pi.ij)) * 
             (data$Y - data$X * old.pi.ij)
-        ## Note: the estimator implemented in the mgcv calculated my_s with
-        ## an additional multiplier sqrt(data$X) But from the paper there
-        ## shouldn't be this one phi_p=sum(
-        ## pearsonResiduals^2)/(length(data$Y) - sum(edf.out))
+        ## Note: the estimator implemented in the mgcv calculated my_s with an
+        ## additional multiplier sqrt(data$X) But from the paper there shouldn't
+        ## be this one phi_p=sum( pearsonResiduals^2)/(length(data$Y) -
+        ## sum(edf.out))
         
-        ## Feb 21, 2020 use edf1 to calculate the pearson's dispersion
-        ## estimate not the edf; because I will use the asympototic
-        ## chi-square dist. of phi.est March 3, 2020, the dispersion
-        ## parameter estimated in gam use the edf.out instead of edf1.out
+        ## Feb 21, 2020 use edf1 to calculate the pearson's dispersion estimate
+        ## not the edf; because I will use the asympototic chi-square dist. of
+        ## phi.est March 3, 2020, the dispersion parameter estimated in gam use
+        ## the edf.out instead of edf1.out
         phi_p <- sum(pearsonResiduals^2)/(length(data$Y) - sum(edf.out))
         return(phi_fletcher <- phi_p/(1 + mean(my_s)))
     }
@@ -735,8 +790,8 @@ phiFletcher <- function(data, Quasi, reml.scale, scale, gam.int) {
 #' @author Kaiqiong Zhao Simon Laurin-Lemay
 #' @noRd
 extractDesignMatrix <- function(GamObj) {
-    ## A more efficient way to extract design matrix. use a random
-    ## sample of rows of the data to reduce the computational cost
+    ## A more efficient way to extract design matrix. use a random sample of
+    ## rows of the data to reduce the computational cost
     if (!is.null(GamObj$R)) {
         return(X_d <- GamObj$R)
     } else {
@@ -744,8 +799,7 @@ extractDesignMatrix <- function(GamObj) {
         if (nrow(GamObj$model) > sub.samp) {
             ## subsample to get X for p-values calc.  sample these rows from X
             ind <- sample(seq_len(nrow(GamObj$model)), sub.samp, replace = FALSE)
-            X_d <- mgcv::predict.gam(GamObj, GamObj$model[ind, ], 
-                type = "lpmatrix")
+            X_d <- mgcv::predict.gam(GamObj, GamObj$model[ind, ], type = "lpmatrix")
         } else {
             ## don't need to subsample
             X_d <- mgcv::model.matrix.gam(GamObj)

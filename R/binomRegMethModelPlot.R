@@ -38,8 +38,7 @@ binomRegMethModelPlot <- function(BEM.obj, mfrow = NULL, same.range = FALSE) {
     
     yylim <- matrix(NA, nrow = ncovs, ncol = 2)
     if (same.range) {
-        yylim <- matrix(rep(c(min(ll), max(hh)), ncovs), ncol = 2, 
-            byrow = TRUE)
+        yylim <- matrix(rep(c(min(ll), max(hh)), ncovs), ncol = 2, byrow = TRUE)
     } else {
         yylim <- t(vapply(seq_len(ncovs), function(i) {
             yylim[i, ] <- c(ifelse(min(ll[, i]) > 0, 0, min(ll[, i])), 
@@ -52,8 +51,8 @@ binomRegMethModelPlot <- function(BEM.obj, mfrow = NULL, same.range = FALSE) {
             ii], col = "red", xaxt = "n", type = "l", xlab = "Genomic Position", 
             ylab = " ", main = covs.names[ii], lwd = 2, ylim = yylim[ii, 
                 ])
-        axis(side = 1, at = BEM.obj$uni.pos[order(BEM.obj$uni.pos)], 
-            labels = FALSE, lwd = 0.5, lwd.ticks = 0.5, tck = 0.03)
+        axis(side = 1, at = BEM.obj$uni.pos[order(BEM.obj$uni.pos)], labels = FALSE, 
+            lwd = 0.5, lwd.ticks = 0.5, tck = 0.03)
         axis(side = 1, at = seq(round(min(BEM.obj$uni.pos)), round(max(BEM.obj$uni.pos)), 
             length.out = 10), tck = -0.02)
         lines(BEM.obj$uni.pos[order(BEM.obj$uni.pos)], ll[order(BEM.obj$uni.pos), 
