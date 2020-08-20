@@ -9,9 +9,9 @@ context("testing the effect of seed on toy example")
 #    X_d <- predict(GamObj, GamObj$model[ind, ], type="lpmatrix")
 #}
 
-# the sample line only got executed when the number of free parameters are greater than 1000,
-# which is not the case in the example of RAdat, where only 58 (sum(n.k) + n_samples)
-# parameters are present. So seed shouldn't influence the results for RAdat
+# the sample line only got executed when the number of rows in the data are greater than 1000.
+# this sampling shouldn't influence much for the final results, as illustrated in SN Wood, Biometrika, 2013
+# on p-values for smooth components of an extended generalized additive model
 
 library(mgcv)
 
