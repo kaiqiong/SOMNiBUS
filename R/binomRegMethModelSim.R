@@ -27,6 +27,7 @@
 #' \item \code{pi}
 #' }
 #' @author  Kaiqiong Zhao
+#' @importFrom VGAM rbetabinom
 #' @examples
 #' #------------------------------------------------------------#
 #' data(RAdat)
@@ -70,8 +71,8 @@ binomRegMethModelSim <- function(n, posit, theta.0, beta, phi, random.eff=FALSE,
     my.S <- my.pi
     for (i in seq_len(nrow(my.S))) {
         for (j in seq_len(ncol(my.S))) {
-            my.S[i, j] <- rbinom(1, size=X[i, j], prob=my.pi[i, j])
-            #my.S[i,j] <-VGAM::rbetabinom(1, size = X[i,j], prob = my.pi[i,j], rho = (phi[j]-1)/(X[i,j]-1) )
+            #my.S[i, j] <- rbinom(1, size=X[i, j], prob=my.pi[i, j])
+            my.S[i,j] <-VGAM::rbetabinom(1, size = X[i,j], prob = my.pi[i,j], rho = (phi[j]-1)/(X[i,j]-1) )
         }
     }
     ## Generate Y-ij based on the S-ij and the error rate (1-p1) and p0
