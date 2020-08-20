@@ -24,7 +24,7 @@
 #' \item \code{S} the true methylation counts; a numeric matrix of \code{n} rows and \code{p} columns
 #' \item \code{Y} the observed methylation counts; a numeric matrix of \code{n} rows and \code{p} columns
 #' \item \code{theta} the methylation parameter (after the logit transformation); a numeric matrix of \code{n} rows and \code{p} columns
-#' \item \code{pi}
+#' \item \code{pi} the true methylation proportions used to simulate the data; a numeric matrix of \code{n} rows and \code{p} columns
 #' }
 #' @author  Kaiqiong Zhao
 #' @importFrom VGAM rbetabinom
