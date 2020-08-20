@@ -76,6 +76,7 @@ an additional "ID" row would appear if RanEff is TRUE
 \item \code{reg.out.gam}:regional testing output obtained using (Fletcher-based) dispersion estimate from mgcv package;
 \item \code{phi_fletcher}: Fletcher-based estimate of the (multiplicative) dispersion parameter
 \item \code{phi_reml}: REML-based estimate of the (multiplicative) dispersion parameter
+\item \code{phi_gam}: Estimated dispersion parameter reported by mgcv
 \item \code{SE.out}: a matrix of the estimated pointwise Standard Errors (SE); number of rows are the number of unique CpG
 sites in the input data and the number of columns equal to the total number of covariates fitted in the model
 (the first one is the intercept)
