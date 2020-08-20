@@ -256,7 +256,7 @@ estimateBeta <- function(BZ, BZ.beta, n.k, Z, out){
 #' @param RanEff Whether a subject random effect is added or not
 #' @param Z covariate matrix; \code{Z = data[,-c(1:4)]}
 #' @return s.table a table for each covariate
-#' @author  Kaiqiong Zhao
+#' @seealso  \link[mgcv]{summary.gam}
 #' @import mgcv
 #' @noRd
 binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out, edf1.out,

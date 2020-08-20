@@ -16,7 +16,8 @@ Imports:
     graphics,
     Matrix,
     mgcv,
-    stats
+    stats,
+    VGAM
 Suggests:
     BiocStyle,
     covr,
