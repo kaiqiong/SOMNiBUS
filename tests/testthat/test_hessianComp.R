@@ -13,7 +13,7 @@ ref_input_hessianComp <- readRDS(path_ref_input_hessianComp)
 H <- hessianComp(w_ij = ref_input_hessianComp$w_ij, new.par=ref_input_hessianComp$new.par,
                  new.lambda=ref_input_hessianComp$new.lambda,  X=ref_input_hessianComp$X,
                  Y=ref_input_hessianComp$Y, my.design.matrix=ref_input_hessianComp$my.design.matrix,
-                 gam.int=ref_input_hessianComp$gam.int, Z=ref_input_hessianComp$Z,
+                 gam_smoothMat=ref_input_hessianComp$gam_smoothMat, Z=ref_input_hessianComp$Z,
                  pred.pi=ref_input_hessianComp$pred.pi, p0=ref_input_hessianComp$p0,
                  p1=ref_input_hessianComp$p1,
                  disp_est=ref_input_hessianComp$disp_est, RanEff=ref_input_hessianComp$RanEff,
