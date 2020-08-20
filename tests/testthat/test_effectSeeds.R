@@ -2,16 +2,25 @@ context("testing the effect of seed on toy example")
 
 # the only place that requires seed is in the function extractDesignMatrix
 
-#  sub.samp <- max(1000, 2 * length(GamObj$coefficients))
-#if (nrow(GamObj$model) > sub.samp) {
-    ## subsample to get X for p-values calc.  sample these rows from X
-#   ind <- sample(seq_len(nrow(GamObj$model)), sub.samp, replace=FALSE)
-#    X_d <- predict(GamObj, GamObj$model[ind, ], type="lpmatrix")
+#if (!is.null(GamObj$R)) {
+#    return(X_d <- GamObj$R)
+#} else {
+#    sub.samp <- max(1000, 2 * length(GamObj$coefficients))
+#    if (nrow(GamObj$model) > sub.samp) {
+#        ## subsample to get X for p-values calc.  sample these rows from X
+#        ind <- sample(seq_len(nrow(GamObj$model)), sub.samp, replace=FALSE)
+#        X_d <- mgcv::predict.gam(GamObj, GamObj$model[ind, ], type="lpmatrix")
+#    } else {
+#        ## don't need to subsample
+#        X_d <- mgcv::model.matrix.gam(GamObj)
+#    }
+#    ## exclude NA's (possible under na.exclude)
+#    return(X_d <- X_d[!is.na(rowSums(X_d)), ])
 #}
 
-# the sample line only got executed when the number of rows in the data are greater than 1000.
-# this sampling shouldn't influence much for the final results, as illustrated in SN Wood, Biometrika, 2013
-# on p-values for smooth components of an extended generalized additive model
+# the sample() function only got executed when GamObj$R is NULL.
+# This is not the case for the analysis of RAdat.f.
+# So the seed shouldn't have any influence on the test results shown here
 
 library(mgcv)
 

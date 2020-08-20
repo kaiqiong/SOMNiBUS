@@ -82,34 +82,15 @@
 binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=10^(-6),
     epsilon.lambda=10^(-3), maxStep=200, detail=FALSE, binom.link="logit",
     method="REML", covs=NULL, RanEff=TRUE, reml.scale=FALSE, scale=-2) {
-    ## an error of 'n.k is not found' would appear if without this global
-    ## environment assignment; so I save n.k in a parent scope
-   # n.k <<- n.k
-
     initOut<-binomRegMethModelInit(data=data, covs=covs, n.k=n.k)
     Z<-initOut$Z
     fitGamOut<-fitGam(data=initOut$data, Quasi=Quasi, binom.link=binom.link, method=method, RanEff=RanEff, scale=scale, Z=Z, n.k = n.k)
-
-
-    ## Estimates
     phi_fletcher <- phiFletcher(data=fitGamOut$data, Quasi=Quasi, reml.scale=reml.scale, scale=scale, gam.int=fitGamOut$gam.int)
     if (p0 > 0 | p1 < 1) {
-        ## code used to generate
-        ## /tests/testthat/data/ref_input_binomRegMethModelUpdate.RDS input =
-        ## list(data=data, old.pi.ij=old.pi.ij, p0=p0, p1=p1, n.k=n.k,
-        ## binom.link=binom.link, method=method, Z=Z, my.covar.fm=my.covar.fm,
-        ## Quasi=Quasi, scale=phi_fletcher) path_ref_input_binomRegMethModelUpdate <-
-        ## paste(paste(getwd(), '/tests/testthat/data/', sep=''),
-        ## 'ref_input_binomRegMethModelUpdate.RDS', sep='') saveRDS(input,
-        ## path_ref_input_binomRegMethModelUpdate)
-
         out <- binomRegMethModelUpdate(data=fitGamOut$data, pi.ij=fitGamOut$gam.int$fitted.values, p0=p0, p1=p1, n.k=n.k,
             binom.link=binom.link, method=method, Z=Z, my.covar.fm=fitGamOut$my.covar.fm,
             Quasi=Quasi, scale=scale, reml.scale=reml.scale)
         Est.points <- rbind(c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp, phi_fletcher), c(out$par, out$lambda, out$phi_fletcher))
-        ## Do the iteration The stopping criterion is that estimator a and b are
-        ## close enough I exclude the criterio that lambda-a and lambda-b are
-        ## close
         old.pi.ij <- fitGamOut$gam.int$fitted.values
         iter <- 1
         while (sqrt(sum((out$pi.ij - old.pi.ij)^2)) > epsilon & iter < maxStep) {
@@ -131,16 +112,8 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
                     edf=fitGamOut$gam.int$edf, phi_fletcher=phi_fletcher, GamObj=fitGamOut$gam.int)
         Est.points <- c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp, phi_fletcher)
     }
-
-    ## Estimated dispersion paramters (Fletcher adjusted)
     phi_fletcher <- out$phi_fletcher
-
-    ##-------------------------------------------
     ## Calculate SE of alpha
-    ##------------------------------------------
-    ## the part to calculate the SE of alpha the model matrix for the GamObj
-    ## and the FinalGamObj is the same. the difference is only on the
-    ## outcomes
     my.design.matrix <- mgcv::model.matrix.gam(out$GamObj)
     lengthUniqueDataID <- length(unique(fitGamOut$data$ID))
     phi_reml <- out$GamObj$reml.scale
@@ -149,26 +122,11 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## Report the chi-square statistic for each covariate 3. Report the
     ## p-value for each covariate
     ##------------------------------------------------------------------------
-
     estimateBZOut <- estimateBZ(Posit=fitGamOut$data$Posit, my.design.matrix=my.design.matrix, ncolsZ = ncol(Z), n.k=n.k)
     Beta.out <- estimateBeta(BZ=estimateBZOut$BZ, BZ.beta=estimateBZOut$BZ.beta, n.k=n.k, Z=Z, out=out)
     cum_s <- cumsum(n.k)
-
-    ##---------------------------------------------------------------
     ## calculate var_cov (for alpha & beta) from the hessianComp matrix
-    ##---------------------------------------------------------------
     w_ij <- out$pi.ij * (1 - out$pi.ij)/phi_fletcher
-
-    #code used to generate
-    #/tests/testthat/data/ref_input_hessianComp.RDS
-    #input = list(w_ij = w_ij, new.par=out$par, new.lambda=out$lambda,
-    #X=fitGamOut$data$X, Y=fitGamOut$data$Y, my.design.matrix=my.design.matrix,
-    #gam_smoothMat=out$GamObj$smooth, Z=Z, pred.pi=out$pi.ij, p0=p0, p1=p1,
-    #disp_est=phi_fletcher, RanEff=RanEff, N=lengthUniqueDataID)
-    #path_ref_input_hessianComp <-
-    #    paste(paste(getwd(), '/tests/testthat/data/', sep=''),
-    #          'ref_input_hessianComp.RDS', sep='')
-    # saveRDS(input, path_ref_input_hessianComp)
     H <- hessianComp(w_ij=w_ij, new.par=out$par,
         new.lambda=out$lambda,  X=fitGamOut$data$X, Y=fitGamOut$data$Y, my.design.matrix=my.design.matrix,
         gam_smoothMat = out$GamObj$smooth, Z=Z, pred.pi=out$pi.ij, p0=p0, p1=p1,
@@ -197,12 +155,6 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## mgcv
     ##---------------------------------------------------------------
 
-    ## p : estimated paramters --- alpha.0, alpha.seq Xt: the design matrix
-    ## --- my.design.matrix V: estimated variance matrix on entry `rank'
-    ## should be an edf estimate 0. Default using the fractionally truncated
-    ## pinv.  1. Round down to k if k<= rank < k+0.05, otherwise up.  res.df
-    ## is residual dof used to estimate scale. <=0 implies fixed scale.
-
     X_d<-extractDesignMatrix(GamObj=out$GamObj)
 
     ## Effective degrees of freedom: edf1 -- good for chisquare test and p
@@ -217,13 +169,6 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     s.table.REML.scale <- binomRegMethModelSummary(out$GamObj, var.cov.alpha/phi_fletcher *
         phi_reml, out$par, edf.out, edf1.out, X_d, resi_df, Quasi, scale,
         RanEff, Z)
-
-    ## var_out=list(cov1=var.cov.alpha, reg.out=reg.out, SE.out=SE.out,
-    ## uni.pos=SE.pos, pvalue=pvalue , ncovs=ncol(Z)+1) Est_out=list(est =
-    ## new.par, lambda=new.lambda, est.pi=new.pi.ij, ite.points=Est.points,
-    ## Beta.out=Beta.out, phi_fletcher=phi_fletcher)
-
-
     if (RanEff) {
         sigma00 <- out$GamObj$reml.scale/out$GamObj$sp["s(ID)"]
     } else {
@@ -551,24 +496,26 @@ phiFletcher<-function(data, Quasi, reml.scale, scale, gam.int){
 #' @description extract design matrix
 #' @param GamObj a mgcv object
 #' @return This function return a design matrix \code{X_d}: R matrix from the QR decomposition
+#' @importFrom mgcv predict.gam
+#' @importFrom mgcv model.matrix.gam
 #' @author Kaiqiong Zhao Simon Laurin-Lemay
 #' @noRd
 extractDesignMatrix<-function(GamObj){
     ## A more efficient way to extract design matrix. use a random sample of
     ## rows of the data to reduce the computational cost
         if (!is.null(GamObj$R)) {
-            X_d <- GamObj$R
+            return(X_d <- GamObj$R)
         } else {
             sub.samp <- max(1000, 2 * length(GamObj$coefficients))
             if (nrow(GamObj$model) > sub.samp) {
                 ## subsample to get X for p-values calc.  sample these rows from X
                 ind <- sample(seq_len(nrow(GamObj$model)), sub.samp, replace=FALSE)
-                X_d <- predict(GamObj, GamObj$model[ind, ], type="lpmatrix")
+                X_d <- mgcv::predict.gam(GamObj, GamObj$model[ind, ], type="lpmatrix")
             } else {
                 ## don't need to subsample
-                X_d <- model.matrix(GamObj)
+                X_d <- mgcv::model.matrix.gam(GamObj)
             }
             ## exclude NA's (possible under na.exclude)
             return(X_d <- X_d[!is.na(rowSums(X_d)), ])
-        }  ## end if (m>0)
+        }
     }
