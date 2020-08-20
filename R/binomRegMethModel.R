@@ -158,6 +158,17 @@ binomRegMethModel <- function(data, n.k, p0=0.003, p1=0.9, Quasi=TRUE, epsilon=1
     ## calculate var_cov (for alpha & beta) from the hessianComp matrix
     ##---------------------------------------------------------------
     w_ij <- out$pi.ij * (1 - out$pi.ij)/phi_fletcher
+
+    #code used to generate
+    #/tests/testthat/data/ref_input_hessianComp.RDS
+    #input = list(w_ij = w_ij, new.par=out$par, new.lambda=out$lambda,
+    #             X=fitGamOut$data$X, Y=fitGamOut$data$Y, my.design.matrix=my.design.matrix,
+    #             gam.int=out$GamObj, Z=Z, pred.pi=out$pi.ij, p0=p0, p1=p1,
+    #             disp_est=phi_fletcher, RanEff=RanEff, N=lengthUniqueDataID)
+    #path_ref_input_hessianComp <-
+    #    paste(paste(getwd(), '/tests/testthat/data/', sep=''),
+    #          'ref_input_hessianComp.RDS', sep='')
+    #saveRDS(input,       path_ref_input_hessianComp)
     H <- hessianComp(w_ij=w_ij, new.par=out$par,
         new.lambda=out$lambda,  X=fitGamOut$data$X, Y=fitGamOut$data$Y, my.design.matrix=my.design.matrix, gam.int=out$GamObj, Z=Z, pred.pi=out$pi.ij, p0=p0, p1=p1,
         disp_est=phi_fletcher, RanEff=RanEff, N=lengthUniqueDataID)
