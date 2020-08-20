@@ -23,6 +23,7 @@ RUN apt-get update \
 	testthat \
 	magick \
 	rhub \
+	VGAM \
 	&& R -e "BiocManager::install(c('BiocStyle','BiocCheck'), update=FALSE, ask=FALSE)" \
 	&& rm -rf /tmp/downloaded_packages
 
