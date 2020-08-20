@@ -20,8 +20,8 @@ H <- hessianComp(w_ij = ref_input_hessianComp$w_ij, new.par=ref_input_hessianCom
                  N= ref_input_hessianComp$N)
 
 test_that("hessianComp calculates the correct Hessian matrix", {
-    expect_equal(nrow(H), length(out$par))
-    expect_equal(ncol(H), length(out$par))
+    expect_equal(nrow(H), length(ref_input_hessianComp$new.par))
+    expect_equal(ncol(H), length(ref_input_hessianComp$new.par))
     expect_true(isTRUE(all.equal(solve(-H), ref$cov1)))
     #expect_true(all(solve(-H) - ref$cov1 <0.000001))
 })
