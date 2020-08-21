@@ -152,53 +152,53 @@
 #' quasibinomial residuals predict model.matrix runif
 #'
 #' @export
-binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE, 
-    epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE, 
-    binom.link = "logit", method = "REML", covs = NULL, RanEff = TRUE, 
+binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
+    epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE,
+    binom.link = "logit", method = "REML", covs = NULL, RanEff = TRUE,
     reml.scale = FALSE, scale = -2) {
     initOut <- binomRegMethModelInit(data = data, covs = covs, n.k = n.k)
     Z <- initOut$Z
-    fitGamOut <- fitGam(data = initOut$data, Quasi = Quasi, binom.link = binom.link, 
+    fitGamOut <- fitGam(data = initOut$data, Quasi = Quasi, binom.link = binom.link,
         method = method, RanEff = RanEff, scale = scale, Z = Z, n.k = n.k)
-    phi_fletcher <- phiFletcher(data = fitGamOut$data, Quasi = Quasi, reml.scale = reml.scale, 
+    phi_fletcher <- phiFletcher(data = fitGamOut$data, Quasi = Quasi, reml.scale = reml.scale,
         scale = scale, gam.int = fitGamOut$gam.int)
-    fitEMOut <- fitEM(p0, p1, fitGamOut, n.k, binom.link, method, Z, Quasi, 
-        scale, reml.scale, phi_fletcher, epsilon, maxStep, detail)
+    fitEMOut <- fitEM(p0=p0, p1=p1, fitGamOut=fitGamOut, n.k=n.k, binom.link=binom.link, method=method, Z=Z, Quasi=Quasi,
+        scale=scale, reml.scale=reml.scale, phi_fletcher=phi_fletcher, epsilon=epsilon, maxStep=maxStep, detail=detail)
     out <- fitEMOut$out
     Est.points <- fitEMOut$Est.points
     phi_fletcher <- out$phi_fletcher
     my.design.matrix <- mgcv::model.matrix.gam(out$GamObj)
     lengthUniqueDataID <- length(unique(fitGamOut$data$ID))
     phi_reml <- out$GamObj$reml.scale
-    estimateBZOut <- estimateBZ(Posit = fitGamOut$data$Posit, my.design.matrix = my.design.matrix, 
+    estimateBZOut <- estimateBZ(Posit = fitGamOut$data$Posit, my.design.matrix = my.design.matrix,
         ncolsZ = ncol(Z), n.k = n.k)
-    Beta.out <- estimateBeta(BZ = estimateBZOut$BZ, BZ.beta = estimateBZOut$BZ.beta, 
+    Beta.out <- estimateBeta(BZ = estimateBZOut$BZ, BZ.beta = estimateBZOut$BZ.beta,
         n.k = n.k, Z = Z, out = out)
-    estimateVarOut <- estimateVar(out, phi_fletcher, fitGamOut, my.design.matrix, 
-        Z, p0, p1, RanEff, lengthUniqueDataID, n.k)
-    estimateSEOut <- estimateSE(estimateBZOut, Z, estimateVarOut, phi_fletcher, 
-        phi_reml)
+    estimateVarOut <- estimateVar(out=out, phi_fletcher=phi_fletcher, fitGamOut=fitGamOut, my.design.matrix=my.design.matrix,
+        Z=Z, p0=p0, p1=p1, RanEff=RanEff, lengthUniqueDataID=lengthUniqueDataID, n.k=n.k)
+    estimateSEOut <- estimateSE(estimateBZOut=estimateBZOut, Z=Z, estimateVarOut=estimateVarOut, phi_fletcher=phi_fletcher,
+        phi_reml=phi_reml)
     X_d <- extractDesignMatrix(GamObj = out$GamObj)
     edf1.out <- out$edf1  ## and p value calculation tr(2A - A^2)
     edf.out <- out$edf  ## Effective degree of freedom: edf --trace of the hat matrix
     resi_df <- nrow(fitGamOut$data) - sum(edf.out)
-    s.table <- binomRegMethModelSummary(out$GamObj, estimateVarOut$var.cov.alpha, 
-        out$par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, RanEff, 
-        Z)
-    s.table.REML.scale <- binomRegMethModelSummary(out$GamObj, estimateVarOut$var.cov.alpha/phi_fletcher * 
-        phi_reml, out$par, edf.out, edf1.out, X_d, resi_df, Quasi, scale, 
-        RanEff, Z)
+    s.table <- binomRegMethModelSummary(GamObj=out$GamObj, var.cov.alpha=estimateVarOut$var.cov.alpha,
+        new.par=out$par, edf.out=edf.out, edf1.out=edf1.out, X_d=X_d, resi_df=resi_df, Quasi=Quasi, scale=scale, RanEff=RanEff,
+        Z=Z)
+    s.table.REML.scale <- binomRegMethModelSummary(GamObj=out$GamObj, var.cov.alpha=estimateVarOut$var.cov.alpha/phi_fletcher *
+        phi_reml, new.par=out$par, edf.out=edf.out, edf1.out=edf1.out, X_d=X_d, resi_df=resi_df, Quasi=Quasi, scale=scale,
+        RanEff=RanEff, Z=Z)
     if (RanEff) {
         sigma00 <- out$GamObj$reml.scale/out$GamObj$sp["s(ID)"]
     } else {
         sigma00 <- NA
     }
-    return(out <- list(est = out$par, lambda = out$lambda, est.pi = out$pi.ij, 
-        Beta.out = Beta.out, phi_fletcher = phi_fletcher, phi_reml = phi_reml, 
-        phi_gam = out$GamObj$scale, reg.out = s.table, reg.out.reml.scale = s.table.REML.scale, 
-        cov1 = estimateVarOut$var.cov.alpha, reg.out.gam = summary(out$GamObj)$s.table, 
-        SE.out = estimateSEOut$SE.out, SE.out.REML.scale = estimateSEOut$SE.out.REML.scale, 
-        uni.pos = estimateBZOut$uni.pos, ncovs = ncol(Z) + 1, ite.points = Est.points, 
+    return(out <- list(est = out$par, lambda = out$lambda, est.pi = out$pi.ij,
+        Beta.out = Beta.out, phi_fletcher = phi_fletcher, phi_reml = phi_reml,
+        phi_gam = out$GamObj$scale, reg.out = s.table, reg.out.reml.scale = s.table.REML.scale,
+        cov1 = estimateVarOut$var.cov.alpha, reg.out.gam = summary(out$GamObj)$s.table,
+        SE.out = estimateSEOut$SE.out, SE.out.REML.scale = estimateSEOut$SE.out.REML.scale,
+        uni.pos = estimateBZOut$uni.pos, ncovs = ncol(Z) + 1, ite.points = Est.points,
         sigma00 = sigma00))
 }
 #' @title Run EM algorithm to obtain the estimate of alpha
@@ -225,37 +225,37 @@ binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
 #' }
 #' @author Kaiqiong Zhao
 #' @noRd
-fitEM <- function(p0, p1, fitGamOut, n.k, binom.link, method, Z, Quasi, 
+fitEM <- function(p0, p1, fitGamOut, n.k, binom.link, method, Z, Quasi,
     scale, reml.scale, phi_fletcher, epsilon, maxStep, detail) {
     if (p0 > 0 | p1 < 1) {
-        out <- binomRegMethModelUpdate(data = fitGamOut$data, pi.ij = fitGamOut$gam.int$fitted.values, 
-            p0 = p0, p1 = p1, n.k = n.k, binom.link = binom.link, method = method, 
-            Z = Z, my.covar.fm = fitGamOut$my.covar.fm, Quasi = Quasi, 
+        out <- binomRegMethModelUpdate(data = fitGamOut$data, pi.ij = fitGamOut$gam.int$fitted.values,
+            p0 = p0, p1 = p1, n.k = n.k, binom.link = binom.link, method = method,
+            Z = Z, my.covar.fm = fitGamOut$my.covar.fm, Quasi = Quasi,
             scale = scale, reml.scale = reml.scale)
-        Est.points <- rbind(c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp, 
+        Est.points <- rbind(c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp,
             phi_fletcher), c(out$par, out$lambda, out$phi_fletcher))
         old.pi.ij <- fitGamOut$gam.int$fitted.values
         iter <- 1
-        while (sqrt(sum((out$pi.ij - old.pi.ij)^2)) > epsilon & iter < 
+        while (sqrt(sum((out$pi.ij - old.pi.ij)^2)) > epsilon & iter <
             maxStep) {
             if (detail) {
                 message(paste0("iteration", iter))
             }
             iter <- iter + 1
             old.pi.ij <- out$pi.ij
-            out <- binomRegMethModelUpdate(data = fitGamOut$data, pi.ij = old.pi.ij, 
-                p0 = p0, p1 = p1, n.k = n.k, binom.link = binom.link, method = method, 
-                Z = Z, my.covar.fm = fitGamOut$my.covar.fm, Quasi = Quasi, 
+            out <- binomRegMethModelUpdate(data = fitGamOut$data, pi.ij = old.pi.ij,
+                p0 = p0, p1 = p1, n.k = n.k, binom.link = binom.link, method = method,
+                Z = Z, my.covar.fm = fitGamOut$my.covar.fm, Quasi = Quasi,
                 scale = phi_fletcher)
             Est.points <- rbind(Est.points, c(out$par, out$lambda, out$phi_fletcher))
         }
     } else {
-        out <- list(pi.ij = fitGamOut$gam.int$fitted.values, par = fitGamOut$gam.int$coefficients, 
-            lambda = fitGamOut$gam.int$sp, edf1 = fitGamOut$gam.int$edf1, 
-            pearson_res = residuals(fitGamOut$gam.int, type = "pearson"), 
-            deviance_res = residuals(fitGamOut$gam.int, type = "deviance"), 
+        out <- list(pi.ij = fitGamOut$gam.int$fitted.values, par = fitGamOut$gam.int$coefficients,
+            lambda = fitGamOut$gam.int$sp, edf1 = fitGamOut$gam.int$edf1,
+            pearson_res = residuals(fitGamOut$gam.int, type = "pearson"),
+            deviance_res = residuals(fitGamOut$gam.int, type = "deviance"),
             edf = fitGamOut$gam.int$edf, phi_fletcher = phi_fletcher, GamObj = fitGamOut$gam.int)
-        Est.points <- c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp, 
+        Est.points <- c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp,
             phi_fletcher)
     }
     return(list(out = out, Est.points = Est.points))
@@ -291,7 +291,7 @@ estimateBZ <- function(Posit, my.design.matrix, ncolsZ, n.k) {
     uni.id <- match(uni.pos, Posit)
     BZ <- my.design.matrix[uni.id, seq_len(n.k[1])]
     BZ.beta <- lapply(seq_len(ncolsZ), function(i) {
-        mgcv::smooth.construct(mgcv::s(Posit, k = n.k[i + 1], fx = FALSE, 
+        mgcv::smooth.construct(mgcv::s(Posit, k = n.k[i + 1], fx = FALSE,
             bs = "cr"), data = data.frame(Posit = Posit[uni.id]), knots = NULL)$X
     })
     return(out <- list(uni.pos = uni.pos, BZ = BZ, BZ.beta = BZ.beta))
@@ -329,11 +329,11 @@ estimateBeta <- function(BZ, BZ.beta, n.k, Z, out) {
         out$par[(cum_s[i] + 1):cum_s[i + 1]]
     })
     alpha.0 <- out$par[seq_len(n.k[1])]
-    
+
     Beta.out <- cbind(BZ %*% alpha.0, vapply(seq_len(ncol(Z)), function(i) {
         BZ.beta[[i]] %*% alpha.sep[[i]]
     }, FUN.VALUE = rep(1, nrow(BZ))))
-    
+
     colnames(Beta.out) <- c("Intercept", colnames(Z))
     return(Beta.out)
 }
@@ -358,22 +358,22 @@ estimateBeta <- function(BZ, BZ.beta, n.k, Z, out) {
 #' }
 #' @author Kaiqiong Zhao
 #' @noRd
-estimateVar <- function(out, phi_fletcher, fitGamOut, my.design.matrix, 
+estimateVar <- function(out, phi_fletcher, fitGamOut, my.design.matrix,
     Z, p0, p1, RanEff, lengthUniqueDataID, n.k) {
     cum_s <- cumsum(n.k)
     w_ij <- out$pi.ij * (1 - out$pi.ij)/phi_fletcher
-    H <- hessianComp(w_ij = w_ij, new.par = out$par, new.lambda = out$lambda, 
-        X = fitGamOut$data$X, Y = fitGamOut$data$Y, my.design.matrix = my.design.matrix, 
-        gam_smoothMat = out$GamObj$smooth, Z = Z, pred.pi = out$pi.ij, 
+    H <- hessianComp(w_ij = w_ij, new.par = out$par, new.lambda = out$lambda,
+        X = fitGamOut$data$X, Y = fitGamOut$data$Y, my.design.matrix = my.design.matrix,
+        gam_smoothMat = out$GamObj$smooth, Z = Z, pred.pi = out$pi.ij,
         p0 = p0, p1 = p1, disp_est = phi_fletcher, RanEff = RanEff, N = lengthUniqueDataID)
-    
+
     var.cov.alpha <- solve(-H)
     var.alpha.0 <- var.cov.alpha[seq_len(n.k[1]), seq_len(n.k[1])]
     var.alpha.sep <- lapply(seq_len(ncol(Z)), function(i) {
-        var.cov.alpha[(cum_s[i] + 1):cum_s[i + 1], (cum_s[i] + 1):cum_s[i + 
+        var.cov.alpha[(cum_s[i] + 1):cum_s[i + 1], (cum_s[i] + 1):cum_s[i +
             1]]
     })
-    return(list(var.alpha.0 = var.alpha.0, var.alpha.sep = var.alpha.sep, 
+    return(list(var.alpha.0 = var.alpha.0, var.alpha.sep = var.alpha.sep,
         var.cov.alpha = var.cov.alpha))
 }
 #' @title estimate SE of beta(t) for each covariates
@@ -391,16 +391,16 @@ estimateVar <- function(out, phi_fletcher, fitGamOut, my.design.matrix,
 #' }
 #' @author Kaiqiong Zhao
 #' @noRd
-estimateSE <- function(estimateBZOut, Z, estimateVarOut, phi_fletcher, 
+estimateSE <- function(estimateBZOut, Z, estimateVarOut, phi_fletcher,
     phi_reml) {
     var.alpha.0 <- estimateVarOut$var.alpha.0
     var.alpha.sep <- estimateVarOut$var.alpha.sep
-    SE.out <- cbind(sqrt(pmax(0, rowSums((estimateBZOut$BZ %*% var.alpha.0) * 
+    SE.out <- cbind(sqrt(pmax(0, rowSums((estimateBZOut$BZ %*% var.alpha.0) *
         estimateBZOut$BZ))), vapply(seq_len(ncol(Z)), function(i) {
-        sqrt(pmax(0, rowSums((estimateBZOut$BZ.beta[[i]] %*% var.alpha.sep[[i]]) * 
+        sqrt(pmax(0, rowSums((estimateBZOut$BZ.beta[[i]] %*% var.alpha.sep[[i]]) *
             estimateBZOut$BZ.beta[[i]])))
     }, FUN.VALUE = rep(1, length(estimateBZOut$uni.pos))))
-    
+
     rownames(SE.out) <- estimateBZOut$uni.pos
     colnames(SE.out) <- c("Intercept", colnames(Z))
     SE.out.REML.scale <- SE.out/sqrt(phi_fletcher) * sqrt(phi_reml)
@@ -436,14 +436,14 @@ estimateSE <- function(estimateBZOut, Z, estimateVarOut, phi_fletcher,
 #' @seealso  \link[mgcv]{summary.gam}
 #' @import mgcv
 #' @noRd
-binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out, 
+binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out,
     edf1.out, X_d, resi_df, Quasi, scale, RanEff, Z) {
     ii <- 0
     m <- length(GamObj$smooth)
     df <- edf1 <- edf <- s.pv <- chi.sq <- array(0, m)
     for (i in seq_len(m)) {
-        outOneSmooth <- regResOneSmooth(GamObj, i, RanEff, Quasi, resi_df, 
-            var.cov.alpha, new.par, edf.out, edf1.out, X_d)
+        outOneSmooth <- regResOneSmooth(GamObj=GamObj, i=i, RanEff=RanEff, Quasi=Quasi, resi_df=resi_df,
+            var.cov.alpha=var.cov.alpha, new.par=new.par, edf.out=edf.out, edf1_out=edf1.out, X_d=X_d)
         res <- outOneSmooth$res
         edf1i <- outOneSmooth$edf1i
         edfi <- outOneSmooth$edfi
@@ -467,11 +467,11 @@ binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out,
         }
         if (!Quasi || scale >= 0) {
             s.table <- cbind(edf, df, chi.sq, s.pv)
-            dimnames(s.table) <- list(names(chi.sq), c("edf", "Ref.df", 
+            dimnames(s.table) <- list(names(chi.sq), c("edf", "Ref.df",
                 "Chi.sq", "p-value"))
         } else {
             s.table <- cbind(edf, df, chi.sq/df, s.pv)
-            dimnames(s.table) <- list(names(chi.sq), c("edf", "Ref.df", 
+            dimnames(s.table) <- list(names(chi.sq), c("edf", "Ref.df",
                 "F", "p-value"))
         }
     }
@@ -508,7 +508,7 @@ binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out,
 #' }
 #' @author Kaiqiong Zhao
 #' @noRd
-regResOneSmooth <- function(GamObj, i, RanEff, Quasi, resi_df, var.cov.alpha, 
+regResOneSmooth <- function(GamObj, i, RanEff, Quasi, resi_df, var.cov.alpha,
     new.par, edf.out, edf1.out, X_d) {
     start <- GamObj$smooth[[i]]$first.para
     stop <- GamObj$smooth[[i]]$last.para
@@ -538,7 +538,7 @@ regResOneSmooth <- function(GamObj, i, RanEff, Quasi, resi_df, var.cov.alpha,
         } else {
             rdf <- -1
         }
-        res <- mgcv:::testStat(p, Xt, V, min(ncol(Xt), edf1i), type = 0, 
+        res <- mgcv:::testStat(p, Xt, V, min(ncol(Xt), edf1i), type = 0,
             res.df = rdf)
     }
     return(list(res = res, edfi = edfi, edf1i = edf1i))
@@ -623,7 +623,7 @@ binomRegMethModelInit <- function(data, covs, n.k) {
         stop("Please make sure object \"data\" have columns named as \"Meth_Counts\",
              \"Total_Counts\" and \"Position\" ")
     }
-    colnames(data)[match(c("Meth_Counts", "Total_Counts", "Position"), 
+    colnames(data)[match(c("Meth_Counts", "Total_Counts", "Position"),
         colnames(data))] <- c("Y", "X", "Posit")
     if (is.null(covs)) {
         Z <- as.matrix(data[, -seq_len(4)], ncol = ncol(data) - 4)
@@ -696,25 +696,25 @@ binomRegMethModelInit <- function(data, covs, n.k) {
 fitGam <- function(data, Quasi, binom.link, method, RanEff, scale, Z, n.k) {
     ## The smoothing formula corresponding to the Z
     formula.z.part <- vapply(seq_len(ncol(Z)), function(i) {
-        paste0("s(Posit, k=n.k[", i + 1, "], fx=FALSE, bs=\"cr\", by=Z[,", 
+        paste0("s(Posit, k=n.k[", i + 1, "], fx=FALSE, bs=\"cr\", by=Z[,",
             i, "])")
     }, "")
-    my.covar.fm <- paste(c("s(Posit, k=n.k[1], fx=FALSE, bs=\"cr\")", formula.z.part), 
+    my.covar.fm <- paste(c("s(Posit, k=n.k[1], fx=FALSE, bs=\"cr\")", formula.z.part),
         collapse = "+")
-    
+
     if (RanEff) {
         my.covar.fm <- paste0(my.covar.fm, "+ s(ID, bs=\"re\")")
         data$ID <- as.factor(data$ID)
     }
     ## Fit gam for the initial value
     if (Quasi) {
-        gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)), 
-            family = quasibinomial(link = binom.link), weights = data$X, 
+        gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)),
+            family = quasibinomial(link = binom.link), weights = data$X,
             data = data, method = method, scale = scale)
         return(out <- list(data = data, gam.int = gam.int, my.covar.fm = my.covar.fm))
     } else {
-        gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)), 
-            family = binomial(link = binom.link), weights = data$X, data = data, 
+        gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)),
+            family = binomial(link = binom.link), weights = data$X, data = data,
             method = method, scale = scale)
         return(out <- list(data = data, gam.int = gam.int, my.covar.fm = my.covar.fm))
     }
@@ -756,13 +756,13 @@ phiFletcher <- function(data, Quasi, reml.scale, scale, gam.int) {
             return(phi_fletcher <- gam.int$reml.scale)
         }
         ## * sqrt(data$X)
-        my_s <- (1 - 2 * old.pi.ij)/(data$X * old.pi.ij * (1 - old.pi.ij)) * 
+        my_s <- (1 - 2 * old.pi.ij)/(data$X * old.pi.ij * (1 - old.pi.ij)) *
             (data$Y - data$X * old.pi.ij)
         ## Note: the estimator implemented in the mgcv calculated my_s with an
         ## additional multiplier sqrt(data$X) But from the paper there shouldn't
         ## be this one phi_p=sum( pearsonResiduals^2)/(length(data$Y) -
         ## sum(edf.out))
-        
+
         ## Feb 21, 2020 use edf1 to calculate the pearson's dispersion estimate
         ## not the edf; because I will use the asympototic chi-square dist. of
         ## phi.est March 3, 2020, the dispersion parameter estimated in gam use
