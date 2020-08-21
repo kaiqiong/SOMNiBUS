@@ -443,7 +443,7 @@ binomRegMethModelSummary <- function(GamObj, var.cov.alpha, new.par, edf.out,
     df <- edf1 <- edf <- s.pv <- chi.sq <- array(0, m)
     for (i in seq_len(m)) {
         outOneSmooth <- regResOneSmooth(GamObj=GamObj, i=i, RanEff=RanEff, Quasi=Quasi, resi_df=resi_df,
-            var.cov.alpha=var.cov.alpha, new.par=new.par, edf.out=edf.out, edf1_out=edf1.out, X_d=X_d)
+            var.cov.alpha=var.cov.alpha, new.par=new.par, edf.out=edf.out, edf1.out=edf1.out, X_d=X_d)
         res <- outOneSmooth$res
         edf1i <- outOneSmooth$edf1i
         edfi <- outOneSmooth$edfi
