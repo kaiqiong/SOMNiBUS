@@ -19,17 +19,18 @@ beta <- matrix(rnorm(n_positions * 2, 0, 1), n_positions, 2) # numeric vetor (fl
 coverage <- matrix(
   sample(1:500, n_samples * n_positions, replace = TRUE), n_samples,
   n_positions
-) # numeric matrix (floats or integers?) of size n_samples per n_positions: reads coverage
+)+4 # numeric matrix (floats or integers?) of size n_samples per n_positions: reads coverage
 covariates <- matrix(sample(0:1, n_samples * 2, replace = TRUE), n_samples, 2) # numeric matrix (floats) of size n_samples per n_covariates: covariates matrix
-error <- TRUE # adding normaly distributed noise to the simulations (bool)
+error <- TRUE # adding normaly distributed noise (or subject-level random Effect) to the simulations (bool)
 error_mu <- 0 # mean value (float)
 error_var <- 1 # variance value (float)
 link_fct <- "logit" # link fonction (str)
+phi_v <- rep(ref$phi_fletcher, n_positions) # numeric vector (floats) of size n_positions:
 
 out_binomRegMethModelSim <- binomRegMethModelSim(
   n = n_samples, posit = genomics_positions, theta.0 = theta,
   beta = beta, random.eff = error, mu.e = error_mu, sigma.ee = error_var, p0 = fp,
-  p1 = tp, X = coverage, Z = covariates, binom.link = link_fct
+  p1 = tp, X = coverage, Z = covariates, binom.link = link_fct, phi = phi_v
 )
 
 test_that("the output corresponds to binomRegMethModelSim method description", {
