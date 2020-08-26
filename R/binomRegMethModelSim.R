@@ -35,12 +35,16 @@
 #' counts are simulated from beta-binomial distribution, so
 #' each element of phi has to be
 #' greater than 1.
-#' @param p0 the probability of observing a methylated read
-#' when the underlying true
-#' status is unmethylated.
-#' @param p1 the probability of observing a methylated read
-#' when the underlying true
-#' status is methylated.
+#' @param p0 the probability of observing a methylated read when
+#' the underlying true
+#' status is unmethylated. \code{p0} is the rate of false
+#' methylation calls, i.e.
+#' false positive rate.
+#' @param p1 the probability of observing a methylated read when
+#' the underlying true
+#' status is methylated. \code{1-p1} is the rate of false
+#' non-methylation calls, i.e.
+#' false negative rate.
 #' @param X the matrix of the read coverage for each CpG in
 #' each sample; a matrix of n
 #' rows and \code{p} columns
