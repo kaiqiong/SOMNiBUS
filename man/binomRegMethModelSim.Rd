@@ -52,13 +52,17 @@ random effect term
 \item{sigma.ee}{variance of the random effect; a single
 positive number.}
 
-\item{p0}{the probability of observing a methylated read
-when the underlying true
-status is unmethylated.}
+\item{p0}{the probability of observing a methylated read when
+the underlying true
+status is unmethylated. \code{p0} is the rate of false
+methylation calls, i.e.
+false positive rate.}
 
-\item{p1}{the probability of observing a methylated read
-when the underlying true
-status is methylated.}
+\item{p1}{the probability of observing a methylated read when
+the underlying true
+status is methylated. \code{1-p1} is the rate of false
+non-methylation calls, i.e.
+false negative rate.}
 
 \item{X}{the matrix of the read coverage for each CpG in
 each sample; a matrix of n
