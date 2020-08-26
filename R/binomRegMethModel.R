@@ -204,8 +204,16 @@ binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
 #' @title Run EM algorithm to obtain the estimate of alpha
 #'
 #' @description Run EM algorithm to obtain the estimate of alpha
-#' @param p0 false positive error rates
-#' @param p1 1-p1: false negative error rates
+#' @param p0 the probability of observing a methylated read when
+#' the underlying true
+#' status is unmethylated. \code{p0} is the rate of false
+#' methylation calls, i.e.
+#' false positive rate.
+#' @param p1 the probability of observing a methylated read when
+#' the underlying true
+#' status is methylated. \code{1-p1} is the rate of false
+#' non-methylation calls, i.e.
+#' false negative rate.
 #' @param fitGamOut an output from fitGam
 #' @param n.k number of knots for all covariates (including intercept)
 #' @param binom.link link for binomial GLM
@@ -346,8 +354,16 @@ estimateBeta <- function(BZ, BZ.beta, n.k, Z, out) {
 #' @param RanEff whether a RE is considered
 #' @param n.k number of knots for all covariates (including intercept)
 #' @param lengthUniqueDataID number of samples in the data
-#' @param p0 false positive error rates
-#' @param p1 1-p1: false negative error rates
+#' @param p0 the probability of observing a methylated read when
+#' the underlying true
+#' status is unmethylated. \code{p0} is the rate of false
+#' methylation calls, i.e.
+#' false positive rate.
+#' @param p1 the probability of observing a methylated read when
+#' the underlying true
+#' status is methylated. \code{1-p1} is the rate of false
+#' non-methylation calls, i.e.
+#' false negative rate.
 #' @param Z covariate matrix
 #' @param my.design.matrix design matrix for the all data
 #' @return This function return a \code{list} including objects:

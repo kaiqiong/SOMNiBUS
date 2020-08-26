@@ -25,12 +25,16 @@
 #' @param pi.ij  an initial value (or value from last step) for the
 #' fitted probability
 #' \code{pi_ij} for each CpG site of each individual
-#' @param p0 the probability of observing a methylated read when the
-#' underlying true
-#' status is unmethylated.
-#' @param p1 the probability of observing a methylated read when the
-#' underlying true
-#' status is methylated.
+#' @param p0 the probability of observing a methylated read when
+#' the underlying true
+#' status is unmethylated. \code{p0} is the rate of false
+#' methylation calls, i.e.
+#' false positive rate.
+#' @param p1 the probability of observing a methylated read when
+#' the underlying true
+#' status is methylated. \code{1-p1} is the rate of false
+#' non-methylation calls, i.e.
+#' false negative rate.
 #' @param n.k a vector of basis dimensions for the intercept and
 #' individual covariates.
 #' \code{n.k} specifies an upper limit of the degrees of each
