@@ -156,32 +156,32 @@ binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
     epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE,
     binom.link = "logit", method = "REML", covs = NULL, RanEff = TRUE,
     reml.scale = FALSE, scale = -2) {
-    initOut <- binomRegMethModelInit(data = data, covs = covs, n.k = n.k)
+    initOut <- binomRegMethModelInit(data=data, covs=covs, n.k=n.k)
     Z <- initOut$Z
-    fitGamOut <- fitGam(data = initOut$data, Quasi = Quasi, binom.link = binom.link,
-        method = method, RanEff = RanEff, scale = scale, Z = Z, n.k = n.k)
-    phi_fletcher <- phiFletcher(data = fitGamOut$data, Quasi = Quasi, reml.scale = reml.scale,
-        scale = scale, gam.int = fitGamOut$gam.int)
+    fitGamOut <- fitGam(data=initOut$data, Quasi=Quasi, binom.link=binom.link,
+        method=method, RanEff=RanEff, scale=scale, Z=Z, n.k=n.k)
+    phi_fletcher <- phiFletcher(data=initOut$data, Quasi=Quasi, reml.scale=reml.scale,
+        scale=scale, gam.int=fitGamOut$gam.int)
     fitEMOut <- fitEM(p0=p0, p1=p1, fitGamOut=fitGamOut, n.k=n.k, binom.link=binom.link, method=method, Z=Z, Quasi=Quasi,
-        scale=scale, reml.scale=reml.scale, phi_fletcher=phi_fletcher, epsilon=epsilon, maxStep=maxStep, detail=detail)
+        scale=scale, reml.scale=reml.scale, phi_fletcher=phi_fletcher, epsilon=epsilon, maxStep=maxStep, detail=detail,data=initOut$data)
     out <- fitEMOut$out
     Est.points <- fitEMOut$Est.points
     phi_fletcher <- out$phi_fletcher
     my.design.matrix <- mgcv::model.matrix.gam(out$GamObj)
-    lengthUniqueDataID <- length(unique(fitGamOut$data$ID))
+    lengthUniqueDataID <- length(unique(initOut$data$ID))
     phi_reml <- out$GamObj$reml.scale
-    estimateBZOut <- estimateBZ(Posit = fitGamOut$data$Posit, my.design.matrix = my.design.matrix,
-        ncolsZ = ncol(Z), n.k = n.k)
-    Beta.out <- estimateBeta(BZ = estimateBZOut$BZ, BZ.beta = estimateBZOut$BZ.beta,
-        n.k = n.k, Z = Z, out = out)
-    estimateVarOut <- estimateVar(out=out, phi_fletcher=phi_fletcher, fitGamOut=fitGamOut, my.design.matrix=my.design.matrix,
+    estimateBZOut <- estimateBZ(Posit=initOut$data$Posit, my.design.matrix=my.design.matrix,
+        ncolsZ=ncol(Z), n.k=n.k)
+    Beta.out <- estimateBeta(BZ=estimateBZOut$BZ, BZ.beta=estimateBZOut$BZ.beta,
+        n.k=n.k, Z=Z, out=out)
+    estimateVarOut <- estimateVar(out=out, phi_fletcher=phi_fletcher, data=initOut$data, my.design.matrix=my.design.matrix,
         Z=Z, p0=p0, p1=p1, RanEff=RanEff, lengthUniqueDataID=lengthUniqueDataID, n.k=n.k)
     estimateSEOut <- estimateSE(estimateBZOut=estimateBZOut, Z=Z, estimateVarOut=estimateVarOut, phi_fletcher=phi_fletcher,
         phi_reml=phi_reml)
     X_d <- extractDesignMatrix(GamObj = out$GamObj)
     edf1.out <- out$edf1  ## and p value calculation tr(2A - A^2)
     edf.out <- out$edf  ## Effective degree of freedom: edf --trace of the hat matrix
-    resi_df <- nrow(fitGamOut$data) - sum(edf.out)
+    resi_df <- nrow(initOut$data) - sum(edf.out)
     s.table <- binomRegMethModelSummary(GamObj=out$GamObj, var.cov.alpha=estimateVarOut$var.cov.alpha,
         new.par=out$par, edf.out=edf.out, edf1.out=edf1.out, X_d=X_d, resi_df=resi_df, Quasi=Quasi, scale=scale, RanEff=RanEff,
         Z=Z)
@@ -226,6 +226,15 @@ binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
 #' @param epsilon stopping criteria
 #' @param maxStep maximum iteration steps
 #' @param detail whether to print out the iteration
+#' @param data a data frame with rows as individual CpGs
+#' appeared in all the samples.
+#' The first 4 columns should be named
+#' `Y` (methylated counts),
+#' `X` (read depths), `Posit` (Genomic
+#' position for the CpG site) and `ID`
+#' (sample ID). The covariate information, such as
+#' disease status or cell type composition
+#' are listed in column 5 and onwards.
 #' @return This function return a \code{list} including objects:
 #' \itemize{
 #' \item \code{out} a list
@@ -234,12 +243,12 @@ binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
 #' @author Kaiqiong Zhao
 #' @noRd
 fitEM <- function(p0, p1, fitGamOut, n.k, binom.link, method, Z, Quasi,
-    scale, reml.scale, phi_fletcher, epsilon, maxStep, detail) {
+    scale, reml.scale, phi_fletcher, epsilon, maxStep, detail,data) {
     if (p0 > 0 | p1 < 1) {
-        out <- binomRegMethModelUpdate(data = fitGamOut$data, pi.ij = fitGamOut$gam.int$fitted.values,
-            p0 = p0, p1 = p1, n.k = n.k, binom.link = binom.link, method = method,
-            Z = Z, my.covar.fm = fitGamOut$my.covar.fm, Quasi = Quasi,
-            scale = scale, reml.scale = reml.scale)
+        out <- binomRegMethModelUpdate(data=data, pi.ij=fitGamOut$gam.int$fitted.values,
+            p0=p0, p1=p1, n.k=n.k, binom.link=binom.link, method=method,
+            Z=Z, my.covar.fm=fitGamOut$my.covar.fm, Quasi=Quasi,
+            scale=scale, reml.scale=reml.scale)
         Est.points <- rbind(c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp,
             phi_fletcher), c(out$par, out$lambda, out$phi_fletcher))
         old.pi.ij <- fitGamOut$gam.int$fitted.values
@@ -251,10 +260,10 @@ fitEM <- function(p0, p1, fitGamOut, n.k, binom.link, method, Z, Quasi,
             }
             iter <- iter + 1
             old.pi.ij <- out$pi.ij
-            out <- binomRegMethModelUpdate(data = fitGamOut$data, pi.ij = old.pi.ij,
-                p0 = p0, p1 = p1, n.k = n.k, binom.link = binom.link, method = method,
-                Z = Z, my.covar.fm = fitGamOut$my.covar.fm, Quasi = Quasi,
-                scale = phi_fletcher)
+            out <- binomRegMethModelUpdate(data=data, pi.ij=old.pi.ij,
+                p0=p0, p1=p1, n.k=n.k, binom.link=binom.link, method=method,
+                Z=Z, my.covar.fm=fitGamOut$my.covar.fm, Quasi=Quasi,
+                scale=phi_fletcher)
             Est.points <- rbind(Est.points, c(out$par, out$lambda, out$phi_fletcher))
         }
     } else {
@@ -350,7 +359,15 @@ estimateBeta <- function(BZ, BZ.beta, n.k, Z, out) {
 #' @description Estimate the variance covariance matrix
 #' @param out an output from the update function
 #' @param phi_fletcher Fletcher-based scale estimate
-#' @param fitGamOut an output from fitGam
+#' @param data a data frame with rows as individual CpGs
+#' appeared in all the samples.
+#' The first 4 columns should be named
+#' `Y` (methylated counts),
+#' `X` (read depths), `Posit` (Genomic
+#' position for the CpG site) and `ID`
+#' (sample ID). The covariate information, such as
+#' disease status or cell type composition
+#' are listed in column 5 and onwards.
 #' @param RanEff whether a RE is considered
 #' @param n.k number of knots for all covariates (including intercept)
 #' @param lengthUniqueDataID number of samples in the data
@@ -374,14 +391,14 @@ estimateBeta <- function(BZ, BZ.beta, n.k, Z, out) {
 #' }
 #' @author Kaiqiong Zhao
 #' @noRd
-estimateVar <- function(out, phi_fletcher, fitGamOut, my.design.matrix,
+estimateVar <- function(out, phi_fletcher, data, my.design.matrix,
     Z, p0, p1, RanEff, lengthUniqueDataID, n.k) {
     cum_s <- cumsum(n.k)
     w_ij <- out$pi.ij * (1 - out$pi.ij)/phi_fletcher
-    H <- hessianComp(w_ij = w_ij, new.par = out$par, new.lambda = out$lambda,
-        X = fitGamOut$data$X, Y = fitGamOut$data$Y, my.design.matrix = my.design.matrix,
-        gam_smoothMat = out$GamObj$smooth, Z = Z, pred.pi = out$pi.ij,
-        p0 = p0, p1 = p1, disp_est = phi_fletcher, RanEff = RanEff, N = lengthUniqueDataID)
+    H <- hessianComp(w_ij=w_ij, new.par=out$par, new.lambda=out$lambda,
+        X=data$X, Y=data$Y, my.design.matrix=my.design.matrix,
+        gam_smoothMat=out$GamObj$smooth, Z=Z, pred.pi=out$pi.ij,
+        p0=p0, p1=p1, disp_est=phi_fletcher, RanEff=RanEff, N=lengthUniqueDataID)
 
     var.cov.alpha <- solve(-H)
     var.alpha.0 <- var.cov.alpha[seq_len(n.k[1]), seq_len(n.k[1])]
@@ -566,9 +583,9 @@ regResOneSmooth <- function(GamObj, i, RanEff, Quasi, resi_df, var.cov.alpha,
 #' there shapes
 #' @param data a data frame with rows as individual CpGs
 #' appeared in all the samples.
-#' The first 4 columns should contain the information of
-#' `Meth_Counts` (methylated counts),
-#' `Total_Counts` (read depths), `Position` (Genomic
+#' The first 4 columns should be named
+#' `Y` (methylated counts),
+#' `X` (read depths), `Posit` (Genomic
 #' position for the CpG site) and `ID`
 #' (sample ID). The covariate information, such as
 #' disease status or cell type composition
@@ -664,9 +681,9 @@ binomRegMethModelInit <- function(data, covs, n.k) {
 #' @description Fit gam for the initial value
 #' @param data a data frame with rows as individual CpGs
 #' appeared in all the samples.
-#' The first 4 columns should contain the information of
-#' `Meth_Counts` (methylated counts),
-#' `Total_Counts` (read depths), `Position` (Genomic
+#' The first 4 columns should be named
+#' `Y` (methylated counts),
+#' `X` (read depths), `Posit` (Genomic
 #' position for the CpG site) and `ID`
 #' (sample ID). The covariate information, such as
 #' disease status or cell type composition
@@ -694,16 +711,6 @@ binomRegMethModelInit <- function(data, covs, n.k) {
 #' @return This function return a \code{list}
 #' including objects:
 #' \itemize{
-#' \item \code{data}: a data frame with rows as individual
-#' CpGs appeared
-#' in all the
-#' samples. The first 4 columns should contain the information
-#' of `Meth_Counts`
-#' (methylated counts), `Total_Counts` (read depths), `Position
-#' (Genomic position
-#' for the CpG site) and `ID` (sample ID). The covariate information,
-#' such as disease
-#' status or cell type composition are listed in column 5 and onwards.
 #' \item \code{gam.int}: a gam object from mgcv::gam
 #' \item \code{my.covar.fm}: the formula used to fit the gam
 #' }
@@ -732,7 +739,7 @@ fitGam <- function(data, Quasi, binom.link, method, RanEff, scale, Z, n.k) {
         gam.int <- mgcv::gam(as.formula(paste0("Y/X ~", my.covar.fm)),
             family = binomial(link = binom.link), weights = data$X, data = data,
             method = method, scale = scale)
-        return(out <- list(data = data, gam.int = gam.int, my.covar.fm = my.covar.fm))
+        return(out <- list(gam.int = gam.int, my.covar.fm = my.covar.fm))
     }
 }
 
@@ -742,15 +749,15 @@ fitGam <- function(data, Quasi, binom.link, method, RanEff, scale, Z, n.k) {
 #' @description phiFletcher calculate the Fletcher-based dispersion
 #' estimate from the
 #' final gam output
-#' @param data a data frame with rows as individual CpGs appeared
-#' in all the samples.
-#' The first 4 columns should contain the information of `Meth_Counts`
-#' (methylated counts),
-#' `Total_Counts` (read depths), `Position` (Genomic position for the
-#' CpG site) and
-#' `ID` (sample ID). The covariate information, such as disease
-#' status or cell type
-#' composition are listed in column 5 and onwards.
+#' @param data a data frame with rows as individual CpGs
+#' appeared in all the samples.
+#' The first 4 columns should be named
+#' `Y` (methylated counts),
+#' `X` (read depths), `Posit` (Genomic
+#' position for the CpG site) and `ID`
+#' (sample ID). The covariate information, such as
+#' disease status or cell type composition
+#' are listed in column 5 and onwards.
 #' @param Quasi whether a Quasi-likelihood estimation approach
 #' will be used
 #' @param reml.scale whether a REML-based scale (dispersion)
