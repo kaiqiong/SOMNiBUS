@@ -268,7 +268,7 @@ fitEM <- function(p0, p1, fitGamOut, n.k, binom.link, method, Z, Quasi,
             out <- binomRegMethModelUpdate(data=data, pi.ij=old.pi.ij,
                 p0=p0, p1=p1, n.k=n.k, binom.link=binom.link, method=method,
                 Z=Z, my.covar.fm=fitGamOut$my.covar.fm, Quasi=Quasi,
-                scale=phi_fletcher)
+                scale=scale, reml.scale=reml.scale)
             Est.points <- rbind(Est.points, c(out$par, out$lambda, out$phi_fletcher))
         }
     } else {
