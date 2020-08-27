@@ -82,6 +82,11 @@
 #' @param scale nagative values mean scale paramter should be
 #' estimated; if a positive
 #' value is provided, a fixed scale will be used.
+#' @param seed the seed used to sample a subset of rows of
+#' the full design matrix. The samping is only conducted
+#' when GamObj$R is NULL, i.e QR decomposition of the
+#' full design matrix is not available from the original Gam
+#' output.
 #' @return This function return a \code{list} including objects:
 #' \itemize{
 #' \item \code{est}: estimates of the spline basis coefficients
@@ -155,7 +160,7 @@
 binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
     epsilon = 10^(-6), epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE,
     binom.link = "logit", method = "REML", covs = NULL, RanEff = TRUE,
-    reml.scale = FALSE, scale = -2) {
+    reml.scale = FALSE, scale = -2, seed = 11111) {
     initOut <- binomRegMethModelInit(data=data, covs=covs, n.k=n.k)
     Z <- initOut$Z
     fitGamOut <- fitGam(data=initOut$data, Quasi=Quasi, binom.link=binom.link,
@@ -178,7 +183,7 @@ binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
         Z=Z, p0=p0, p1=p1, RanEff=RanEff, lengthUniqueDataID=lengthUniqueDataID, n.k=n.k)
     estimateSEOut <- estimateSE(estimateBZOut=estimateBZOut, Z=Z, estimateVarOut=estimateVarOut, phi_fletcher=phi_fletcher,
         phi_reml=phi_reml)
-    X_d <- extractDesignMatrix(GamObj = out$GamObj)
+    X_d <- extractDesignMatrix(GamObj=out$GamObj, seed=seed)
     edf1.out <- out$edf1  ## and p value calculation tr(2A - A^2)
     edf.out <- out$edf  ## Effective degree of freedom: edf --trace of the hat matrix
     resi_df <- nrow(initOut$data) - sum(edf.out)
@@ -806,13 +811,17 @@ phiFletcher <- function(data, Quasi, reml.scale, scale, gam.int) {
 #'
 #' @description extract design matrix
 #' @param GamObj a mgcv object
+#' @param seed the seed used to sample a subset of rows of
+#' the full design matrix. The samping is only conducted
+#' when GamObj$R is NULL, i.e QR decomposition of the
+#' full design matrix is not available in the GamObj.
 #' @return This function return a design matrix \code{X_d}: R matrix
 #' from the QR decomposition
 #' @importFrom mgcv predict.gam
 #' @importFrom mgcv model.matrix.gam
 #' @author Kaiqiong Zhao Simon Laurin-Lemay
 #' @noRd
-extractDesignMatrix <- function(GamObj) {
+extractDesignMatrix <- function(GamObj, seed) {
     ## A more efficient way to extract design matrix. use a random sample of
     ## rows of the data to reduce the computational cost
     if (!is.null(GamObj$R)) {
@@ -821,6 +830,7 @@ extractDesignMatrix <- function(GamObj) {
         sub.samp <- max(1000, 2 * length(GamObj$coefficients))
         if (nrow(GamObj$model) > sub.samp) {
             ## subsample to get X for p-values calc.  sample these rows from X
+            set.seed(seed)
             ind <- sample(seq_len(nrow(GamObj$model)), sub.samp, replace = FALSE)
             X_d <- mgcv::predict.gam(GamObj, GamObj$model[ind, ], type = "lpmatrix")
         } else {
