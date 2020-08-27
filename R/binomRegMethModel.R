@@ -657,10 +657,11 @@ binomRegMethModelInit <- function(data, covs, n.k) {
         ## factor')
         data$Position <- as.numeric(as.character(data$Position))
     }
-    if (any(!c("Meth_Counts", "Total_Counts", "Position") %in% colnames(data))) {
+    if (any(!c("Meth_Counts", "Total_Counts", "Position", "ID") %in% colnames(data))) {
         stop("Please make sure object \"data\" have columns named as \"Meth_Counts\",
-             \"Total_Counts\" and \"Position\" ")
+             \"Total_Counts\", \"Position\" and \"ID\" ")
     }
+    data$ID <- as.factor(data$ID)
     colnames(data)[match(c("Meth_Counts", "Total_Counts", "Position"),
         colnames(data))] <- c("Y", "X", "Posit")
     if (is.null(covs)) {
@@ -732,7 +733,6 @@ fitGam <- function(data, Quasi, binom.link, method, RanEff, scale, Z, n.k) {
 
     if (RanEff) {
         my.covar.fm <- paste0(my.covar.fm, "+ s(ID, bs=\"re\")")
-        data$ID <- as.factor(data$ID)
     }
     ## Fit gam for the initial value
     if (Quasi) {
