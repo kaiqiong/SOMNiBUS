@@ -14,5 +14,5 @@ out_binomRegMethModelUpdate <- binomRegMethModelUpdate(
 )
 
 test_that("the output corresponds to binomRegMethModelupdate method description", {
-  expect_false(length(out_binomRegMethModelUpdate) == 4)
+  expect_true(length(out_binomRegMethModelUpdate) == 10)
 })
