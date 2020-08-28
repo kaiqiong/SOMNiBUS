@@ -20,8 +20,7 @@ binomRegMethModel(
   covs = NULL,
   RanEff = TRUE,
   reml.scale = FALSE,
-  scale = -2,
-  seed = 11111
+  scale = -2
 )
 }
 \arguments{
@@ -94,12 +93,6 @@ default is Fletcher-based estimator}
 \item{scale}{nagative values mean scale paramter should be
 estimated; if a positive
 value is provided, a fixed scale will be used.}
-
-\item{seed}{the seed used to sample a subset of rows of
-the full design matrix. The samping is only conducted
-when GamObj$R is NULL, i.e QR decomposition of the
-full design matrix is not available from the original Gam
-output.}
 }
 \value{
 This function return a \code{list} including objects:
