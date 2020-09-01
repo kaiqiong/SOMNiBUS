@@ -31,6 +31,7 @@ backports
 bbs
 Belkacem
 BEM
+Bernatsky
 bh
 bibentry
 bibtype
@@ -55,6 +56,7 @@ biocViews
 BiocViews
 Bioinformatics
 biom
+biomarker
 Biometric
 Biostatistics
 bisulfite
@@ -82,6 +84,7 @@ Chaieb
 charactersAt
 chmod
 Ciampi
+citrullinated
 cli
 clipr
 clisymbols
@@ -153,6 +156,7 @@ Epigenetics
 et
 fansi
 filelock
+fletcher
 fm
 fontconfig
 forcats
@@ -163,6 +167,7 @@ formatR
 freetype
 fribidi
 fs
+functionalparamters
 FunctionalPrediction
 gam
 GAMM
@@ -281,6 +286,7 @@ mcgill
 McGill
 memoise
 MERCHANTABILITY
+metabisulfite
 methodss
 methylated
 methylation
@@ -431,6 +437,7 @@ selectr
 sep
 sessioninfo
 setuptools
+simdat
 simon
 SLL
 SmOoth
@@ -449,6 +456,7 @@ stringi
 stringr
 styler
 sublicense
+surch
 sys
 terminado
 tesseract
