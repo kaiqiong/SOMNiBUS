@@ -597,12 +597,15 @@ regResOneSmooth <- function(GamObj, i, RanEff, Quasi, resi_df, var.cov.alpha,
 #' of each functional parameters.
 #' @author Simon Laurin-Lemay, Kaiqiong Zhao
 #' @noRd
-binomRegMethModelChecks <- function(data, Z, n.k) {
+binomRegMethModelChecks <- function(posit, X, Z, n.k) {
     if (length(n.k) != (ncol(Z) + 1)) {
         stop("The length of n.k should equal to the number of covariates plus 1
              (for the intercept)")
     }
-    if (any(data$X == 0)) {
+    if( max(n.k[-1])> round(length(unique(posit))/20)){
+        message("we recommend basis dimentions n.k approximately equal to the number of unique CpGs in the region divided by 20")
+    }
+    if (any(X == 0)) {
         stop("The rows with Total_Counts equal to 0 should be deleted beforehand")
     }
     if (any(is.na(Z))) {
@@ -662,7 +665,7 @@ binomRegMethModelInit <- function(data, covs, n.k) {
     if (is.null(covs)) {
         Z <- as.matrix(data[, -seq_len(4)], ncol = ncol(data) - 4)
         colnames(Z) <- colnames(data)[-seq_len(4)]
-        binomRegMethModelChecks(data = data, Z = Z, n.k = n.k)
+        binomRegMethModelChecks(posit = data$Posit, X = data$X, Z = Z, n.k = n.k)
         return(out <- list(data = data, Z = Z))
     } else {
         id <- match(covs, colnames(data))
@@ -671,7 +674,7 @@ binomRegMethModelInit <- function(data, covs, n.k) {
         } else {
             Z <- as.matrix(data[, id], ncol = length(id))
             colnames(Z) <- covs
-            binomRegMethModelChecks(data = data, Z = Z, n.k = n.k)
+            binomRegMethModelChecks(posit = data$Posit, X = data$X, Z = Z, n.k = n.k)
             return(out <- list(data = data, Z = Z))
         }
     }
