@@ -26,19 +26,14 @@ knitr::opts_chunk$set(
 ```
 
 
-# Introduction
+# Installation
 
-**SOMNiBUS** aims to analyze count-based methylation data on predefined genomic regions, such as those obtained by targeted sequencing, and thus to identify differentially methylated regions (DMRs) that are associated with phenotypes or traits.
-
-Major advantages of **SOMNiBUS**
-
-- Take account of experimental errors
-- Allow for multiple covariates, such as proportions of different cell types.
-- Enable estimating smooth covariate effects and assessing statistical significance of methylation regions
-
-For a more comprehensive introduction of the **SOMNiBUS** approach, please read our SOMNiBUS paper [@Zhao2020].
-
-## Installation
+<!---```{r installation, echo=TRUE, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("SOMNiBUS")
+devtools::install_github("kaiqiong/SOMNiBUS", build_vignettes = TRUE)
+-->
 
 Currently, the software package can be installed from [github](https://github.com/kaiqiong/SOMNiBUS).
 
@@ -48,30 +43,33 @@ devtools::document(ROOT_PACKAGE_PATH)
 devtools::load_all(ROOT_PACKAGE_PATH)
 ```
 
-## Dependencies
+# Introduction
 
-```{r dependencies, warning=FALSE, message=FALSE}
-library(SOMNiBUS)
-```
+**SOMNiBUS** aims to analyze count-based methylation data on predefined genomic regions, such as those obtained by targeted sequencing, and thus to identify differentially methylated regions (DMRs) that are associated with phenotypes or traits surch as cell types.
 
-## System Requirements
+Major advantages of **SOMNiBUS**
 
+- enable complex associations with multiple phenotypes / traits using a Generalized Additive Model approach
+- the modeling strategy incorporates count-based methylation error rate arguments (i.e., p0 or false positive rate and p1 or true positive rate)
+
+For a more comprehensive introduction of the **SOMNiBUS** approach, please read our SOMNiBUS paper [@Zhao2020].
 
 ## Citation
 
 If you use this package, please cite our SOMNiBUS paper [@Zhao2020].
 
-# Data example
+# Application
+## Rheumatoid arthritis study
 
 Throughout this vignette, we illustrate the **SOMNiBUS** approach with analysis of a targeted region from a rheumatoid arthritis (RA) study. See `help(RAdat)` for further details. In this example, the phenotype of major interest is the RA status (coded as `RA`) and the adjusting variable is the cell type status (coded as `T_cell`) which is binary because the experiment used cell-type-separated blood samples, and methylation profiles were characterized for both T-cells and Monocytes. We will refer to both `RA` and `T_cell` as *covariates*.
 We are going to use the package `SOMNiBUS` to investigate the methylation patterns in this region and study association with RA status and cell type.
-```{r}
-data(RAdat)
+```{r load package, echo=TRUE, message=FALSE, warning=FALSE}
+library(SOMNiBUS)
 ```
 
 # Input data
 
-Currently, we require a matrix-type input of the methylated reads (`Meth_Counts`) and the read depth (`Total_Counts`) for CpG sites of each sample. Inputs in another other format, such as Bismark or a `BSeq` object from the **bsseq** package, will be incorporated in the future.
+Currently, we require a matrix-type input of the methylated reads (`Meth_Counts`) and the read depth (`Total_Counts`) for CpG sites of each sample. Inputs in another format, such as Bismark or a `BSeq` object from the **bsseq** package, will be incorporated in the future.
 
 Before using the package, the input data matrix (or data frame) should be formatted  such that:
 
@@ -89,7 +87,7 @@ head(RAdat)
 
 To better use the information in the methylation dataset, on one hand, **SOMNiBUS** uses a smoothing technique (regression splines) to borrow information from the nearby CpG sites; on the other hand, our approach uses regression-based modelling to take advantage of information contained across samples. Therefore, this algorithm does not require filtering out the CpG sites that have methylation levels measured only in a small part of the samples, or the samples that have overall poor read-depths and many missing values. Our analysis of differentially methylated regions (DMRs) requires filtering only on the following two conditions:
 
-- individual CpGs that have zero reads in a particular sample
+- individual CpGs that have zero reads in a particular sample (no observation available)
 - samples that have missing values in any of the covariates of interest (i.e missing values for `T_cell` or `RA` in the data set `RAdat`)
 
 ```{r}
@@ -98,7 +96,7 @@ RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 
 ## Adjusting for covariates and adding interactions
 
-- we currently only accept numeric input for the covariates used to fit the model. we recommend that first transform your categorical variables into appropriate dummy variables
+- we currently only accept numeric input for the covariates used to fit the model. we recommend that first you transform your categorical variables into appropriate dummy variables
 - interaction terms can be added in the analysis model. To do that, the program requires that users add another column of covariate values into the input data set calculated as the product of two existing covariates whose interaction is of interest.
 
 # Analysis
@@ -115,34 +113,38 @@ Or, we can use the argument `covs` to specify that we only want the covariate `T
 out.ctype <- binomRegMethModel(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, covs = "T_cell")
 ```
 
-## Error rates $p_0$ and $p_1$
+## Error rates p0 and p1
 
 In the example data set, we have cell type separated samples. The error rates for individual samples can be estimated by a E-M algorithm [@lakhal2017smoothed] using the package `SmoothMSC`. The error rate default values,
-$p_0=0.003$ and $p_1=0.9$, were estimated as the average incomplete ($p_0$) or over- conversion ($1-p_1$). These two estimated values coincide roughly with the incomplete and over conversion rates in a bisulfite sequencing experiment reported in @prochenka2015cautionary.
+$p_0=0.003$ and $p_1=0.9$, were estimated as the average incomplete ($p_0$) or over- conversion ($1-p_1$) of the metabisulfite. These two estimated values coincide roughly with the incomplete and over conversion rates related to bisulfite sequencing experiment reported in @prochenka2015cautionary. Both parameters, p0 and p1, correspond to the false positive rate and the true positive rate respectively, where 1-p1 being the false negative rate.
 
-For experiments with samples from a tissue containing a mixture of cell types, the user could consider the following ways to specify the error rates $p_0$ and $1-p_1$.
+For experiments with samples from a tissue containing a mixture of cell types, the user could consider the following ways to specify the error rates p0 and 1-p1.
 
 - If users have conducted experiments for measuring error/conversion rates, such as adding spike-in sequences of DNA that are known in advance to be methylated or unmethylated into the bisulfite sequencing procedure, they can use the measured error rates for the input of `p0` and `p1`
 - One can also use the error rates (incomplete and over conversion rates) that have been previous reported in the literature.
 - Another option is to use our default values.
 
-##  Basis dimensions: `n.k`:
+##  Basis dimensions n.k:
 
 Argument `n.k` in the `binomRegMethModel` is the dimension of the basis expansion for smooth covariate effects.
 The exact number `n.k` used for each functional parameter is not crucial, because it only sets an upper bound. We recommend choosing a basis dimension approximately equal to the number of unique CpGs in the region divided by 20.
 
+```{r}
+as.integer(length(unique(RAdat.f$Position)) / 20)
+```
 
 # Results
 
-## Result from the region-wide test of zero effect of all covariates:
+## testing the null hypothesis
+
+Under the null hypothesis, we are expecting no effects of the covariates over the region-wide methylation status.
+
 
 ```{r}
 out$reg.out
 ```
 
 ## Estimation of the smooth covariate effects
-
-
 
 ```{r , fig.cap="The estimates (solid red lines) and 95% pointwise confidence intervals (dashed red lines) of the intercept, the smooth effect of cell type and RA on methylation levels. ", fig.height= 4, fig.width=9}
 binomRegMethModelPlot(out)

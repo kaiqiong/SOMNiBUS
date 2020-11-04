@@ -25,4 +25,3 @@ test_that("hessianComp calculates the correct Hessian matrix", {
     expect_true(isTRUE(all.equal(solve(-H), ref$cov1)))
     #expect_true(all(solve(-H) - ref$cov1 <0.000001))
 })
-

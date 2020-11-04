@@ -161,7 +161,7 @@ calling rate (\code{1-p1}).
 
 The covariate effects are assumed to smoothly vary across
 genomic regions. In order to estimate them, the algorithm first
-represents the functionalparamters by a linear combination
+represents the functional paramters by a linear combination
 of a set of restricted cubic splines (with dimention
 \code{n.k}), and a smoothness penalization term
 which depends on the smoothing parameters \code{lambdas} is also
