@@ -1,13 +1,27 @@
+---
+title: "README"
+output: html_document
+bibliography: [vignettes/bibliography.bib]
+csl: biomed-central.csl
+---
+
 # SOMNiBUS: SmOoth ModeliNg of BisUlfite Sequencing
 
-Identifying disease-associated changes in DNA methylation can help us gain a better understanding of disease etiology. **SOMNiBUS** aims to analyze count-based DNA methylation (measured via bisulfite sequencing) on predefined genomic regions, such as those obtained by targeted sequencing, and thus to identify differentially methylated regions (DMRs) that are associated with phenotypes or traits. Specifically, we built a rich flexible model that allows for the effects, on the methylation levels, of multiple covariates to vary smoothly along genomic regions. At the same time, this method also allows for sequencing errors and can adjust for variability in cell type mixture. Here, penalization introduces smoothness for each covariate effect. 
+Identifying disease-associated changes in DNA methylation can help us gain a better understanding of disease etiology. **SOMNiBUS** aims to analyze count-based DNA methylation (measured via bisulfite sequencing) on predefined genomic regions, such as those obtained by targeted sequencing, and thus to identify differentially methylated regions (DMRs) that are associated with phenotypes or traits. Specifically, we built a rich flexible model that allows for the effects, on the methylation levels, of multiple covariates to vary smoothly along genomic regions. At the same time, this method also allows for sequencing errors and can adjust for variability in cell type mixture. Here, penalization introduces smoothness for each covariate effect.
 
 The package **SOMNiBUS** enable users to estimate smooth covariate effects and to assess statistical significance of methylation regions.
 
 
 ### Installation
 
-You can install the development version of `SOMNiBUS` from GitHub:
+Install the developer version of Bioconductor package SOMNiBUS.
+
+```r
+install.packages("BiocManager")
+BiocManager::install("SOMNiBUS", version = "devel")
+```
+
+Or install the development version of `SOMNiBUS` from GitHub:
 
 ```r
 if(!require("devtools")) install.packages("devtools")
@@ -34,11 +48,6 @@ vignette("SOMNiBUS")
 
 ## Learn more
 
-More details of the **SOMNiBUS** method can be found in the manuscript
+More details of the **SOMNiBUS** method can be found in the manuscript [@Zhao2020]
 
-> Zhao, K., Oualkacha, K., Lakhal-Chaieb, L., Klein, K., Hudson, M., and Greenwood, C.M.T. 
-> A novel statistical method for modeling covariate effects in bisulfite sequencing derived measures of DNA methylation 
-> *submitted*, 2019.
-
-
-
+# References

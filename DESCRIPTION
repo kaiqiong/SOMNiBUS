@@ -1,14 +1,38 @@
 Package: SOMNiBUS
-Title: SmOoth ModeliNg of BisUlfite Sequencing
+Title: Smooth modeling of bisulfite sequencing
 Version: 0.1.0
-Authors@R: person("Kaiqiong", "Zhao", email = "kaiqiong.zhao@mail.mcgill.ca", role = c("aut", "cre"))
-Description: The package aims to analyze count-based methylation data on predefined genomic regions, such as those obtained by targeted sequencing, and thus to identify differentially methylated regions (DMRs) that are associated with phenotypes or traits.
-Depends: R (>= 3.5.0)
-Imports: Matrix, mgcv, pacman
-License: MIT
+Author: Kaiqiong Zhao <kaiqiong.zhao@mail.mcgill.ca>
+Maintainer: Simon Laurin-Lemay <simon@mims.ai>
+Description: Analyse count-based methylation data on predefined
+    genomic regions, such as those obtained by targeted sequencing, and
+    thus to identify differentially methylated regions (DMRs) that are
+    associated with phenotypes or traits.
+License: MIT + file LICENSE
+URL: https://github.com/kaiqiong/SOMNiBUS
+BugReports: https://github.com/kaiqiong/SOMNiBUS/issues
+Depends:
+    R (>= 4.0.2)
+Imports:
+    graphics,
+    Matrix,
+    mgcv,
+    stats,
+    VGAM
+Suggests:
+    BiocStyle,
+    covr,
+    devtools,
+    dplyr,
+    knitr,
+    magick,
+    rmarkdown,
+    testthat
+VignetteBuilder:
+    knitr
+biocViews: DNAMethylation, Regression, Epigenetics,
+    DifferentialMethylation, Sequencing, FunctionalPrediction
 Encoding: UTF-8
+Language: en-US
 LazyData: true
-Suggests: knitr,
-    rmarkdown
-VignetteBuilder: knitr
-RoxygenNote: 6.1.1
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
