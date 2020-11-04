@@ -137,8 +137,9 @@ as.integer(length(unique(RAdat.f$Position)) / 20)
 
 ## testing the null hypothesis
 
-Regional-wide zero effects of the covariates over the methylation status is expected under the null hypothesis.
-.
+Under the null hypothesis, we are expecting no effects of the covariates over the region-wide methylation status.
+
+
 ```{r}
 out$reg.out
 ```
