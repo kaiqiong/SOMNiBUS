@@ -1,0 +1,12 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+docker
+.pre-commit-config.yaml
+clean_env.sh
+environment.yml
+bitbucket-pipelines.yml
+SOMNiBUS_*.tar.gz
+.BioconductorQualitative.yml
+^doc$
+^Meta$
+^scripts$
