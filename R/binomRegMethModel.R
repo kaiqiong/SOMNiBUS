@@ -134,7 +134,6 @@
 #' @author  Kaiqiong Zhao
 #' @seealso  \link[mgcv]{gam}
 #' @examples
-#' \dontrun{
 #' #------------------------------------------------------------#
 #' data(RAdat)
 #' head(RAdat)
@@ -144,7 +143,6 @@
 #'   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200,
 #'   detail=FALSE
 #' )
-#' }
 #' @importFrom mgcv gam
 #' @importFrom mgcv predict.gam
 #' @importFrom mgcv model.matrix.gam
@@ -249,7 +247,7 @@ fitEM <- function(p0, p1, fitGamOut, n.k, binom.link, method, Z, Quasi,
     if (p0 > 0 | p1 < 1) {
         old.pi.ij <-fitGamOut$gam.int$fitted.values
         mean_part <- mean(((old.pi.ij-p0)*(p1-old.pi.ij))/(old.pi.ij*(1-old.pi.ij)),
-                          na.rm = T)
+                          na.rm = TRUE)
         phi_fletcher <- (phi_fletcher-1)/mean_part+1
         out <- binomRegMethModelUpdate(data=data, pi.ij=fitGamOut$gam.int$fitted.values,
             p0=p0, p1=p1, n.k=n.k, binom.link=binom.link, method=method,

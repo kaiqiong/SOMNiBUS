@@ -177,7 +177,6 @@ implementation of
 \code{gam()} in package \code{mgcv}.
 }
 \examples{
-\dontrun{
 #------------------------------------------------------------#
 data(RAdat)
 head(RAdat)
@@ -187,7 +186,6 @@ out <- binomRegMethModel(
   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200,
   detail=FALSE
 )
-}
 }
 \seealso{
 \link[mgcv]{gam}

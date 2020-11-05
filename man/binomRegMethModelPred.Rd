@@ -25,16 +25,15 @@ This function returns the predicted methylation levels
 This function returns the predicted methylation levels
 }
 \examples{
-\dontrun{
 #------------------------------------------------------------#
 head(RAdat)
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 out <- binomRegMethModel(
   data=RAdat.f, n.k=rep(5, 3), p0=0.003307034, p1=0.9,
-  epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE
+  epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE,
+  Quasi = FALSE, RanEff = FALSE
 )
 binomRegMethModelPred(out)
-}
 }
 \author{
 Kaiqiong Zhao
