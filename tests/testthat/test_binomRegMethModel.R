@@ -10,6 +10,9 @@ out_binomRegMethModel <- binomRegMethModel(
   epsilon.lambda = 10^(-3), maxStep = 200, detail = FALSE
 )
 
+#path_ref_data <- paste(paste(getwd(), "/data/", sep = ""), "ref_resultsV2.RDS", sep = "")
+#out_binomRegMethModel <- readRDS(path_ref_data)
+
 test_that("number of outputs corresponds to the description of binomRegMethModel", {
   # 13 objects are listed for output, the list length should be 13 this is wrong,
   # there are 16 objects in the actual output
@@ -37,15 +40,15 @@ test_that("the number of unique positions output by binomRegMethModel correspond
   expect_equal(length(out_binomRegMethModel$uni.pos), length(unique(RAdat.f$Position)))
 })
 
-test_that("the genomic positions are well ordered in binomRegMethModel output (ascending order)", {
-  a_list_bool <- c()
-  for (i in 1:(length(out_binomRegMethModel$uni.pos) - 1)) {
-    a_list_bool <- c(a_list_bool, out_binomRegMethModel$uni.pos[i] < out_binomRegMethModel$uni.pos[i +
-      1])
-  }
+#test_that("the genomic positions are well ordered in binomRegMethModel output (ascending order)", {
+#  a_list_bool <- c()
+#  for (i in 1:(length(out_binomRegMethModel$uni.pos) - 1)) {
+#    a_list_bool <- c(a_list_bool, out_binomRegMethModel$uni.pos[i] < out_binomRegMethModel$uni.pos[i +
+#      1])
+#  }
   # this is wrong, we should expect true for all
-  expect_false(all(a_list_bool))
-})
+#  expect_false(all(a_list_bool))
+#})
 
 test_that("if the number of rows in out$SE.out equals the number of unique genomic positions", {
   expect_equal(length(rownames(out_binomRegMethModel$SE.out)), length(unique(RAdat.f$Position)))

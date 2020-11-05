@@ -221,60 +221,6 @@ legend("top", c("RA MONO", "RA TCELL", "CTRL MONO", "CTRL TCELL"),
 )
 ```
 
-# An example requiring short runtime
-
-In this example, `RAdat` was analyzed. There are 43 samples and 2 binary covariate of interest. The region under investigation consists of  123 CpG sites.
-
-```{r}
-RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
-```
-
-
-```{r}
-time0 <- Sys.time()
-out_quasi <- binomRegMethModel(data = RAdat.f, n.k = rep(5, 3), p0 = 0.003, p1 = 0.9, Quasi = TRUE, RanEff = FALSE)
-print(Sys.time() - time0)
-out_quasi$reg.out
-```
-
-# An example requiring longer runtime
-
-Here, a relative larger data set `RAdat2` with 9 covariates is used for illustration. In `RAdat2`, methylation levels on a region with 208 CpGs for 116 blood samples are available.
-
-```{r}
-data("RAdat2")
-head(RAdat2)
-```
-
-
-```{r}
-nCpG <- length(unique(RAdat2$Position))
-time0 <- Sys.time()
-out_RA2 <- binomRegMethModel(data = RAdat2, n.k = c(5, rep(max(3, round(nCpG / 20)), 9)), p0 = 0.003, p1 = 0.9, Quasi = TRUE, RanEff = FALSE)
-print(Sys.time() - time0)
-```
-```{r}
-out_RA2$reg.out
-```
-
-
-```{r}
-binomRegMethModelPlot(out_RA2, mfrow = c(2, 5))
-```
-
-## No error
-
-We can also specify no error
-
-```{r}
-time0 <- Sys.time()
-out_RA2_noError <- binomRegMethModel(data = RAdat2, n.k = c(5, rep(max(3, round(nCpG / 20)), 9)), p0 = 0, p1 = 1, Quasi = TRUE, RanEff = FALSE)
-print(Sys.time() - time0)
-```
-
-```{r}
-out_RA2_noError$reg.out
-```
 
 # Session info {.unnumbered}
 

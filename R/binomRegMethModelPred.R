@@ -12,6 +12,7 @@
 #' @return This function returns the predicted methylation levels
 #' @author  Kaiqiong Zhao
 #' @examples
+#' \dontrun{
 #' #------------------------------------------------------------#
 #' head(RAdat)
 #' RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
@@ -20,6 +21,7 @@
 #'   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE
 #' )
 #' binomRegMethModelPred(out)
+#' }
 #' @export
 binomRegMethModelPred <- function(BEM.obj, newdata = NULL, type = "proportion") {
     uni.pos <- BEM.obj$uni.pos

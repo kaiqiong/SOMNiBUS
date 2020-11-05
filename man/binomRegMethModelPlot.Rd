@@ -27,6 +27,7 @@ covariate effect
 across the region for each test covariate.
 }
 \examples{
+\dontrun{
 #------------------------------------------------------------#
 head(RAdat)
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
@@ -35,6 +36,7 @@ out <- binomRegMethModel(
   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE
 )
 binomRegMethModelPlot(out, same.range=FALSE)
+}
 }
 \author{
 Kaiqiong Zhao

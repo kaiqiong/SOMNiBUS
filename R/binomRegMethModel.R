@@ -13,7 +13,7 @@
 #' calling rate (\code{1-p1}).
 #' @description The covariate effects are assumed to smoothly vary across
 #' genomic regions. In order to estimate them, the algorithm first
-#' represents the functionalparamters by a linear combination
+#' represents the functional paramters by a linear combination
 #' of a set of restricted cubic splines (with dimention
 #' \code{n.k}), and a smoothness penalization term
 #' which depends on the smoothing parameters \code{lambdas} is also
@@ -134,6 +134,7 @@
 #' @author  Kaiqiong Zhao
 #' @seealso  \link[mgcv]{gam}
 #' @examples
+#' \dontrun{
 #' #------------------------------------------------------------#
 #' data(RAdat)
 #' head(RAdat)
@@ -143,6 +144,7 @@
 #'   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200,
 #'   detail=FALSE
 #' )
+#' }
 #' @importFrom mgcv gam
 #' @importFrom mgcv predict.gam
 #' @importFrom mgcv model.matrix.gam
@@ -245,13 +247,16 @@ binomRegMethModel <- function(data, n.k, p0 = 0.003, p1 = 0.9, Quasi = TRUE,
 fitEM <- function(p0, p1, fitGamOut, n.k, binom.link, method, Z, Quasi,
     scale, reml.scale, phi_fletcher, epsilon, maxStep, detail,data) {
     if (p0 > 0 | p1 < 1) {
+        old.pi.ij <-fitGamOut$gam.int$fitted.values
+        mean_part <- mean(((old.pi.ij-p0)*(p1-old.pi.ij))/(old.pi.ij*(1-old.pi.ij)),
+                          na.rm = T)
+        phi_fletcher <- (phi_fletcher-1)/mean_part+1
         out <- binomRegMethModelUpdate(data=data, pi.ij=fitGamOut$gam.int$fitted.values,
             p0=p0, p1=p1, n.k=n.k, binom.link=binom.link, method=method,
             Z=Z, my.covar.fm=fitGamOut$my.covar.fm, Quasi=Quasi,
-            scale=scale, reml.scale=reml.scale)
+            scale=phi_fletcher, reml.scale=reml.scale)
         Est.points <- rbind(c(fitGamOut$gam.int$coefficients, fitGamOut$gam.int$sp,
             phi_fletcher), c(out$par, out$lambda, out$phi_fletcher))
-        old.pi.ij <- fitGamOut$gam.int$fitted.values
         iter <- 1
         while (sqrt(sum((out$pi.ij - old.pi.ij)^2)) > epsilon & iter <
             maxStep) {
@@ -774,10 +779,16 @@ fitGam <- function(data, Quasi, binom.link, method, RanEff, scale, Z, n.k) {
 #' @author Kaiqiong Zhao, Simon Laurin-Lemay
 #' @noRd
 phiFletcher <- function(data, Quasi, reml.scale, scale, gam.int) {
-    old.pi.ij <- gam.int$fitted.values
-    edf.out <- gam.int$edf
-    pearsonResiduals <- residuals(gam.int, type = "pearson")
+    if (!Quasi) {
+        return(phi_fletcher <- 1)
+    }
+    if (scale > 0) {
+        return(phi_fletcher <- scale)
+    }
     if (Quasi & scale <= 0) {
+        old.pi.ij <- gam.int$fitted.values
+        edf.out <- gam.int$edf
+        pearsonResiduals <- residuals(gam.int, type = "pearson")
         if (reml.scale) {
             return(phi_fletcher <- gam.int$reml.scale)
         }
@@ -795,12 +806,6 @@ phiFletcher <- function(data, Quasi, reml.scale, scale, gam.int) {
         ## the edf.out instead of edf1.out
         phi_p <- sum(pearsonResiduals^2)/(length(data$Y) - sum(edf.out))
         return(phi_fletcher <- phi_p/(1 + mean(my_s)))
-    }
-    if (!Quasi) {
-        return(phi_fletcher <- 1)
-    }
-    if (scale > 0) {
-        return(phi_fletcher <- scale)
     }
 }
 

@@ -15,6 +15,7 @@
 #' @author  Kaiqiong Zhao
 #' @importFrom graphics abline axis lines par plot
 #' @examples
+#' \dontrun{
 #' #------------------------------------------------------------#
 #' head(RAdat)
 #' RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
@@ -23,6 +24,7 @@
 #'   epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE
 #' )
 #' binomRegMethModelPlot(out, same.range=FALSE)
+#' }
 #' @export
 binomRegMethModelPlot <- function(BEM.obj, mfrow = NULL, same.range = FALSE) {
     ncovs <- ncol(BEM.obj$Beta.out)

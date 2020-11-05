@@ -3,6 +3,7 @@ context("testing hessianComp")
 path_ref_results <- paste(paste(getwd(), "/data/", sep = ""), "ref_results.RDS",
                                                 sep = ""
 )
+
 ref <- readRDS(path_ref_results)
 
 path_ref_input_hessianComp <- paste(paste(getwd(), "/data/", sep = ""), "ref_input_hessianComp.RDS",

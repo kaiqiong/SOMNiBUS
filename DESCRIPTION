@@ -2,7 +2,7 @@ Package: SOMNiBUS
 Title: Smooth modeling of bisulfite sequencing
 Version: 0.1.0
 Author: Kaiqiong Zhao <kaiqiong.zhao@mail.mcgill.ca>
-Maintainer: Simon Laurin-Lemay <simon@mims.ai>
+Maintainer: Kathleen Klein <kathleen.klein@ladydavis.ca>
 Description: Analyse count-based methylation data on predefined
     genomic regions, such as those obtained by targeted sequencing, and
     thus to identify differentially methylated regions (DMRs) that are
@@ -11,7 +11,7 @@ License: MIT + file LICENSE
 URL: https://github.com/kaiqiong/SOMNiBUS
 BugReports: https://github.com/kaiqiong/SOMNiBUS/issues
 Depends:
-    R (>= 4.0.2)
+    R (>= 4.0.0)
 Imports:
     graphics,
     Matrix,
