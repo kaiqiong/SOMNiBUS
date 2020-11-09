@@ -2,7 +2,6 @@
 title: "README"
 output: html_document
 bibliography: [vignettes/bibliography.bib]
-csl: biomed-central.csl
 ---
 
 # SOMNiBUS: SmOoth ModeliNg of BisUlfite Sequencing
