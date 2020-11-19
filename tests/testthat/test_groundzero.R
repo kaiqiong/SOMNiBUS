@@ -28,5 +28,5 @@ print(Sys.time()-time.0)
 # 'saveRDS(out_1, path_ref_data)'
 
 test_that("all values in reference output, saved on disk, equals actual values coming from binomRegMethModel", {
-  expect_true(isTRUE(all.equal(out_1, ref,tolerance = 1e-3)))
+  expect_true(isTRUE(all.equal(out_1, ref,tolerance = 1e-2)))
 })
