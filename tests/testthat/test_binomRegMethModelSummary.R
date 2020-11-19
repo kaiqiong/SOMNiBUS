@@ -24,5 +24,5 @@ s.table <- binomRegMethModelSummary( ref_input_binomRegMethModelSummary$GamObj, 
 test_that("binomRegMethModelSummary provides the correct regional p-value summary", {
     expect_equal(nrow(s.table), 4)
     expect_equal(ncol(s.table), 3)
-    expect_true(isTRUE(all.equal(s.table, ref$reg.out)))
+    expect_true(isTRUE(all.equal(s.table, ref$reg.out, tolerance = 1e-3)))
 })
