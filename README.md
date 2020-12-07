@@ -33,8 +33,8 @@ An example of how to use the package:
 
 ```r
 RAdat.f = na.omit(RAdat[RAdat$Total_Counts != 0,]) # filter the individual CpG sites with zero read-depth
-out = BSMethEM(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9) # run the analysis
-plot_BSMethEM(out) # plot the smooth covariate effect
+out =  binomRegMethModel(data=RAdat.f, n.k = rep(5,3), p0 = 0.003, p1 = 0.9) # run the analysis
+binomRegMethModelPlot(out) # plot the smooth covariate effect
 ```
 
 ![](inst/Figs/BANK1.png)
