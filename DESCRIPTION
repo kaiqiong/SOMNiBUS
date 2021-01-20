@@ -1,6 +1,6 @@
 Package: SOMNiBUS
 Title: Smooth modeling of bisulfite sequencing
-Version: 0.99.3
+Version: 0.99.4
 Authors@R: c(person("Kaiqiong", "Zhao", role = "aut", 
                     email = "kaiqiong.zhao@mail.mcgill.ca"),
              person("Kathleen", "Klein", role = "cre",
@@ -10,7 +10,7 @@ License: MIT + file LICENSE
 URL: https://github.com/kaiqiong/SOMNiBUS
 BugReports: https://github.com/kaiqiong/SOMNiBUS/issues
 Depends:
-    R (>= 4.0.0)
+    R (>= 4.1.0)
 Imports:
     graphics,
     Matrix,
