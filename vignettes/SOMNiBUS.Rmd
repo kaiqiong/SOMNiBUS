@@ -28,14 +28,14 @@ knitr::opts_chunk$set(
 
 # Installation
 
-<!---```{r installation, echo=TRUE, eval=FALSE}
+Install the package SOMNiBUS from Bioconductor.
+
+```{r installation, echo=TRUE, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
-BiocManager::install("SOMNiBUS")
-devtools::install_github("kaiqiong/SOMNiBUS", build_vignettes = TRUE)
--->
 
-Currently, the software package can be installed from [github](https://github.com/kaiqiong/SOMNiBUS).
+BiocManager::install("SOMNiBUS")
+```
 
 ```{r, eval=FALSE, echo=FALSE}
 ROOT_PACKAGE_PATH <- paste(getwd(), "/", sep = "")

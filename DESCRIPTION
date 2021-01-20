@@ -1,6 +1,6 @@
 Package: SOMNiBUS
 Title: Smooth modeling of bisulfite sequencing
-Version: 0.99.1
+Version: 0.99.2
 Authors@R: c(person("Kaiqiong", "Zhao", role = "aut", 
                     email = "kaiqiong.zhao@mail.mcgill.ca"),
              person("Kathleen", "Klein", role = "cre",
