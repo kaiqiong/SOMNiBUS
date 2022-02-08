@@ -1,0 +1,243 @@
+human:
+  default: "hg38"
+  hg38:
+    genes:
+      dependencies: 
+          - "TxDb.Hsapiens.UCSC.hg38.knownGene"
+          - "org.Hs.eg.db"
+      all: "hg38_basicgenes"
+      upstream: "hg38_genes_1to5kb"
+      threeprime: "hg38_genes_3UTRs"
+      fiveprime: "hg38_genes_5UTRs"
+      promoter: "hg38_genes_promoters"
+      exon: "hg38_genes_exons"
+      intron: "hg38_genes_introns"
+  hg19:
+    genes: 
+      dependencies: 
+          - "TxDb.Hsapiens.UCSC.hg19.knownGene"
+          - "org.Hs.eg.db"
+      all: "hg19_basicgenes"
+      upstream: "hg19_genes_1to5kb"
+      threeprime: "hg19_genes_3UTRs"
+      fiveprime: "hg19_genes_5UTRs"
+      promoter: "hg19_genes_promoters"
+      exon: "hg19_genes_exons"
+      intron: "hg19_genes_introns"
+    chromatin:
+      gm12878:
+        all: "hg19_Gm12878-chromatin"
+        ActivePromoter: 'hg19_chromatin_Gm12878-ActivePromoter'
+        Heterochrom: 'hg19_chromatin_Gm12878-Heterochrom/lo'
+        Insulator: 'hg19_chromatin_Gm12878-Insulator'
+        PoisedPromoter: 'hg19_chromatin_Gm12878-PoisedPromoter'
+        RepetitiveCNV: 'hg19_chromatin_Gm12878-Repetitive/CNV'
+        Repressed: 'hg19_chromatin_Gm12878-Repressed'
+        StrongEnhancer: 'hg19_chromatin_Gm12878-StrongEnhancer'
+        TxnElongation: 'hg19_chromatin_Gm12878-TxnElongation'
+        TxnTransition: 'hg19_chromatin_Gm12878-TxnTransition'
+        WeakEnhancer: 'hg19_chromatin_Gm12878-WeakEnhancer'
+        WeakPromoter: 'hg19_chromatin_Gm12878-WeakPromoter'
+        WeakTxn: 'hg19_chromatin_Gm12878-WeakTxn'
+      h1hesc:
+        all: "hg19_H1hesc-chromatin"
+        ActivePromoter: 'hg19_chromatin_H1hesc-ActivePromoter'
+        Heterochrom: 'hg19_chromatin_H1hesc-Heterochrom/lo'
+        Insulator: 'hg19_chromatin_H1hesc-Insulator'
+        PoisedPromoter: 'hg19_chromatin_H1hesc-PoisedPromoter'
+        RepetitiveCNV: 'hg19_chromatin_H1hesc-Repetitive/CNV'
+        Repressed: 'hg19_chromatin_H1hesc-Repressed'
+        StrongEnhancer: 'hg19_chromatin_H1hesc-StrongEnhancer'
+        TxnElongation: 'hg19_chromatin_H1hesc-TxnElongation'
+        TxnTransition: 'hg19_chromatin_H1hesc-TxnTransition'
+        WeakEnhancer: 'hg19_chromatin_H1hesc-WeakEnhancer'
+        WeakPromoter: 'hg19_chromatin_H1hesc-WeakPromoter'
+        WeakTxn: 'hg19_chromatin_H1hesc-WeakTxn'
+      hepg2:
+        all: "hg19_Hepg2-chromatin"
+        ActivePromoter: 'hg19_chromatin_Hepg2-ActivePromoter'
+        Heterochrom: 'hg19_chromatin_Hepg2-Heterochrom/lo'
+        Insulator: 'hg19_chromatin_Hepg2-Insulator'
+        PoisedPromoter: 'hg19_chromatin_Hepg2-PoisedPromoter'
+        RepetitiveCNV: 'hg19_chromatin_Hepg2-Repetitive/CNV'
+        Repressed: 'hg19_chromatin_Hepg2-Repressed'
+        StrongEnhancer: 'hg19_chromatin_Hepg2-StrongEnhancer'
+        TxnElongation: 'hg19_chromatin_Hepg2-TxnElongation'
+        TxnTransition: 'hg19_chromatin_Hepg2-TxnTransition'
+        WeakEnhancer: 'hg19_chromatin_Hepg2-WeakEnhancer'
+        WeakPromoter: 'hg19_chromatin_Hepg2-WeakPromoter'
+        WeakTxn: 'hg19_chromatin_Hepg2-WeakTxn'        
+      hmec:
+        all: "hg19_Hmec-chromatin"
+        ActivePromoter: 'hg19_chromatin_Hmec-ActivePromoter'
+        Heterochrom: 'hg19_chromatin_Hmec-Heterochrom/lo'
+        Insulator: 'hg19_chromatin_Hmec-Insulator'
+        PoisedPromoter: 'hg19_chromatin_Hmec-PoisedPromoter'
+        RepetitiveCNV: 'hg19_chromatin_Hmec-Repetitive/CNV'
+        Repressed: 'hg19_chromatin_Hmec-Repressed'
+        StrongEnhancer: 'hg19_chromatin_Hmec-StrongEnhancer'
+        TxnElongation: 'hg19_chromatin_Hmec-TxnElongation'
+        TxnTransition: 'hg19_chromatin_Hmec-TxnTransition'
+        WeakEnhancer: 'hg19_chromatin_Hmec-WeakEnhancer'
+        WeakPromoter: 'hg19_chromatin_Hmec-WeakPromoter'
+        WeakTxn: 'hg19_chromatin_Hmec-WeakTxn'
+      hsmm:
+        all: "hg19_Hsmm-chromatin"
+        ActivePromoter: 'hg19_chromatin_Hsmm-ActivePromoter'
+        Heterochrom: 'hg19_chromatin_Hsmm-Heterochrom/lo'
+        Insulator: 'hg19_chromatin_Hsmm-Insulator'
+        PoisedPromoter: 'hg19_chromatin_Hsmm-PoisedPromoter'
+        RepetitiveCNV: 'hg19_chromatin_Hsmm-Repetitive/CNV'
+        Repressed: 'hg19_chromatin_Hsmm-Repressed'
+        StrongEnhancer: 'hg19_chromatin_Hsmm-StrongEnhancer'
+        TxnElongation: 'hg19_chromatin_Hsmm-TxnElongation'
+        TxnTransition: 'hg19_chromatin_Hsmm-TxnTransition'
+        WeakEnhancer: 'hg19_chromatin_Hsmm-WeakEnhancer'
+        WeakPromoter: 'hg19_chromatin_Hsmm-WeakPromoter'
+        WeakTxn: 'hg19_chromatin_Hsmm-WeakTxn'
+      huvec:
+        all: "hg19_Huvec-chromatin"
+        ActivePromoter: 'hg19_chromatin_Huvec-ActivePromoter'
+        Heterochrom: 'hg19_chromatin_Huvec-Heterochrom/lo'
+        Insulator: 'hg19_chromatin_Huvec-Insulator'
+        PoisedPromoter: 'hg19_chromatin_Huvec-PoisedPromoter'
+        RepetitiveCNV: 'hg19_chromatin_Huvec-Repetitive/CNV'
+        Repressed: 'hg19_chromatin_Huvec-Repressed'
+        StrongEnhancer: 'hg19_chromatin_Huvec-StrongEnhancer'
+        TxnElongation: 'hg19_chromatin_Huvec-TxnElongation'
+        TxnTransition: 'hg19_chromatin_Huvec-TxnTransition'
+        WeakEnhancer: 'hg19_chromatin_Huvec-WeakEnhancer'
+        WeakPromoter: 'hg19_chromatin_Huvec-WeakPromoter'
+        WeakTxn: 'hg19_chromatin_Huvec-WeakTxn'
+      k562:
+        all: "hg19_K562-chromatin"
+        ActivePromoter: 'hg19_chromatin_K562-ActivePromoter'
+        Heterochrom: 'hg19_chromatin_K562-Heterochrom/lo'
+        Insulator: 'hg19_chromatin_K562-Insulator'
+        PoisedPromoter: 'hg19_chromatin_K562-PoisedPromoter'
+        RepetitiveCNV: 'hg19_chromatin_K562-Repetitive/CNV'
+        Repressed: 'hg19_chromatin_K562-Repressed'
+        StrongEnhancer: 'hg19_chromatin_K562-StrongEnhancer'
+        TxnElongation: 'hg19_chromatin_K562-TxnElongation'
+        TxnTransition: 'hg19_chromatin_K562-TxnTransition'
+        WeakEnhancer: 'hg19_chromatin_K562-WeakEnhancer'
+        WeakPromoter: 'hg19_chromatin_K562-WeakPromoter'
+        WeakTxn: 'hg19_chromatin_K562-WeakTxn'
+      nhek:
+        all: "hg19_Nhek-chromatin"
+        ActivePromoter: 'hg19_chromatin_Nhek-ActivePromoter'
+        Heterochrom: 'hg19_chromatin_Nhek-Heterochrom/lo'
+        Insulator: 'hg19_chromatin_Nhek-Insulator'
+        PoisedPromoter: 'hg19_chromatin_Nhek-PoisedPromoter'
+        RepetitiveCNV: 'hg19_chromatin_Nhek-Repetitive/CNV'
+        Repressed: 'hg19_chromatin_Nhek-Repressed'
+        StrongEnhancer: 'hg19_chromatin_Nhek-StrongEnhancer'
+        TxnElongation: 'hg19_chromatin_Nhek-TxnElongation'
+        TxnTransition: 'hg19_chromatin_Nhek-TxnTransition'
+        WeakEnhancer: 'hg19_chromatin_Nhek-WeakEnhancer'
+        WeakPromoter: 'hg19_chromatin_Nhek-WeakPromoter'
+        WeakTxn: 'hg19_chromatin_Nhek-WeakTxn'
+      nhlf:
+        all: "hg19_Nhlf-chromatin"
+        ActivePromoter: 'hg19_chromatin_Nhlf-ActivePromoter'
+        Heterochrom: 'hg19_chromatin_Nhlf-Heterochrom/lo'
+        Insulator: 'hg19_chromatin_Nhlf-Insulator'
+        PoisedPromoter: 'hg19_chromatin_Nhlf-PoisedPromoter'
+        RepetitiveCNV: 'hg19_chromatin_Nhlf-Repetitive/CNV'
+        Repressed: 'hg19_chromatin_Nhlf-Repressed'
+        StrongEnhancer: 'hg19_chromatin_Nhlf-StrongEnhancer'
+        TxnElongation: 'hg19_chromatin_Nhlf-TxnElongation'
+        TxnTransition: 'hg19_chromatin_Nhlf-TxnTransition'
+        WeakEnhancer: 'hg19_chromatin_Nhlf-WeakEnhancer'
+        WeakPromoter: 'hg19_chromatin_Nhlf-WeakPromoter'
+        WeakTxn: 'hg19_chromatin_Nhlf-WeakTxn'
+mouse:
+  default: "mm10"
+  mm10:
+    genes: 
+      dependencies: 
+          - "TxDb.Mmusculus.UCSC.mm10.knownGene"
+          - "org.Mm.eg.db"
+      all: "mm10_basicgenes"
+      upstream: "mm10_genes_1to5kb"
+      threeprime: "mm10_genes_3UTRs"
+      fiveprime: "mm10_genes_5UTRs"
+      promoter: "mm10_genes_promoters"
+      exon: "mm10_genes_exons"
+      intron: "mm10_genes_introns"
+  mm9:
+    genes:
+      dependencies: 
+          - "TxDb.Mmusculus.UCSC.mm9.knownGene"
+          - "org.Mm.eg.db"
+      all: "mm9_basicgenes"
+      upstream: "mm9_genes_1to5kb"
+      threeprime: "mm9_genes_3UTRs"
+      fiveprime: "mm9_genes_5UTRs"
+      promoter: "mm9_genes_promoters"
+      exon: "mm9_genes_exons"
+      intron: "mm9_genes_introns"  
+rat:
+  default: "rn6"
+  rn4:
+    genes: 
+      dependencies: 
+          - "TxDb.Rnorvegicus.UCSC.rn4.ensGene"
+          - "org.Rn.eg.db"
+      all: "rn4_basicgenes"
+      upstream: "rn4_genes_1to5kb"
+      threeprime: "rn4_genes_3UTRs"
+      fiveprime: "rn4_genes_5UTRs"
+      promoter: "rn4_genes_promoters"
+      exon: "rn4_genes_exons"
+      intron: "rn4_genes_introns" 
+  rn5:
+    genes:
+      dependencies: 
+          - "TxDb.Rnorvegicus.UCSC.rn5.ensGene"
+          - "org.Rn.eg.db"
+      all: "rn5_basicgenes"
+      upstream: "rn5_genes_1to5kb"
+      threeprime: "rn5_genes_3UTRs"
+      fiveprime: "rn5_genes_5UTRs"
+      promoter: "rn5_genes_promoters"
+      exon: "rn5_genes_exons"
+      intron: "rn5_genes_introns"
+  rn6:
+    genes:
+      dependencies: 
+          - "TxDb.Rnorvegicus.UCSC.rn5.ensGene"
+          - "org.Rn.eg.db"
+      all: "rn6_basicgenes"
+      upstream: "rn6_genes_1to5kb"
+      threeprime: "rn6_genes_3UTRs"
+      fiveprime: "rn6_genes_5UTRs"
+      promoter: "rn6_genes_promoters"
+      exon: "rn6_genes_exons"
+      intron: "rn6_genes_introns"
+fly:
+  default: "dm6"
+  dm6:
+    genes: 
+      dependencies: 
+          - "TxDb.Dmelanogaster.UCSC.dm6.ensGene"
+          - "org.Dm.eg.db"
+      all: "dm6_basicgenes"
+      upstream: "dm6_genes_1to5kb"
+      threeprime: "dm6_genes_3UTRs"
+      fiveprime: "dm6_genes_5UTRs"
+      promoter: "dm6_genes_promoters"
+      exon: "dm6_genes_exons"
+      intron: "dm6_genes_introns"
+  dm3:
+    genes:
+      dependencies: 
+          - "TxDb.Dmelanogaster.UCSC.dm3.ensGene"
+          - "org.Dm.eg.db"
+      all: "dm3_basicgenes"
+      upstream: "dm3_genes_1to5kb"
+      threeprime: "dm3_genes_3UTRs"
+      fiveprime: "dm3_genes_5UTRs"
+      promoter: "dm3_genes_promoters"
+      exon: "dm3_genes_exons"
+      intron: "dm3_genes_introns"
