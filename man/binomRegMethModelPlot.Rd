@@ -4,39 +4,61 @@
 \alias{binomRegMethModelPlot}
 \title{Plot the smooth covariate effect}
 \usage{
-binomRegMethModelPlot(BEM.obj, mfrow = NULL, same.range = FALSE)
+binomRegMethModelPlot(
+  BEM.obj,
+  mfrow = NULL,
+  same.range = FALSE,
+  title = "Smooth covariate effects",
+  covs = NULL,
+  save = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{BEM.obj}{an output object from function
-\code{binomRegMethModel}}
+\item{BEM.obj}{an output object from function \code{binomRegMethModel}}
 
-\item{mfrow}{the plot parameters to specify the layout of each plot}
+\item{mfrow}{A vector of the form c(nr, nc). Subsequent figures will
+be drawn in an nr-by-nc array on the device.}
 
 \item{same.range}{specify whether the plots should be in the same
 vertical scale}
+
+\item{title}{the text for the title}
+
+\item{covs}{a vector of covariate names. The covariates with
+names in \code{covs} will be included in the plot.
+When the value is set to NULL all the covariates and the Intercept will be
+represented. The default value is NULL.}
+
+\item{save}{file name to create on disk. When the value is set to NULL,
+the plot is not saved. The default value is NULL.}
+
+\item{verbose}{logical indicates if the algorithm should provide progress
+report information. The default value is TRUE.}
 }
 \value{
 This function prints out a plot of smooth covariate effects
-and
-its pointwise confidence intervals
+and its pointwise confidence intervals
 }
 \description{
 This function accepts an output object from function
 \code{binomRegMethModel} and print out a plot of the estimated
-covariate effect
-across the region for each test covariate.
+effect across the region for each test covariate.
 }
 \examples{
 #------------------------------------------------------------#
+data(RAdat)
 head(RAdat)
 RAdat.f <- na.omit(RAdat[RAdat$Total_Counts != 0, ])
 out <- binomRegMethModel(
   data=RAdat.f, n.k=rep(5, 3), p0=0.003307034, p1=0.9,
-  epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200, detail=FALSE,
+  epsilon=10^(-6), epsilon.lambda=10^(-3), maxStep=200,
   Quasi = FALSE, RanEff = FALSE
 )
 binomRegMethModelPlot(out, same.range=FALSE)
+
+
 }
 \author{
-Kaiqiong Zhao
+Kaiqiong Zhao, Audrey Lemaçon
 }
