@@ -1,21 +1,15 @@
 #' A simulated methylation dataset based on a real data.
 #'
-#' A dataset containing methylation levels on one targeted region
-#' on chromosome 4
-#' near gene BANK1 from cases with rheumatoid arthritis (RA) and
-#' controls
+#' A dataset containing methylation levels on one targeted region on chromosome
+#' 4 near gene BANK1 from cases with rheumatoid arthritis (RA) and controls.
 #'
-#' This example data include methylation levels of cell type
-#' separated blood samples
-#' of 22 rheumatoid arthritis (RA) patients and 21 healthy individuals.
-#' In the data set,
-#' 123 CpG sites are measured and there are 25 samples from circulating
-#' T cells and 18
-#' samples from monocytes.
+#' This example data include methylation levels of cell type separated blood
+#' samples of 22 rheumatoid arthritis (RA) patients and 21 healthy individuals.
+#' In the data set, 123 CpG sites are measured and there are 25 samples from
+#' circulating T cells and 18 samples from monocytes.
 #'
-#' @format A data frame of 5289 rows and 6 columns. Each row represents
-#' a CpG site
-#' for a sample. Columns include in order
+#' @format A data frame of 5289 rows and 6 columns. Each row represents a CpG
+#' site for a sample. Columns include in order:
 #' \describe{
 #'  \item{Meth_Counts}{Number of methylated reads}
 #'  \item{Total_Counts}{Total number of reads; read-depth}

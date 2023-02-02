@@ -4,7 +4,16 @@ Version: 0.99.4
 Authors@R: c(person("Kaiqiong", "Zhao", role = "aut", 
                     email = "kaiqiong.zhao@mail.mcgill.ca"),
              person("Kathleen", "Klein", role = "cre",
-                    email = "kathleen.klein@mail.mcgill.ca"))
+                    email = "kathleen.klein@mail.mcgill.ca"),
+             person("Audrey", "Lemaçon", role = c("ctb","ctr"), 
+                    email = "audrey@mims.ai"),
+             person("Simon", "Laurin-Lemay", role = c("ctb","ctr"),
+                    email = "simon@mims.ai"),
+             person("My Intelligent Machines Inc.", role = "ctr"),
+             person("Celia", "Greenwood" , role = c("ths", "aut"), 
+                    email = "celia.greenwood@mcgill.ca")
+                    )
+Maintainer: Audrey Lemaçon <audrey@mims.ai>
 Description: This package aims to analyse count-based methylation data on predefined genomic regions, such as those obtained by targeted sequencing, and thus to identify differentially methylated regions (DMRs) that are associated with phenotypes or traits. The method is built a rich flexible model that allows for the effects, on the methylation levels, of multiple covariates to vary smoothly along genomic regions. At the same time, this method also allows for sequencing errors and can adjust for variability in cell type mixture. 
 License: MIT + file LICENSE
 URL: https://github.com/kaiqiong/SOMNiBUS
@@ -12,11 +21,24 @@ BugReports: https://github.com/kaiqiong/SOMNiBUS/issues
 Depends:
     R (>= 4.1.0)
 Imports:
-    graphics,
     Matrix,
     mgcv,
     stats,
-    VGAM
+    VGAM,
+    IRanges,
+    GenomeInfoDb,
+    GenomicRanges,
+    rtracklayer,
+    S4Vectors,
+    BiocManager,
+    annotatr,
+    yaml,
+    utils,
+    bsseq,
+    reshape2,
+    data.table,
+    ggplot2, 
+    tidyr,
 Suggests:
     BiocStyle,
     covr,
@@ -25,13 +47,15 @@ Suggests:
     knitr,
     magick,
     rmarkdown,
-    testthat
+    testthat,
+    TxDb.Hsapiens.UCSC.hg38.knownGene,
+    TxDb.Hsapiens.UCSC.hg19.knownGene,
+    org.Hs.eg.db,
 VignetteBuilder:
     knitr
 biocViews: DNAMethylation, Regression, Epigenetics,
     DifferentialMethylation, Sequencing, FunctionalPrediction
 Encoding: UTF-8
 Language: en-US
-LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
