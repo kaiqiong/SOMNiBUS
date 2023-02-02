@@ -8,6 +8,9 @@
 #' In the data set, 123 CpG sites are measured and there are 25 samples from
 #' circulating T cells and 18 samples from monocytes.
 #'
+#' It should be noted that this data example is only for illustration purposes. 
+#' The forward and reverse reads were not merged in this dataset.
+#' Try not to overinterpret the results of this simple example.
 #' @format A data frame of 5289 rows and 6 columns. Each row represents a CpG
 #' site for a sample. Columns include in order:
 #' \describe{
@@ -19,5 +22,5 @@
 #'  \item{RA}{whether a sample is an RA patient or control}
 #' }
 #' @source simulation is based a real data set provided by 
-#' Dr. Marie Hudson (McGill University)
+#' Dr. Marie Hudson (McGill University).
 "RAdat"
