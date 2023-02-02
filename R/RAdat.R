@@ -1,4 +1,4 @@
-#' Methylation data from a rheumatoid arthritis study
+#' A simulated methylation dataset based on a real data.
 #'
 #' A dataset containing methylation levels on one targeted region
 #' on chromosome 4
@@ -24,5 +24,6 @@
 #'  \item{T_cell}{whether a sample is from T cell or monocyte}
 #'  \item{RA}{whether a sample is an RA patient or control}
 #' }
-#' @source Dr. Marie Hudson (McGill University)
+#' @source simulation is based a real data set provided by 
+#' Dr. Marie Hudson (McGill University)
 "RAdat"
