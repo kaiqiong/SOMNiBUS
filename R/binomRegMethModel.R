@@ -1054,7 +1054,8 @@ extractDesignMatrix <- function(GamObj, verbose = TRUE) {
 #' @title testStat from the mgcv package
 #'
 #' @description testStat function is directly copied from the
-#' mgcv package; Implements Wood (2013) Biometrika 100(1), 221-228
+#' package mgcv 1.8-26; Implements Wood (2013)
+#'  Biometrika 100(1), 221-228
 #' @param p the vector of the parameter
 #' @param X R from the QR decomposition for the design matrix
 #' @param V variance-covariance matrix of the vector of the
